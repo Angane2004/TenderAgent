@@ -1,0 +1,207 @@
+{
+    "testCosts": {
+        "Routine Tests as per IS 7098": 15000,
+        "Routine Tests as per IEC 60502": 18000,
+        "Routine Tests as per IS 1554": 8000,
+        "Routine Tests as per IS 14255": 12000,
+        "Type Tests": 45000,
+        "Type Tests (if required)": 45000,
+        "High Voltage Test": 8000,
+        "Impulse Voltage Test": 12000,
+        "Partial Discharge Test": 15000,
+        "Thermal Cycling Test": 20000,
+        "Conductor Resistance Test": 5000,
+        "Flame Retardant Test": 10000,
+        "Insulation Resistance Test": 6000,
+        "UV Resistance Test": 8000,
+        "Weather Resistance Test": 9000,
+        "Tensile Strength Test": 7000,
+        "Fire Survival Test as per BS 6387": 25000,
+        "Smoke Density Test": 12000,
+        "Halogen Acid Gas Test": 10000,
+        "Circuit Integrity Test": 15000
+    },
+    "serviceCosts": {
+        "packaging": 5000,
+        "transportation": 15000,
+        "insurance": 8000,
+        "installation_support": 25000,
+        "documentation": 3000,
+        "warranty_extended": 12000
+    },
+    "skuPricing": [
+        {
+            "sku": "XLPE-11KV-AL-185-SWA",
+            "basePrice": 1250,
+            "historicalPrices": [
+                {
+                    "date": "2025-06-01",
+                    "price": 1180
+                },
+                {
+                    "date": "2025-07-01",
+                    "price": 1200
+                },
+                {
+                    "date": "2025-08-01",
+                    "price": 1220
+                },
+                {
+                    "date": "2025-09-01",
+                    "price": 1230
+                },
+                {
+                    "date": "2025-10-01",
+                    "price": 1240
+                },
+                {
+                    "date": "2025-11-01",
+                    "price": 1250
+                }
+            ],
+            "marketAdjustment": 1.02
+        },
+        {
+            "sku": "XLPE-33KV-CU-240-AWA",
+            "basePrice": 3850,
+            "historicalPrices": [
+                {
+                    "date": "2025-06-01",
+                    "price": 3650
+                },
+                {
+                    "date": "2025-07-01",
+                    "price": 3700
+                },
+                {
+                    "date": "2025-08-01",
+                    "price": 3750
+                },
+                {
+                    "date": "2025-09-01",
+                    "price": 3800
+                },
+                {
+                    "date": "2025-10-01",
+                    "price": 3825
+                },
+                {
+                    "date": "2025-11-01",
+                    "price": 3850
+                }
+            ],
+            "marketAdjustment": 1.03
+        },
+        {
+            "sku": "PVC-1.1KV-CU-2.5-4C",
+            "basePrice": 85,
+            "historicalPrices": [
+                {
+                    "date": "2025-06-01",
+                    "price": 80
+                },
+                {
+                    "date": "2025-07-01",
+                    "price": 81
+                },
+                {
+                    "date": "2025-08-01",
+                    "price": 82
+                },
+                {
+                    "date": "2025-09-01",
+                    "price": 83
+                },
+                {
+                    "date": "2025-10-01",
+                    "price": 84
+                },
+                {
+                    "date": "2025-11-01",
+                    "price": 85
+                }
+            ],
+            "marketAdjustment": 1.01
+        },
+        {
+            "sku": "ABC-0.6/1KV-AL-95-70",
+            "basePrice": 420,
+            "historicalPrices": [
+                {
+                    "date": "2025-06-01",
+                    "price": 395
+                },
+                {
+                    "date": "2025-07-01",
+                    "price": 400
+                },
+                {
+                    "date": "2025-08-01",
+                    "price": 405
+                },
+                {
+                    "date": "2025-09-01",
+                    "price": 410
+                },
+                {
+                    "date": "2025-10-01",
+                    "price": 415
+                },
+                {
+                    "date": "2025-11-01",
+                    "price": 420
+                }
+            ],
+            "marketAdjustment": 1.015
+        },
+        {
+            "sku": "FS-0.6/1KV-CU-4-LSZH-SWA",
+            "basePrice": 385,
+            "historicalPrices": [
+                {
+                    "date": "2025-06-01",
+                    "price": 365
+                },
+                {
+                    "date": "2025-07-01",
+                    "price": 370
+                },
+                {
+                    "date": "2025-08-01",
+                    "price": 375
+                },
+                {
+                    "date": "2025-09-01",
+                    "price": 378
+                },
+                {
+                    "date": "2025-10-01",
+                    "price": 382
+                },
+                {
+                    "date": "2025-11-01",
+                    "price": 385
+                }
+            ],
+            "marketAdjustment": 1.02
+        }
+    ],
+    "marginScenarios": {
+        "low": {
+            "multiplier": 1.08,
+            "description": "Competitive pricing for high-volume orders"
+        },
+        "medium": {
+            "multiplier": 1.15,
+            "description": "Standard margin for regular orders"
+        },
+        "high": {
+            "multiplier": 1.25,
+            "description": "Premium pricing for specialized requirements"
+        },
+        "optimal": {
+            "multiplier": 1.18,
+            "description": "Balanced pricing for best win probability"
+        }
+    }
+}

@@ -1,0 +1,59 @@
+[
+    {
+        "code": "IS 7098 Part 2",
+        "title": "Cables with XLPE insulation for voltages up to and including 33 kV",
+        "category": "Power Cables",
+        "requirements": [
+            "Conductor resistance test",
+            "High voltage test",
+            "Partial discharge test",
+            "Hot set test",
+            "Measurement of insulation thickness"
+        ]
+    },
+    {
+        "code": "IEC 60502-2",
+        "title": "Power cables with extruded insulation - Cables for rated voltages from 6 kV to 30 kV",
+        "category": "Power Cables",
+        "requirements": [
+            "Electrical tests",
+            "Mechanical tests",
+            "Thermal tests",
+            "Environmental tests"
+        ]
+    },
+    {
+        "code": "IS 1554 Part 1",
+        "title": "PVC insulated cables for working voltages up to and including 1100 V",
+        "category": "Control Cables",
+        "requirements": [
+            "Conductor resistance",
+            "Insulation resistance",
+            "High voltage test",
+            "Flame retardant test"
+        ]
+    },
+    {
+        "code": "IS 14255",
+        "title": "Aerial bunched cables for voltages up to and including 1.1 kV",
+        "category": "ABC Cables",
+        "requirements": [
+            "Weather resistance test",
+            "UV resistance test",
+            "Tensile strength test",
+            "Electrical tests"
+        ]
+    },
+    {
+        "code": "BS 6387 Category CWZ",
+        "title": "Performance requirements for cables required to maintain circuit integrity under fire conditions",
+        "category": "Fire Survival Cables",
+        "requirements": [
+            "Fire survival test (950°C for 3 hours)",
+            "Water spray test",
+            "Mechanical shock test",
+            "Low smoke emission",
+            "Zero halogen"
+        ]
+    }
+]

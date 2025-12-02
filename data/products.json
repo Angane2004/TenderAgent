@@ -1,0 +1,240 @@
+[
+    {
+        "sku": "XLPE-11KV-AL-185-SWA",
+        "name": "11kV XLPE Aluminum Armoured Cable",
+        "category": "Medium Voltage Power Cables",
+        "specifications": {
+            "voltage": "11kV",
+            "size": "3C x 185 sq.mm",
+            "conductor": "Aluminum",
+            "insulation": "XLPE",
+            "armoring": "SWA (Steel Wire Armoured)",
+            "standard": "IS 7098 Part 2"
+        },
+        "certifications": [
+            "BIS",
+            "ISO 9001:2015"
+        ],
+        "pricePerMeter": 1250,
+        "available": true
+    },
+    {
+        "sku": "XLPE-11KV-AL-240-SWA",
+        "name": "11kV XLPE Aluminum Armoured Cable - 240 sq.mm",
+        "category": "Medium Voltage Power Cables",
+        "specifications": {
+            "voltage": "11kV",
+            "size": "3C x 240 sq.mm",
+            "conductor": "Aluminum",
+            "insulation": "XLPE",
+            "armoring": "SWA (Steel Wire Armoured)",
+            "standard": "IS 7098 Part 2"
+        },
+        "certifications": [
+            "BIS",
+            "ISO 9001:2015"
+        ],
+        "pricePerMeter": 1580,
+        "available": true
+    },
+    {
+        "sku": "XLPE-11KV-CU-185-SWA",
+        "name": "11kV XLPE Copper Armoured Cable",
+        "category": "Medium Voltage Power Cables",
+        "specifications": {
+            "voltage": "11kV",
+            "size": "3C x 185 sq.mm",
+            "conductor": "Copper",
+            "insulation": "XLPE",
+            "armoring": "SWA (Steel Wire Armoured)",
+            "standard": "IS 7098 Part 2"
+        },
+        "certifications": [
+            "BIS",
+            "ISO 9001:2015"
+        ],
+        "pricePerMeter": 2150,
+        "available": true
+    },
+    {
+        "sku": "XLPE-33KV-CU-240-AWA",
+        "name": "33kV XLPE Copper AWA Cable",
+        "category": "High Voltage Power Cables",
+        "specifications": {
+            "voltage": "33kV",
+            "size": "3C x 240 sq.mm",
+            "conductor": "Copper",
+            "insulation": "XLPE",
+            "armoring": "AWA (Aluminum Wire Armoured)",
+            "standard": "IEC 60502-2"
+        },
+        "certifications": [
+            "IEC",
+            "CPRI",
+            "ISO 9001:2015"
+        ],
+        "pricePerMeter": 3850,
+        "available": true
+    },
+    {
+        "sku": "XLPE-33KV-CU-300-AWA",
+        "name": "33kV XLPE Copper AWA Cable - 300 sq.mm",
+        "category": "High Voltage Power Cables",
+        "specifications": {
+            "voltage": "33kV",
+            "size": "3C x 300 sq.mm",
+            "conductor": "Copper",
+            "insulation": "XLPE",
+            "armoring": "AWA (Aluminum Wire Armoured)",
+            "standard": "IEC 60502-2"
+        },
+        "certifications": [
+            "IEC",
+            "CPRI",
+            "ISO 9001:2015"
+        ],
+        "pricePerMeter": 4650,
+        "available": true
+    },
+    {
+        "sku": "PVC-1.1KV-CU-2.5-4C",
+        "name": "LT Control Cable 4 Core",
+        "category": "Control & Instrumentation Cables",
+        "specifications": {
+            "voltage": "1.1kV",
+            "size": "4C x 2.5 sq.mm",
+            "conductor": "Copper",
+            "insulation": "PVC/FR-PVC",
+            "armoring": "Unarmoured",
+            "standard": "IS 1554 Part 1"
+        },
+        "certifications": [
+            "BIS",
+            "Fire Test",
+            "ISO 9001:2015"
+        ],
+        "pricePerMeter": 85,
+        "available": true
+    },
+    {
+        "sku": "PVC-1.1KV-CU-4-12C",
+        "name": "LT Control Cable 12 Core",
+        "category": "Control & Instrumentation Cables",
+        "specifications": {
+            "voltage": "1.1kV",
+            "size": "12C x 4 sq.mm",
+            "conductor": "Copper",
+            "insulation": "PVC/FR-PVC",
+            "armoring": "Unarmoured",
+            "standard": "IS 1554 Part 1"
+        },
+        "certifications": [
+            "BIS",
+            "Fire Test",
+            "ISO 9001:2015"
+        ],
+        "pricePerMeter": 245,
+        "available": true
+    },
+    {
+        "sku": "ABC-0.6/1KV-AL-95-70",
+        "name": "Aerial Bunched Cable with Neutral",
+        "category": "Aerial Bunched Cables",
+        "specifications": {
+            "voltage": "0.6/1kV",
+            "size": "3C x 95 sq.mm + 1C x 70 sq.mm (Neutral)",
+            "conductor": "Aluminum Alloy",
+            "insulation": "XLPE (UV Resistant)",
+            "armoring": "None (Self-supporting)",
+            "standard": "IS 14255"
+        },
+        "certifications": [
+            "BIS",
+            "Weather Test",
+            "ISO 9001:2015"
+        ],
+        "pricePerMeter": 420,
+        "available": true
+    },
+    {
+        "sku": "ABC-0.6/1KV-AL-120-95",
+        "name": "Aerial Bunched Cable Heavy Duty",
+        "category": "Aerial Bunched Cables",
+        "specifications": {
+            "voltage": "0.6/1kV",
+            "size": "3C x 120 sq.mm + 1C x 95 sq.mm (Neutral)",
+            "conductor": "Aluminum Alloy",
+            "insulation": "XLPE (UV Resistant)",
+            "armoring": "None (Self-supporting)",
+            "standard": "IS 14255"
+        },
+        "certifications": [
+            "BIS",
+            "Weather Test",
+            "ISO 9001:2015"
+        ],
+        "pricePerMeter": 550,
+        "available": true
+    },
+    {
+        "sku": "FS-0.6/1KV-CU-4-LSZH-SWA",
+        "name": "Fire Survival Cable LSZH",
+        "category": "Fire Survival Cables",
+        "specifications": {
+            "voltage": "0.6/1kV",
+            "size": "2C x 4 sq.mm",
+            "conductor": "Copper",
+            "insulation": "LSZH with Mica Tape",
+            "armoring": "SWA (Steel Wire Armoured)",
+            "standard": "BS 6387 Category CWZ"
+        },
+        "certifications": [
+            "BS 6387 CWZ",
+            "LSZH",
+            "RDSO",
+            "ISO 9001:2015"
+        ],
+        "pricePerMeter": 385,
+        "available": true
+    },
+    {
+        "sku": "FS-0.6/1KV-CU-6-LSZH-SWA",
+        "name": "Fire Survival Cable LSZH - 6 sq.mm",
+        "category": "Fire Survival Cables",
+        "specifications": {
+            "voltage": "0.6/1kV",
+            "size": "2C x 6 sq.mm",
+            "conductor": "Copper",
+            "insulation": "LSZH with Mica Tape",
+            "armoring": "SWA (Steel Wire Armoured)",
+            "standard": "BS 6387 Category CWZ"
+        },
+        "certifications": [
+            "BS 6387 CWZ",
+            "LSZH",
+            "RDSO",
+            "ISO 9001:2015"
+        ],
+        "pricePerMeter": 485,
+        "available": true
+    },
+    {
+        "sku": "XLPE-22KV-AL-150-SWA",
+        "name": "22kV XLPE Aluminum Cable",
+        "category": "Medium Voltage Power Cables",
+        "specifications": {
+            "voltage": "22kV",
+            "size": "3C x 150 sq.mm",
+            "conductor": "Aluminum",
+            "insulation": "XLPE",
+            "armoring": "SWA (Steel Wire Armoured)",
+            "standard": "IS 7098 Part 2"
+        },
+        "certifications": [
+            "BIS",
+            "ISO 9001:2015"
+        ],
+        "pricePerMeter": 1680,
+        "available": true
+    }
+]
