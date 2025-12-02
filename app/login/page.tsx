@@ -22,8 +22,11 @@ export default function LoginPage() {
 
         // Simulate login delay
         setTimeout(() => {
-            // Clear local storage for new session
-            localStorage.removeItem('tenderai_rfps')
+            // Save current user for session
+            localStorage.setItem('tenderai_current_user', email)
+
+            // Note: We no longer clear data here, as we want persistence per user.
+            // Data is isolated by the email key in storage.ts
 
             setIsLoading(false)
             setShowAILoading(true)

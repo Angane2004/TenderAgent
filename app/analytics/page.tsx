@@ -6,7 +6,24 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Target, TrendingUp, DollarSign, Award } from "lucide-react"
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts"
 
+import { storage } from "@/lib/storage"
+import { useState, useEffect } from "react"
+
 export default function AnalyticsPage() {
+    const [winRate, setWinRate] = useState("0%")
+    const [revenue, setRevenue] = useState("$0")
+    const [responseCount, setResponseCount] = useState(0)
+
+    useEffect(() => {
+        const rfps = storage.getRFPs()
+        const completed = rfps.filter(r => r.status === 'completed' || r.finalResponse?.status === 'submitted')
+        const totalValue = completed.reduce((acc, r) => acc + (r.pricingStrategy?.totalValue || 0), 0)
+
+        setResponseCount(completed.length)
+        setRevenue(`$${(totalValue / 1000).toFixed(1)}K`)
+        setWinRate(completed.length > 0 ? "78%" : "0%") // Mock win rate for now
+    }, [])
+
     const winRateData = [
         { month: "Jan", rate: 65 },
         { month: "Feb", rate: 72 },
@@ -50,9 +67,9 @@ export default function AnalyticsPage() {
                     {/* KPI Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         {[
-                            { label: "Win Rate", value: "78%", icon: Target, trend: "+5%", color: "bg-blue-500", iconColor: "text-blue-500" },
+                            { label: "Win Rate", value: winRate, icon: Target, trend: "+5%", color: "bg-blue-500", iconColor: "text-blue-500" },
                             { label: "Avg Response Time", value: "2.3 hrs", icon: TrendingUp, trend: "-12%", color: "bg-green-500", iconColor: "text-green-500" },
-                            { label: "Total Revenue", value: "$328K", icon: DollarSign, trend: "+18%", color: "bg-yellow-500", iconColor: "text-yellow-500" },
+                            { label: "Total Revenue", value: revenue, icon: DollarSign, trend: "+18%", color: "bg-yellow-500", iconColor: "text-yellow-500" },
                             { label: "Success Score", value: "92/100", icon: Award, trend: "+3%", color: "bg-purple-500", iconColor: "text-purple-500" }
                         ].map((kpi, i) => (
                             <Card key={i} className="border-2 border-black hover:shadow-lg transition-shadow bg-white">

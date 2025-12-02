@@ -10,18 +10,16 @@ import { Calendar as CalendarIcon, Clock, AlertCircle, Download } from "lucide-r
 import { RFP } from "@/types"
 import Link from "next/link"
 
+import { storage } from "@/lib/storage"
+
 export default function CalendarPage() {
     const [rfps, setRfps] = useState<RFP[]>([])
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        fetch('/data/rfps.json')
-            .then(res => res.json())
-            .then(data => {
-                setRfps(data)
-                setLoading(false)
-            })
-            .catch(() => setLoading(false))
+        const savedRfps = storage.getRFPs()
+        setRfps(savedRfps)
+        setLoading(false)
     }, [])
 
     const getDaysUntil = (deadline: string) => {

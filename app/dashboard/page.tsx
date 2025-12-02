@@ -14,6 +14,8 @@ import { FileText, TrendingUp, Clock, CheckCircle2, Search, Filter } from "lucid
 import { motion } from "framer-motion"
 import { RFP } from "@/types"
 
+import { storage } from "@/lib/storage"
+
 export default function DashboardPage() {
     const [rfps, setRfps] = useState<RFP[]>([])
     const [loading, setLoading] = useState(true)
@@ -22,26 +24,10 @@ export default function DashboardPage() {
     const [isScanning, setIsScanning] = useState(false)
 
     useEffect(() => {
-        // Check localStorage first
-        const savedRfps = localStorage.getItem('tenderai_rfps')
-
-        if (savedRfps) {
-            setRfps(JSON.parse(savedRfps))
-            setLoading(false)
-        } else {
-            // Load RFPs from JSON if no local data
-            fetch('/data/rfps.json')
-                .then(res => res.json())
-                .then(data => {
-                    setRfps(data)
-                    localStorage.setItem('tenderai_rfps', JSON.stringify(data))
-                    setLoading(false)
-                })
-                .catch(err => {
-                    console.error('Error loading RFPs:', err)
-                    setLoading(false)
-                })
-        }
+        // Load RFPs from storage (which now handles user-specific keys)
+        const savedRfps = storage.getRFPs()
+        setRfps(savedRfps)
+        setLoading(false)
     }, [])
 
     const handleScan = () => {
@@ -63,19 +49,9 @@ export default function DashboardPage() {
                         })
                     }
 
-                    // Combine with existing RFPs (optional, or replace as requested "start from 0 to all" implies reset or maybe just new set? 
-                    // The user said "scan... gives us dummy 10 to 20 rfps". 
-                    // Usually scan adds to list or replaces. 
-                    // But the user also said "store that data locally... make it start from 0 to all" for NEW USER LOGIN.
-                    // For scan, I'll assume it REPLACES or ADDS. 
-                    // Let's make it REPLACE to simulate a fresh scan of "live" opportunities, or ADD? 
-                    // "gives us dummy 10 to 20 rfps" - likely just showing those.
-                    // Let's replace for now to keep it clean, or maybe append? 
-                    // If I append, the list grows indefinitely. 
-                    // Let's REPLACE the list with the new scan results to simulate "finding current active tenders".
-
+                    // Replace existing data with new scan (fresh start simulation)
                     setRfps(scannedRfps)
-                    localStorage.setItem('tenderai_rfps', JSON.stringify(scannedRfps))
+                    storage.saveRFPs(scannedRfps)
                     setLoading(false)
                     setIsScanning(false)
                 })
@@ -85,7 +61,7 @@ export default function DashboardPage() {
     const filteredRfps = rfps.filter(rfp => {
         const matchesSearch = rfp.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             rfp.issuedBy.toLowerCase().includes(searchQuery.toLowerCase())
-        
+
         // Check actual status from storage fields
         let status = rfp.status
         if (rfp.finalResponse?.status === 'submitted') {

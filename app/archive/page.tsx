@@ -11,20 +11,18 @@ import { Archive as ArchiveIcon, Search, Download, Calendar } from "lucide-react
 import { RFP } from "@/types"
 import { formatDate } from "@/lib/utils"
 
+import { storage } from "@/lib/storage"
+
 export default function ArchivePage() {
     const [archivedRfps, setArchivedRfps] = useState<RFP[]>([])
     const [searchQuery, setSearchQuery] = useState("")
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        fetch('/data/rfps.json')
-            .then(res => res.json())
-            .then(data => {
-                const completed = data.filter((rfp: RFP) => rfp.status === 'completed')
-                setArchivedRfps(completed)
-                setLoading(false)
-            })
-            .catch(() => setLoading(false))
+        const rfps = storage.getRFPs()
+        const completed = rfps.filter(r => r.status === 'completed' || r.finalResponse?.status === 'submitted')
+        setArchivedRfps(completed)
+        setLoading(false)
     }, [])
 
     const filteredRfps = archivedRfps.filter(rfp =>

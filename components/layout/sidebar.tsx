@@ -14,7 +14,8 @@ import {
     Bot,
     ChevronLeft,
     ChevronRight,
-    LogOut
+    LogOut,
+    CheckCircle2
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -49,6 +50,7 @@ export function Sidebar() {
     const navigation = [
         { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard, color: "text-blue-600" },
         { name: "RFPs", href: "/rfps", icon: FileText, color: "text-green-600" },
+        { name: "Submissions", href: "/submissions", icon: CheckCircle2, color: "text-teal-600" },
         { name: "Calendar", href: "/calendar", icon: BarChart3, color: "text-red-600" },
         { name: "Analytics", href: "/analytics", icon: BarChart3, color: "text-purple-600" },
         { name: "Archive", href: "/archive", icon: Archive, color: "text-orange-600" },
