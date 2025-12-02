@@ -30,7 +30,7 @@ export function formatCurrency(amount: number): string {
     }).format(amount)
 }
 
-export function calculateMatchPercentage(rfpSpecs: any, productSpecs: any): number {
+export function calculateMatchPercentage(rfpSpecs: Record<string, string | number>, productSpecs: Record<string, string | number>): number {
     // Simple matching algorithm
     let matches = 0
     let total = 0
@@ -40,7 +40,7 @@ export function calculateMatchPercentage(rfpSpecs: any, productSpecs: any): numb
     keys.forEach(key => {
         if (rfpSpecs[key] && productSpecs[key]) {
             total++
-            if (rfpSpecs[key].toLowerCase() === productSpecs[key].toLowerCase()) {
+            if (String(rfpSpecs[key]).toLowerCase() === String(productSpecs[key]).toLowerCase()) {
                 matches++
             }
         }

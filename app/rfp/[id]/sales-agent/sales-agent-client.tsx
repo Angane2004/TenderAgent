@@ -22,7 +22,14 @@ export default function SalesAgentClient({ id }: SalesAgentClientProps) {
     const router = useRouter()
     const [rfp, setRfp] = useState<RFP | null>(null)
     const [stage, setStage] = useState<'processing' | 'completed'>('processing')
-    const [summary, setSummary] = useState<any>(null)
+    const [summary, setSummary] = useState<{
+        scopeOfSupply: string;
+        quantity: string;
+        testingRequired: string[];
+        certifications: string[];
+        deliveryTimeline: string;
+        status: 'completed' | 'pending';
+    } | null>(null)
 
     const logs = [
         { message: "Scanning RFP URL and documents...", status: 'completed' as const, progress: 100 },
