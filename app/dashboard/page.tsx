@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button"
 import { FileText, TrendingUp, Clock, CheckCircle2, Search, Filter } from "lucide-react"
 import { motion } from "framer-motion"
 import { RFP } from "@/types"
-
+import { DUMMY_RFPS } from "@/data/dummy-rfps"
 import { storage } from "@/lib/storage"
 
 export default function DashboardPage() {
@@ -34,27 +34,26 @@ export default function DashboardPage() {
         setIsScanning(true)
 
         setTimeout(() => {
-            fetch('/data/rfps.json')
-                .then(res => res.json())
-                .then(data => {
-                    // Generate 10-20 random RFPs
-                    const count = Math.floor(Math.random() * 11) + 10
-                    const scannedRfps = []
+            // Use imported dummy data
+            const data = DUMMY_RFPS
 
-                    for (let i = 0; i < count; i++) {
-                        const randomRfp = data[Math.floor(Math.random() * data.length)]
-                        scannedRfps.push({
-                            ...randomRfp,
-                            id: `${randomRfp.id}-scan-${Date.now()}-${i}`
-                        })
-                    }
+            // Generate 10-20 random RFPs
+            const count = Math.floor(Math.random() * 11) + 10
+            const scannedRfps = []
 
-                    // Replace existing data with new scan (fresh start simulation)
-                    setRfps(scannedRfps)
-                    storage.saveRFPs(scannedRfps)
-                    setLoading(false)
-                    setIsScanning(false)
+            for (let i = 0; i < count; i++) {
+                const randomRfp = data[Math.floor(Math.random() * data.length)]
+                scannedRfps.push({
+                    ...randomRfp,
+                    id: `${randomRfp.id}-scan-${Date.now()}-${i}`
                 })
+            }
+
+            // Replace existing data with new scan (fresh start simulation)
+            setRfps(scannedRfps)
+            storage.saveRFPs(scannedRfps)
+            setLoading(false)
+            setIsScanning(false)
         }, 2000)
     }
 

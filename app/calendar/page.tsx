@@ -47,34 +47,34 @@ X-WR-TIMEZONE:Asia/Kolkata
 `
 
         rfps.forEach(rfp => {
-            const deadline = new Date(rfp.deadline)
-            const dtstart = deadline.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'
+            const date = new Date(rfp.deadline)
+            const dateStr = date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'
 
             icsContent += `BEGIN:VEVENT
 UID:${rfp.id}@tenderagent.com
-DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z
-DTSTART:${dtstart}
-SUMMARY:${rfp.title}
-DESCRIPTION:${rfp.summary}\\n\\nIssued by: ${rfp.issuedBy}\\nFit Score: ${rfp.fitScore}%
-LOCATION:${rfp.issuedBy}
+DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'}
+DTSTART:${dateStr}
+DTEND:${dateStr}
+SUMMARY:Deadline: ${rfp.title}
+DESCRIPTION:${rfp.summary}
 STATUS:CONFIRMED
-SEQUENCE:0
 END:VEVENT
 `
         })
 
         icsContent += 'END:VCALENDAR'
 
-        const blob = new Blob([icsContent], { type: 'text/calendar' })
-        const url = URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = 'tender-deadlines.ics'
-        document.body.appendChild(a)
-        a.click()
-        document.body.removeChild(a)
-        URL.revokeObjectURL(url)
+        const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' })
+        const url = window.URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', 'tender-deadlines.ics')
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
     }
+
+
 
     return (
         <div className="flex min-h-screen bg-gray-50">

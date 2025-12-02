@@ -1,11 +1,16 @@
 import { RFP } from "@/types"
 
-const STORAGE_KEY = 'tenderai_rfps'
+const getCurrentUserKey = () => {
+    if (typeof window === 'undefined') return 'tenderai_rfps_guest'
+    const user = localStorage.getItem('tenderai_current_user')
+    return user ? `tenderai_rfps_${user}` : 'tenderai_rfps_guest'
+}
 
 export const storage = {
     getRFPs: (): RFP[] => {
         if (typeof window === 'undefined') return []
-        const data = localStorage.getItem(STORAGE_KEY)
+        const key = getCurrentUserKey()
+        const data = localStorage.getItem(key)
         return data ? JSON.parse(data) : []
     },
 
@@ -16,7 +21,8 @@ export const storage = {
 
     saveRFPs: (rfps: RFP[]) => {
         if (typeof window === 'undefined') return
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(rfps))
+        const key = getCurrentUserKey()
+        localStorage.setItem(key, JSON.stringify(rfps))
     },
 
     updateRFP: (id: string, updates: Partial<RFP>) => {

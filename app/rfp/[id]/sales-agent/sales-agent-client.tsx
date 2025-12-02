@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge"
 import { ArrowRight, FileText, TestTube, Package } from "lucide-react"
 import { RFP } from "@/types"
 import { storage } from "@/lib/storage"
+import { DUMMY_RFPS } from "@/data/dummy-rfps"
 
 interface SalesAgentClientProps {
     id: string
@@ -36,23 +37,22 @@ export default function SalesAgentClient({ id }: SalesAgentClientProps) {
             // Try storage first
             let foundRfp = storage.getRFP(id)
 
-            // If not in storage, try fetching from JSON (fallback for static IDs)
+            // If not in storage, try using dummy data (fallback for static IDs)
             if (!foundRfp) {
                 try {
-                    const res = await fetch('/data/rfps.json')
-                    const data = await res.json()
+                    const data = DUMMY_RFPS
                     foundRfp = data.find((r: RFP) => r.id === id)
 
-                    // If found in JSON, save to storage for future consistency
+                    // If found in dummy data, save to storage for future consistency
                     if (foundRfp) {
                         const currentStorage = storage.getRFPs()
                         // Check if already exists to avoid duplicates
-                        if (!currentStorage.find(r => r.id === foundRfp.id)) {
+                        if (!currentStorage.find(r => r.id === foundRfp!.id)) {
                             storage.saveRFPs([...currentStorage, foundRfp])
                         }
                     }
                 } catch (error) {
-                    console.error("Error fetching RFP:", error)
+                    console.error("Error finding RFP:", error)
                 }
             }
 

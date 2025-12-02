@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Search, Filter, FileText, TrendingUp, AlertCircle, Clock } from "lucide-react"
 import { RFP } from "@/types"
+import { DUMMY_RFPS } from "@/data/dummy-rfps"
 import { AnimatedTabs } from "@/components/ui/animated-tabs"
 import { motion } from "framer-motion"
 
@@ -20,14 +21,11 @@ export default function RFPsPage() {
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        fetch('/data/rfps.json')
-            .then(res => res.json())
-            .then(data => {
-                setRfps(data)
-                setFilteredRfps(data)
-                setLoading(false)
-            })
-            .catch(() => setLoading(false))
+        // Use dummy data directly
+        const data = DUMMY_RFPS
+        setRfps(data)
+        setFilteredRfps(data)
+        setLoading(false)
     }, [])
 
     useEffect(() => {

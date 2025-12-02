@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { ArrowLeft, FileText, TestTube, Package, Calendar, Building2 } from "lucide-react"
 import { RFP } from "@/types"
 import Link from "next/link"
+import { storage } from "@/lib/storage"
 
 interface RFPDetailsClientProps {
     id: string
@@ -21,14 +22,11 @@ export default function RFPDetailsClient({ id }: RFPDetailsClientProps) {
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        fetch('/data/rfps.json')
-            .then(res => res.json())
-            .then(data => {
-                const foundRfp = data.find((r: RFP) => r.id === id)
-                setRfp(foundRfp)
-                setLoading(false)
-            })
-            .catch(() => setLoading(false))
+        const foundRfp = storage.getRFP(id)
+        if (foundRfp) {
+            setRfp(foundRfp)
+        }
+        setLoading(false)
     }, [id])
 
     if (loading) {
@@ -91,8 +89,8 @@ export default function RFPDetailsClient({ id }: RFPDetailsClientProps) {
                                 <Badge
                                     variant="outline"
                                     className={`border-2 ${rfp.riskScore === 'low' ? 'border-green-600 text-green-600 bg-green-50' :
-                                            rfp.riskScore === 'medium' ? 'border-yellow-600 text-yellow-600 bg-yellow-50' :
-                                                'border-red-600 text-red-600 bg-red-50'
+                                        rfp.riskScore === 'medium' ? 'border-yellow-600 text-yellow-600 bg-yellow-50' :
+                                            'border-red-600 text-red-600 bg-red-50'
                                         }`}
                                 >
                                     {rfp.riskScore.toUpperCase()} RISK
