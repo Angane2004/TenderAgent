@@ -29,7 +29,7 @@ if (isFirebaseConfigured) {
         app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]
         database = getDatabase(app)
         console.log('✅ Firebase initialized successfully')
-    } catch (error) {
+    } catch {
         console.warn('⚠️ Firebase initialization failed, using localStorage fallback')
         app = null
         database = null

@@ -1,5 +1,3 @@
-import { ref, set, get, update, onValue } from 'firebase/database'
-import { database, isFirebaseConfigured } from './firebase'
 import { RFP } from '@/types'
 
 // Helper to check if Firebase is available - NEVER returns true if database is null
@@ -14,6 +12,7 @@ export async function getAllSubmittedRFPs(): Promise<Array<RFP & { userId: strin
 }
 
 // Save user profile
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function saveUserProfile(userId: string, profile: any) {
     // Always use localStorage
     if (typeof window !== 'undefined') {
@@ -33,6 +32,7 @@ export async function getUserProfile(userId: string) {
 }
 
 // Save user settings
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function saveUserSettings(userId: string, settings: any) {
     // Always use localStorage
     if (typeof window !== 'undefined') {

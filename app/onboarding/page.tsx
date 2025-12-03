@@ -181,7 +181,7 @@ export default function OnboardingPage() {
                         </h4>
                         <ul className="text-sm text-gray-700 space-y-1 ml-7">
                             <li>• AI will scan for relevant tenders based on your criteria</li>
-                            <li>• You'll receive notifications for matching opportunities</li>
+                            <li>• You&apos;ll receive notifications for matching opportunities</li>
                             <li>• Automated RFP response generation will be available</li>
                             <li>• Track all your submissions in one dashboard</li>
                         </ul>
@@ -210,8 +210,8 @@ export default function OnboardingPage() {
                         {steps.map((s, index) => (
                             <div key={s.number} className="flex items-center flex-1">
                                 <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all ${step >= s.number
-                                        ? 'bg-black border-black text-white'
-                                        : 'bg-white border-gray-300 text-gray-400'
+                                    ? 'bg-black border-black text-white'
+                                    : 'bg-white border-gray-300 text-gray-400'
                                     }`}>
                                     {step > s.number ? (
                                         <CheckCircle2 className="h-5 w-5" />

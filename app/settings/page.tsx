@@ -59,6 +59,7 @@ export default function SettingsPage() {
         setSaving(false)
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleChange = (key: string, value: any) => {
         setSettings(prev => ({ ...prev, [key]: value }))
     }
