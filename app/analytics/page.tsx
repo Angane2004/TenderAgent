@@ -7,6 +7,7 @@ import { Target, TrendingUp, DollarSign, Award } from "lucide-react"
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts"
 
 import { storage } from "@/lib/storage"
+import GradientBackground from "@/components/background/gradient-background"
 import { useState, useEffect } from "react"
 
 export default function AnalyticsPage() {
@@ -15,13 +16,32 @@ export default function AnalyticsPage() {
     const [responseCount, setResponseCount] = useState(0)
 
     useEffect(() => {
-        const rfps = storage.getRFPs()
-        const completed = rfps.filter(r => r.status === 'completed' || r.finalResponse?.status === 'submitted')
-        const totalValue = completed.reduce((acc, r) => acc + (r.pricingStrategy?.totalValue || 0), 0)
+        const updateAnalytics = () => {
+            const rfps = storage.getRFPs()
+            const completed = rfps.filter(r => r.status === 'completed' || r.finalResponse?.status === 'submitted')
+            const totalValue = completed.reduce((acc, r) => acc + (r.pricingStrategy?.totalValue || 0), 0)
 
-        setResponseCount(completed.length)
-        setRevenue(`$${(totalValue / 1000).toFixed(1)}K`)
-        setWinRate(completed.length > 0 ? "78%" : "0%") // Mock win rate for now
+            setResponseCount(completed.length)
+            setRevenue(`$${(totalValue / 1000).toFixed(1)}K`)
+            setWinRate(completed.length > 0 ? "78%" : "0%") // Mock win rate for now
+        }
+
+        // Initial load
+        updateAnalytics()
+
+        // Listen for storage changes
+        const handleStorageChange = () => {
+            updateAnalytics()
+        }
+
+        window.addEventListener('storage', handleStorageChange)
+        // Also listen for custom event when RFPs are updated
+        window.addEventListener('rfpsUpdated', handleStorageChange)
+
+        return () => {
+            window.removeEventListener('storage', handleStorageChange)
+            window.removeEventListener('rfpsUpdated', handleStorageChange)
+        }
     }, [])
 
     const winRateData = [
@@ -52,7 +72,8 @@ export default function AnalyticsPage() {
     const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#8B5CF6']
 
     return (
-        <div className="flex min-h-screen bg-gray-50">
+        <div className="flex min-h-screen bg-gray-50 relative">
+            <GradientBackground />
             <Sidebar />
 
             <div className="flex-1">

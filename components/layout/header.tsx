@@ -8,9 +8,20 @@ import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
 
-export function Header() {
+interface HeaderProps {
+    onSearch?: (query: string) => void
+}
+
+export function Header({ onSearch }: HeaderProps = {}) {
     const [notificationOpen, setNotificationOpen] = useState(false)
     const [settingsOpen, setSettingsOpen] = useState(false)
+    const [searchQuery, setSearchQuery] = useState("")
+
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const query = e.target.value
+        setSearchQuery(query)
+        onSearch?.(query)
+    }
 
     const notifications = [
         { id: 1, title: "New RFP Available", message: "11kV XLPE Cable tender from MSEB", time: "5 min ago", unread: true },
@@ -26,6 +37,8 @@ export function Header() {
                     <Input
                         placeholder="Search RFPs, analytics, or settings..."
                         className="pl-10 border-2 border-black focus:ring-black focus:border-black"
+                        value={searchQuery}
+                        onChange={handleSearchChange}
                     />
                 </div>
             </div>

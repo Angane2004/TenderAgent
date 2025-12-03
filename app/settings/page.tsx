@@ -1,61 +1,156 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useUser } from "@clerk/nextjs"
 import { Sidebar } from "@/components/layout/sidebar"
 import { Header } from "@/components/layout/header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { User, Bell, Shield, Database, Save } from "lucide-react"
+import { Switch } from "@/components/ui/switch"
+import { motion } from "framer-motion"
+import { Settings, User, Bell, Palette, Save, CheckCircle2 } from "lucide-react"
+import GradientBackground from "@/components/background/gradient-background"
+import { saveUserSettings, getUserSettings } from "@/lib/firebase-storage"
 
 export default function SettingsPage() {
+    const { user } = useUser()
+    const [loading, setLoading] = useState(true)
+    const [saving, setSaving] = useState(false)
     const [saved, setSaved] = useState(false)
 
-    const handleSave = () => {
-        setSaved(true)
-        setTimeout(() => setSaved(false), 2000)
+    const [settings, setSettings] = useState({
+        emailNotifications: true,
+        deadlineReminders: true,
+        weeklyDigest: false,
+        theme: "light",
+        companyName: "",
+        defaultCurrency: "USD",
+        timezone: "UTC"
+    })
+
+    useEffect(() => {
+        if (user?.id) {
+            loadSettings()
+        }
+    }, [user?.id])
+
+    const loadSettings = async () => {
+        if (!user?.id) return
+
+        const savedSettings = await getUserSettings(user.id)
+        if (savedSettings) {
+            setSettings(savedSettings)
+        }
+        setLoading(false)
+    }
+
+    const handleSave = async () => {
+        if (!user?.id) return
+
+        setSaving(true)
+        const success = await saveUserSettings(user.id, settings)
+
+        if (success) {
+            setSaved(true)
+            setTimeout(() => setSaved(false), 3000)
+        }
+        setSaving(false)
+    }
+
+    const handleChange = (key: string, value: any) => {
+        setSettings(prev => ({ ...prev, [key]: value }))
     }
 
     return (
-        <div className="flex min-h-screen bg-gray-50">
+        <div className="flex min-h-screen bg-gray-50 relative">
+            <GradientBackground />
             <Sidebar />
 
             <div className="flex-1">
                 <Header />
 
                 <main className="p-6 space-y-6">
-                    <div>
-                        <h1 className="text-3xl font-bold">Settings</h1>
-                        <p className="text-gray-600 mt-1">Manage your account and preferences</p>
+                    {/* Page Header */}
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h1 className="text-3xl font-bold">Settings</h1>
+                            <p className="text-gray-600 mt-1">Manage your account preferences</p>
+                        </div>
+                        <Button
+                            onClick={handleSave}
+                            disabled={saving}
+                            className="bg-black text-white hover:bg-gray-800"
+                        >
+                            {saved ? (
+                                <>
+                                    <CheckCircle2 className="h-4 w-4 mr-2" />
+                                    Saved!
+                                </>
+                            ) : (
+                                <>
+                                    <Save className="h-4 w-4 mr-2" />
+                                    {saving ? "Saving..." : "Save Changes"}
+                                </>
+                            )}
+                        </Button>
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        {/* Profile Settings */}
+                    {/* Profile Settings */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                    >
                         <Card className="border-2 border-black">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
                                     <User className="h-5 w-5" />
-                                    Profile Settings
+                                    Profile Information
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                <div>
-                                    <Label>Full Name</Label>
-                                    <Input defaultValue="Demo User" className="mt-1 border-2 border-black" />
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>Full Name</Label>
+                                        <Input
+                                            value={user?.fullName || ""}
+                                            disabled
+                                            className="border-2 border-gray-300"
+                                        />
+                                        <p className="text-xs text-gray-500">Managed by Clerk</p>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Email</Label>
+                                        <Input
+                                            value={user?.primaryEmailAddress?.emailAddress || ""}
+                                            disabled
+                                            className="border-2 border-gray-300"
+                                        />
+                                        <p className="text-xs text-gray-500">Managed by Clerk</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <Label>Email</Label>
-                                    <Input defaultValue="manager@company.com" className="mt-1 border-2 border-black" />
-                                </div>
-                                <div>
-                                    <Label>Company</Label>
-                                    <Input defaultValue="Acme Cables Ltd." className="mt-1 border-2 border-black" />
+
+                                <div className="space-y-2">
+                                    <Label>Company Name</Label>
+                                    <Input
+                                        value={settings.companyName}
+                                        onChange={(e) => handleChange("companyName", e.target.value)}
+                                        placeholder="Enter your company name"
+                                        className="border-2 border-gray-300 focus:border-black"
+                                    />
                                 </div>
                             </CardContent>
                         </Card>
+                    </motion.div>
 
-                        {/* Notification Settings */}
+                    {/* Notification Settings */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                    >
                         <Card className="border-2 border-black">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
@@ -64,86 +159,89 @@ export default function SettingsPage() {
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div className="flex items-center justify-between">
                                     <div>
                                         <p className="font-medium">Email Notifications</p>
-                                        <p className="text-sm text-gray-600">Receive RFP alerts via email</p>
+                                        <p className="text-sm text-gray-600">Receive email updates about your RFPs</p>
                                     </div>
-                                    <input type="checkbox" defaultChecked className="w-5 h-5" />
+                                    <Switch
+                                        checked={settings.emailNotifications}
+                                        onCheckedChange={(checked) => handleChange("emailNotifications", checked)}
+                                    />
                                 </div>
-                                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+
+                                <div className="flex items-center justify-between">
                                     <div>
-                                        <p className="font-medium">SMS Alerts</p>
-                                        <p className="text-sm text-gray-600">Get urgent RFP notifications</p>
+                                        <p className="font-medium">Deadline Reminders</p>
+                                        <p className="text-sm text-gray-600">Get notified before RFP deadlines</p>
                                     </div>
-                                    <input type="checkbox" className="w-5 h-5" />
+                                    <Switch
+                                        checked={settings.deadlineReminders}
+                                        onCheckedChange={(checked) => handleChange("deadlineReminders", checked)}
+                                    />
                                 </div>
-                                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+
+                                <div className="flex items-center justify-between">
                                     <div>
-                                        <p className="font-medium">Weekly Reports</p>
-                                        <p className="text-sm text-gray-600">Performance summary emails</p>
+                                        <p className="font-medium">Weekly Digest</p>
+                                        <p className="text-sm text-gray-600">Receive a weekly summary of your activity</p>
                                     </div>
-                                    <input type="checkbox" defaultChecked className="w-5 h-5" />
+                                    <Switch
+                                        checked={settings.weeklyDigest}
+                                        onCheckedChange={(checked) => handleChange("weeklyDigest", checked)}
+                                    />
                                 </div>
                             </CardContent>
                         </Card>
+                    </motion.div>
 
-                        {/* Security Settings */}
+                    {/* Preferences */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                    >
                         <Card className="border-2 border-black">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
-                                    <Shield className="h-5 w-5" />
-                                    Security
+                                    <Settings className="h-5 w-5" />
+                                    Preferences
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                <div>
-                                    <Label>Current Password</Label>
-                                    <Input type="password" placeholder="••••••••" className="mt-1 border-2 border-black" />
-                                </div>
-                                <div>
-                                    <Label>New Password</Label>
-                                    <Input type="password" placeholder="••••••••" className="mt-1 border-2 border-black" />
-                                </div>
-                                <div>
-                                    <Label>Confirm Password</Label>
-                                    <Input type="password" placeholder="••••••••" className="mt-1 border-2 border-black" />
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>Default Currency</Label>
+                                        <select
+                                            value={settings.defaultCurrency}
+                                            onChange={(e) => handleChange("defaultCurrency", e.target.value)}
+                                            className="w-full px-3 py-2 border-2 border-gray-300 rounded-md focus:border-black focus:outline-none"
+                                        >
+                                            <option value="USD">USD ($)</option>
+                                            <option value="EUR">EUR (€)</option>
+                                            <option value="GBP">GBP (£)</option>
+                                            <option value="INR">INR (₹)</option>
+                                        </select>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label>Timezone</Label>
+                                        <select
+                                            value={settings.timezone}
+                                            onChange={(e) => handleChange("timezone", e.target.value)}
+                                            className="w-full px-3 py-2 border-2 border-gray-300 rounded-md focus:border-black focus:outline-none"
+                                        >
+                                            <option value="UTC">UTC</option>
+                                            <option value="America/New_York">Eastern Time</option>
+                                            <option value="America/Los_Angeles">Pacific Time</option>
+                                            <option value="Europe/London">London</option>
+                                            <option value="Asia/Kolkata">India</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </CardContent>
                         </Card>
-
-                        {/* Data Settings */}
-                        <Card className="border-2 border-black">
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <Database className="h-5 w-5" />
-                                    Data Management
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <Button variant="outline" className="w-full border-2 border-black hover:bg-black hover:text-white">
-                                    Export All Data
-                                </Button>
-                                <Button variant="outline" className="w-full border-2 border-black hover:bg-black hover:text-white">
-                                    Clear Cache
-                                </Button>
-                                <Button variant="outline" className="w-full border-2 border-red-600 text-red-600 hover:bg-red-600 hover:text-white">
-                                    Delete Account
-                                </Button>
-                            </CardContent>
-                        </Card>
-                    </div>
-
-                    {/* Save Button */}
-                    <div className="flex justify-end">
-                        <Button
-                            onClick={handleSave}
-                            className="bg-black text-white hover:bg-gray-800 px-8"
-                        >
-                            <Save className="h-4 w-4 mr-2" />
-                            {saved ? "Saved!" : "Save Changes"}
-                        </Button>
-                    </div>
+                    </motion.div>
                 </main>
             </div>
         </div>

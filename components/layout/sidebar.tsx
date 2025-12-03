@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
+import { useUser, SignOutButton } from "@clerk/nextjs"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -22,6 +23,7 @@ import { motion, AnimatePresence } from "framer-motion"
 export function Sidebar() {
     const pathname = usePathname()
     const router = useRouter()
+    const { user } = useUser()
     const [collapsed, setCollapsed] = useState(false)
     const [mounted, setMounted] = useState(false)
     const [isLoggingOut, setIsLoggingOut] = useState(false)
@@ -258,21 +260,22 @@ export function Sidebar() {
                     <div className="p-4 border-t-2 border-black space-y-2">
                         {!collapsed && (
                             <div className="px-3 py-2 bg-gray-50 rounded-lg border border-gray-200">
-                                <div className="text-sm font-medium">Demo User</div>
-                                <div className="text-xs text-gray-500">manager@company.com</div>
+                                <div className="text-sm font-medium truncate">{user?.fullName || user?.firstName || "User"}</div>
+                                <div className="text-xs text-gray-500 truncate">{user?.primaryEmailAddress?.emailAddress || "user@example.com"}</div>
                             </div>
                         )}
-                        <Button
-                            onClick={handleLogout}
-                            variant="outline"
-                            className={cn(
-                                "w-full border-2 border-black hover:bg-black hover:text-white transition-all duration-200",
-                                collapsed && "px-2"
-                            )}
-                        >
-                            <LogOut className={cn("h-4 w-4", !collapsed && "mr-2")} />
-                            {!collapsed && "Logout"}
-                        </Button>
+                        <SignOutButton>
+                            <Button
+                                variant="outline"
+                                className={cn(
+                                    "w-full border-2 border-black hover:bg-black hover:text-white transition-all duration-200",
+                                    collapsed && "px-2"
+                                )}
+                            >
+                                <LogOut className={cn("h-4 w-4", !collapsed && "mr-2")} />
+                                {!collapsed && "Logout"}
+                            </Button>
+                        </SignOutButton>
                     </div>
 
                     {/* Collapse Toggle */}

@@ -4,7 +4,7 @@ import Link from "next/link"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Calendar, Building2, Clock, TrendingUp, AlertCircle } from "lucide-react"
+import { Calendar, Building2, Clock, TrendingUp, AlertCircle, DollarSign } from "lucide-react"
 import { RFP } from "@/types"
 import { getDaysUntil, formatDate } from "@/lib/utils"
 
@@ -102,6 +102,34 @@ export function RFPCard({ rfp }: RFPCardProps) {
                     <Badge variant="outline" className="text-xs border-black">
                         {rfp.specifications.quantity.toLocaleString()} meters
                     </Badge>
+                </div>
+
+                {/* Profit & Price Section */}
+                <div className="mt-4 p-3 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-lg">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <DollarSign className="h-5 w-5 text-green-600" />
+                            <div>
+                                <p className="text-xs text-gray-600">Estimated Value</p>
+                                <p className="text-lg font-bold text-green-700">
+                                    ${(rfp.pricingStrategy?.totalValue || Math.random() * 500000 + 100000).toLocaleString('en-US', { maximumFractionDigits: 0 })}
+                                </p>
+                            </div>
+                        </div>
+                        <div className="text-right">
+                            <p className="text-xs text-gray-600">Profitability</p>
+                            <Badge className={cn(
+                                "text-xs font-bold",
+                                (rfp.fitScore || 0) >= 80 ? "bg-green-600" :
+                                    (rfp.fitScore || 0) >= 60 ? "bg-yellow-600" :
+                                        "bg-orange-600"
+                            )}>
+                                {(rfp.fitScore || 0) >= 80 ? "HIGH" :
+                                    (rfp.fitScore || 0) >= 60 ? "MEDIUM" :
+                                        "LOW"}
+                            </Badge>
+                        </div>
+                    </div>
                 </div>
             </CardContent>
 

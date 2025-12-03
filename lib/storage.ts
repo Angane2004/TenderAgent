@@ -23,6 +23,8 @@ export const storage = {
         if (typeof window === 'undefined') return
         const key = getCurrentUserKey()
         localStorage.setItem(key, JSON.stringify(rfps))
+        // Dispatch custom event to notify listeners
+        window.dispatchEvent(new Event('rfpsUpdated'))
     },
 
     updateRFP: (id: string, updates: Partial<RFP>) => {
