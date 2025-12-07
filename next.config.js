@@ -10,10 +10,6 @@ const nextConfig = {
     },
     // Optimize production builds
     productionBrowserSourceMaps: false,
-    // Enable React compiler optimizations
-    experimental: {
-        optimizeCss: true,
-    },
     // Ignore ESLint and TypeScript errors during build
     eslint: {
         ignoreDuringBuilds: true,
