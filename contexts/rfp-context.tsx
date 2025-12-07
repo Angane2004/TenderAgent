@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, useCallback, ReactNode } from "react"
+import { createContext, useContext, useState, useCallback, ReactNode, useEffect } from "react"
 import { RFP } from "@/types"
 import { DUMMY_RFPS } from "@/data/dummy-rfps"
 
@@ -13,10 +13,26 @@ interface RFPContextType {
 
 const RFPContext = createContext<RFPContextType | undefined>(undefined)
 
+const STORAGE_KEY = 'tenderai_scanned_rfps'
+
 export function RFPProvider({ children }: { children: ReactNode }) {
     const [rfps, setRfps] = useState<RFP[]>([])
     const [isScanning, setIsScanning] = useState(false)
     const [hasScanned, setHasScanned] = useState(false)
+
+    // Load RFPs from localStorage on mount
+    useEffect(() => {
+        try {
+            const savedRfps = localStorage.getItem(STORAGE_KEY)
+            if (savedRfps) {
+                const parsed = JSON.parse(savedRfps)
+                setRfps(parsed)
+                setHasScanned(parsed.length > 0)
+            }
+        } catch (error) {
+            console.error('Error loading RFPs from localStorage:', error)
+        }
+    }, [])
 
     const scanForRFPs = useCallback(() => {
         setIsScanning(true)
@@ -35,9 +51,17 @@ export function RFPProvider({ children }: { children: ReactNode }) {
                 })
             }
 
+            // Save to state
             setRfps(scannedRfps)
             setIsScanning(false)
             setHasScanned(true)
+
+            // Save to localStorage
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(scannedRfps))
+            } catch (error) {
+                console.error('Error saving RFPs to localStorage:', error)
+            }
         }, 2000)
     }, [])
 
