@@ -39,21 +39,21 @@ export default function LandingPage() {
             title: "Sales Discovery",
             description: "AI scans and extracts RFP specifications automatically from emails, portals, and documents",
             icon: FileSearch,
-            image: "/sales_dis.png"
+            image: "/sales_dis.jpeg"
         },
         {
             step: 2,
             title: "Master Orchestration",
             description: "Coordinates specialized agents and calculates win probability based on historical data",
             icon: Brain,
-            image: "/mast_orch.png"
+            image: "/mast_orch.jpeg"
         },
         {
             step: 3,
             title: "Technical Matching",
             description: "Matches SKUs with 95%+ accuracy and validates compliance with industry standards",
             icon: Shield,
-            image: "/tech.png"
+            image: "/tech.jpeg"
         },
         {
             step: 4,
