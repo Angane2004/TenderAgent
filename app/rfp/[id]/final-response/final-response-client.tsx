@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { FileText, Download, Send, CheckCircle } from "lucide-react"
 import { RFP } from "@/types"
-import { storage } from "@/lib/storage"
+import { useRFPs } from "@/contexts/rfp-context"
 import jsPDF from "jspdf"
 
 interface FinalResponseClientProps {
@@ -18,19 +18,20 @@ interface FinalResponseClientProps {
 
 export default function FinalResponseClient({ id }: FinalResponseClientProps) {
     const router = useRouter()
+    const { rfps, updateRFP } = useRFPs()
     const [rfp, setRfp] = useState<RFP | null>(null)
     const [isGenerating, setIsGenerating] = useState(false)
     const [isSubmitted, setIsSubmitted] = useState(false)
 
     useEffect(() => {
-        const foundRfp = storage.getRFP(id)
+        const foundRfp = rfps.find(r => r.id === id)
         if (foundRfp) {
             setRfp(foundRfp)
             if (foundRfp.finalResponse?.status === 'submitted') {
                 setIsSubmitted(true)
             }
         }
-    }, [id])
+    }, [id, rfps])
 
     const generatePDF = () => {
         setIsGenerating(true)
@@ -63,7 +64,7 @@ export default function FinalResponseClient({ id }: FinalResponseClientProps) {
 
     const handleSubmit = () => {
         setIsSubmitted(true)
-        storage.updateRFP(id, {
+        updateRFP(id, {
             status: 'completed',
             finalResponse: {
                 generatedAt: new Date().toISOString(),
@@ -75,20 +76,27 @@ export default function FinalResponseClient({ id }: FinalResponseClientProps) {
 
     if (!rfp) {
         return (
-            <div className="flex min-h-screen items-center justify-center bg-gray-50">
+            <div className="flex h-screen items-center justify-center bg-gradient-to-br from-purple-50 via-gray-50 to-blue-50">
                 <div className="h-8 w-8 border-4 border-black border-t-transparent rounded-full animate-spin" />
             </div>
         )
     }
 
     return (
-        <div className="flex min-h-screen bg-gray-50">
+        <div className="flex h-screen bg-gradient-to-br from-purple-50 via-gray-50 to-blue-50 relative overflow-hidden">
+            {/* Animated background blobs */}
+            <div className="absolute inset-0 opacity-20 pointer-events-none">
+                <div className="absolute top-20 left-20 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob" />
+                <div className="absolute top-40 right-20 w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000" />
+                <div className="absolute bottom-20 left-1/2 w-96 h-96 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000" />
+            </div>
+
             <Sidebar />
 
-            <div className="flex-1">
+            <div className="flex-1 flex flex-col h-screen">
                 <Header />
 
-                <main className="p-6 space-y-6">
+                <main className="flex-1 overflow-y-auto p-6 space-y-6">
                     <div>
                         <h1 className="text-3xl font-bold">Final Response Generation</h1>
                         <p className="text-gray-600 mt-1">Review and submit response for: {rfp.title}</p>

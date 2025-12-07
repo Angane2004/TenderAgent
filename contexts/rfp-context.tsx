@@ -9,6 +9,7 @@ interface RFPContextType {
     isScanning: boolean
     hasScanned: boolean
     scanForRFPs: () => void
+    updateRFP: (id: string, updates: Partial<RFP>) => void
 }
 
 const RFPContext = createContext<RFPContextType | undefined>(undefined)
@@ -70,8 +71,27 @@ export function RFPProvider({ children }: { children: ReactNode }) {
         }, 2000)
     }, [])
 
+    const updateRFP = useCallback((id: string, updates: Partial<RFP>) => {
+        setRfps(currentRfps => {
+            const updatedRfps = currentRfps.map(rfp =>
+                rfp.id === id ? { ...rfp, ...updates } : rfp
+            )
+
+            // Save to localStorage
+            if (typeof window !== 'undefined') {
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedRfps))
+                } catch (error) {
+                    console.error('Error saving updated RFPs to localStorage:', error)
+                }
+            }
+
+            return updatedRfps
+        })
+    }, [])
+
     return (
-        <RFPContext.Provider value={{ rfps, isScanning, hasScanned, scanForRFPs }}>
+        <RFPContext.Provider value={{ rfps, isScanning, hasScanned, scanForRFPs, updateRFP }}>
             {children}
         </RFPContext.Provider>
     )
