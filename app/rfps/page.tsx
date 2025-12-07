@@ -114,12 +114,12 @@ export default function RFPsPage() {
         setSearchQuery(e.target.value)
     }, [])
 
-    const filters = [
+    const filters = useMemo(() => [
         { label: "All", value: "all" },
         { label: "New", value: "new" },
         { label: "In Progress", value: "in-progress" },
         { label: "Completed", value: "completed" }
-    ]
+    ], [])
 
     const handleTabChange = useCallback((label: string) => {
         const filter = filters.find(f => f.label === label)
