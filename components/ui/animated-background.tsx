@@ -67,6 +67,7 @@ export function AnimatedBackground({
 
         const interval = setInterval(typeText, isDeleting ? 50 : 100)
         return () => clearInterval(interval)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [showCursor])
 
     // Mouse tracking for interactive particles

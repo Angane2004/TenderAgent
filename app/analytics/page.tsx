@@ -13,7 +13,6 @@ import { useState, useEffect } from "react"
 export default function AnalyticsPage() {
     const [winRate, setWinRate] = useState("0%")
     const [revenue, setRevenue] = useState("$0")
-    const [responseCount, setResponseCount] = useState(0)
 
     useEffect(() => {
         const updateAnalytics = () => {
@@ -21,7 +20,6 @@ export default function AnalyticsPage() {
             const completed = rfps.filter(r => r.status === 'completed' || r.finalResponse?.status === 'submitted')
             const totalValue = completed.reduce((acc, r) => acc + (r.pricingStrategy?.totalValue || 0), 0)
 
-            setResponseCount(completed.length)
             setRevenue(`$${(totalValue / 1000).toFixed(1)}K`)
             setWinRate(completed.length > 0 ? "78%" : "0%") // Mock win rate for now
         }

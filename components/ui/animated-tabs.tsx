@@ -14,7 +14,7 @@ export function AnimatedTabs({ tabs, activeTab, onTabChange, className }: Animat
     return (
         <div className={cn("relative inline-flex bg-white rounded-lg p-1 border border-gray-300", className)}>
             {/* Tab buttons */}
-            {tabs.map((tab, index) => {
+            {tabs.map((tab, _index) => {
                 const isActive = activeTab === tab
 
                 return (

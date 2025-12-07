@@ -5,13 +5,12 @@ import { Header } from "@/components/layout/header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Users, Building2, CheckCircle, XCircle, Clock, DollarSign, LayoutDashboard, LogOut, Shield, FileText } from "lucide-react"
+import { Users, Building2, CheckCircle, XCircle, Clock, DollarSign, LayoutDashboard, LogOut, Shield } from "lucide-react"
 import { motion } from "framer-motion"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import GradientBackground from "@/components/background/gradient-background"
-import { getAllSubmittedRFPs } from "@/lib/firebase-storage"
-import type { RFP } from "@/types"
+
 
 interface SalesManager {
     id: string
@@ -36,8 +35,6 @@ interface CompanyRequest {
 
 export default function AdminPage() {
     const router = useRouter()
-    const [submittedRFPs, setSubmittedRFPs] = useState<Array<RFP & { userId: string, userName: string, userEmail: string }>>([])
-    const [loading, setLoading] = useState(true)
 
     const [salesManagers, setSalesManagers] = useState<SalesManager[]>([
         {
@@ -73,16 +70,6 @@ export default function AdminPage() {
             requestDate: "2024-12-02"
         }
     ])
-
-    useEffect(() => {
-        loadSubmittedRFPs()
-    }, [])
-
-    const loadSubmittedRFPs = async () => {
-        const rfps = await getAllSubmittedRFPs()
-        setSubmittedRFPs(rfps)
-        setLoading(false)
-    }
 
     const handleManagerAction = (id: string, action: "approve" | "reject") => {
         setSalesManagers(prev => prev.map(manager =>

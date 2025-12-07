@@ -42,13 +42,6 @@ export function Sidebar() {
         localStorage.setItem('sidebar-collapsed', JSON.stringify(newState))
     }
 
-    const handleLogout = () => {
-        setIsLoggingOut(true)
-        setTimeout(() => {
-            router.push('/')
-        }, 2500)
-    }
-
     const navigation = [
         { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard, color: "text-blue-600" },
         { name: "RFPs", href: "/rfps", icon: FileText, color: "text-green-600" },

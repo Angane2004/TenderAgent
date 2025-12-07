@@ -10,13 +10,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { motion } from "framer-motion"
-import { Settings, User, Bell, Palette, Save, CheckCircle2 } from "lucide-react"
+import { Settings, User, Bell, Save, CheckCircle2 } from "lucide-react"
 import GradientBackground from "@/components/background/gradient-background"
 import { saveUserSettings, getUserSettings } from "@/lib/firebase-storage"
 
 export default function SettingsPage() {
     const { user } = useUser()
-    const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
     const [saved, setSaved] = useState(false)
 
@@ -30,12 +29,6 @@ export default function SettingsPage() {
         timezone: "UTC"
     })
 
-    useEffect(() => {
-        if (user?.id) {
-            loadSettings()
-        }
-    }, [user?.id])
-
     const loadSettings = async () => {
         if (!user?.id) return
 
@@ -43,8 +36,14 @@ export default function SettingsPage() {
         if (savedSettings) {
             setSettings(savedSettings)
         }
-        setLoading(false)
     }
+
+    useEffect(() => {
+        if (user?.id) {
+            loadSettings()
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [user?.id])
 
     const handleSave = async () => {
         if (!user?.id) return

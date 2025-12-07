@@ -15,14 +15,12 @@ import GradientBackground from "@/components/background/gradient-background"
 
 export default function CalendarPage() {
     const [rfps, setRfps] = useState<RFP[]>([])
-    const [loading, setLoading] = useState(true)
     const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list')
     const [currentMonth, setCurrentMonth] = useState(new Date())
 
     useEffect(() => {
         const savedRfps = storage.getRFPs()
         setRfps(savedRfps)
-        setLoading(false)
     }, [])
 
     const getDaysUntil = (deadline: string) => {

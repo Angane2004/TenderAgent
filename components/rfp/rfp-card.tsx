@@ -15,21 +15,6 @@ interface RFPCardProps {
 export function RFPCard({ rfp }: RFPCardProps) {
     const daysUntil = getDaysUntil(rfp.deadline)
 
-    const getRiskColor = (risk: string) => {
-        switch (risk) {
-            case 'low': return 'success'
-            case 'medium': return 'warning'
-            case 'high': return 'destructive'
-            default: return 'secondary'
-        }
-    }
-
-    const getDeadlineColor = (days: number) => {
-        if (days <= 7) return 'destructive'
-        if (days <= 30) return 'warning'
-        return 'success'
-    }
-
     return (
         <Card className="hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-2 border-black bg-white">
             <CardHeader>

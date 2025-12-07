@@ -9,7 +9,7 @@ import { AgentCard } from "@/components/agents/agent-card"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ArrowRight, Wrench, AlertTriangle } from "lucide-react"
+import { ArrowRight, Wrench } from "lucide-react"
 import { RFP } from "@/types"
 import { storage } from "@/lib/storage"
 

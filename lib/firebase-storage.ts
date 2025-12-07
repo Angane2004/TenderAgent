@@ -1,10 +1,5 @@
 import { RFP } from '@/types'
 
-// Helper to check if Firebase is available - NEVER returns true if database is null
-const isFirebaseAvailable = () => {
-    return false // DISABLED - Using localStorage only until Firebase rules are configured
-}
-
 // Get all submitted RFPs (for admin)
 export async function getAllSubmittedRFPs(): Promise<Array<RFP & { userId: string, userName: string, userEmail: string }>> {
     // Always return empty array - Firebase disabled
