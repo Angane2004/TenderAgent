@@ -1,53 +1,82 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useMemo, useCallback } from "react"
 import { Sidebar } from "@/components/layout/sidebar"
 import { Header } from "@/components/layout/header"
 import { RFPCard } from "@/components/rfp/rfp-card"
 import { Input } from "@/components/ui/input"
+import { FilterButton, FilterOptions } from "@/components/ui/filter-button"
 import { Search, FileText, TrendingUp, AlertCircle, Clock } from "lucide-react"
-import { RFP } from "@/types"
-import { DUMMY_RFPS } from "@/data/dummy-rfps"
 import { AnimatedTabs } from "@/components/ui/animated-tabs"
 import { motion } from "framer-motion"
+import { useRFPs } from "@/contexts/rfp-context"
 
 export default function RFPsPage() {
-    const [rfps, setRfps] = useState<RFP[]>([])
-    const [filteredRfps, setFilteredRfps] = useState<RFP[]>([])
+    const { rfps, isScanning } = useRFPs()
     const [searchQuery, setSearchQuery] = useState("")
     const [activeFilter, setActiveFilter] = useState<string>("all")
-    const [loading, setLoading] = useState(true)
+    const [advancedFilters, setAdvancedFilters] = useState<FilterOptions>({
+        fitScore: [],
+        riskScore: [],
+        urgency: [],
+        certifications: []
+    })
 
-    useEffect(() => {
-        // Use dummy data directly
-        const data = DUMMY_RFPS
-        setRfps(data)
-        setFilteredRfps(data)
-        setLoading(false)
-    }, [])
+    // Memoized filtering logic
+    const filteredRfps = useMemo(() => {
+        return rfps.filter(rfp => {
+            // Search filter
+            const matchesSearch = !searchQuery ||
+                rfp.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                rfp.issuedBy.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                rfp.summary.toLowerCase().includes(searchQuery.toLowerCase())
 
-    useEffect(() => {
-        let filtered = rfps
+            // Status filter
+            const matchesStatus = activeFilter === "all" || rfp.status === activeFilter
 
-        // Apply status filter
-        if (activeFilter !== "all") {
-            filtered = filtered.filter(rfp => rfp.status === activeFilter)
-        }
+            // Fit Score filter
+            let matchesFitScore = true
+            if (advancedFilters.fitScore.length > 0) {
+                matchesFitScore = advancedFilters.fitScore.some(filter => {
+                    if (filter === 'excellent') return rfp.fitScore >= 85
+                    if (filter === 'good') return rfp.fitScore >= 70 && rfp.fitScore < 85
+                    if (filter === 'fair') return rfp.fitScore >= 50 && rfp.fitScore < 70
+                    if (filter === 'low') return rfp.fitScore < 50
+                    return false
+                })
+            }
 
-        // Apply search filter
-        if (searchQuery) {
-            const query = searchQuery.toLowerCase()
-            filtered = filtered.filter(rfp =>
-                rfp.title.toLowerCase().includes(query) ||
-                rfp.issuedBy.toLowerCase().includes(query) ||
-                rfp.summary.toLowerCase().includes(query)
-            )
-        }
+            // Risk Score filter
+            let matchesRiskScore = true
+            if (advancedFilters.riskScore.length > 0) {
+                matchesRiskScore = advancedFilters.riskScore.includes(rfp.riskScore)
+            }
 
-        setFilteredRfps(filtered)
-    }, [searchQuery, activeFilter, rfps])
+            // Urgency filter
+            let matchesUrgency = true
+            if (advancedFilters.urgency.length > 0) {
+                const daysUntil = Math.ceil((new Date(rfp.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+                matchesUrgency = advancedFilters.urgency.some(filter => {
+                    if (filter === 'urgent') return daysUntil <= 7
+                    if (filter === 'upcoming') return daysUntil > 7 && daysUntil <= 30
+                    if (filter === 'future') return daysUntil > 30
+                    return false
+                })
+            }
 
-    const stats = [
+            // Certifications filter
+            let matchesCertifications = true
+            if (advancedFilters.certifications.length > 0) {
+                matchesCertifications = advancedFilters.certifications.some(cert =>
+                    rfp.certifications.some(rfpCert => rfpCert.includes(cert))
+                )
+            }
+
+            return matchesSearch && matchesStatus && matchesFitScore && matchesRiskScore && matchesUrgency && matchesCertifications
+        })
+    }, [rfps, searchQuery, activeFilter, advancedFilters])
+
+    const stats = useMemo(() => [
         {
             label: "Total RFPs",
             value: rfps.length,
@@ -75,7 +104,20 @@ export default function RFPsPage() {
             icon: Clock,
             color: "text-orange-600"
         }
-    ]
+    ], [rfps])
+
+    const handleFilterChange = useCallback((filters: FilterOptions) => {
+        setAdvancedFilters(filters)
+    }, [])
+
+    const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchQuery(e.target.value)
+    }, [])
+
+    const handleTabChange = useCallback((label: string) => {
+        const filter = filters.find(f => f.label === label)
+        if (filter) setActiveFilter(filter.value)
+    }, [])
 
     const filters = [
         { label: "All", value: "all" },
@@ -85,13 +127,13 @@ export default function RFPsPage() {
     ]
 
     return (
-        <div className="flex min-h-screen bg-gray-50">
+        <div className="flex h-screen bg-gray-50">
             <Sidebar />
 
-            <div className="flex-1">
+            <div className="flex-1 flex flex-col h-screen">
                 <Header />
 
-                <main className="p-6 space-y-6">
+                <main className="flex-1 overflow-y-auto p-6 space-y-6">
                     {/* Page Header */}
                     <div>
                         <h1 className="text-3xl font-bold text-slate-900">All RFPs</h1>
@@ -113,7 +155,7 @@ export default function RFPsPage() {
                                         <p className="text-sm text-gray-600 font-medium">{stat.label}</p>
                                         <p className="text-3xl font-bold mt-2">{stat.value}</p>
                                     </div>
-                                    <div className={cn("w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center", stat.color)}>
+                                    <div className={`w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center ${stat.color}`}>
                                         <stat.icon className="h-6 w-6" />
                                     </div>
                                 </div>
@@ -123,26 +165,29 @@ export default function RFPsPage() {
 
                     {/* Search and Filters */}
                     <div className="bg-white p-6 rounded-xl border-2 border-black">
-                        <div className="flex flex-col md:flex-row gap-4">
+                        <div className="flex flex-col md:flex-row gap-4 flex-wrap">
                             {/* Search */}
-                            <div className="flex-1 relative">
+                            <div className="flex-1 min-w-[250px] relative">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
                                 <Input
                                     placeholder="Search RFPs by title, issuer, or description..."
                                     value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    onChange={handleSearchChange}
                                     className="pl-10 border-2 border-black focus:ring-black focus:border-black"
                                 />
                             </div>
+
+                            {/* Filter Button */}
+                            <FilterButton
+                                onFilterChange={handleFilterChange}
+                                activeFilters={advancedFilters}
+                            />
 
                             {/* Animated Filter Tabs */}
                             <AnimatedTabs
                                 tabs={filters.map(f => f.label)}
                                 activeTab={filters.find(f => f.value === activeFilter)?.label || "All"}
-                                onTabChange={(label) => {
-                                    const filter = filters.find(f => f.label === label)
-                                    if (filter) setActiveFilter(filter.value)
-                                }}
+                                onTabChange={handleTabChange}
                             />
                         </div>
 
@@ -153,9 +198,15 @@ export default function RFPsPage() {
                     </div>
 
                     {/* RFPs Grid */}
-                    {loading ? (
+                    {isScanning ? (
                         <div className="flex items-center justify-center py-20">
                             <div className="h-8 w-8 border-4 border-black border-t-transparent rounded-full animate-spin" />
+                        </div>
+                    ) : rfps.length === 0 ? (
+                        <div className="bg-white p-12 rounded-xl border-2 border-black text-center">
+                            <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                            <h3 className="text-lg font-semibold mb-2">No RFPs Yet</h3>
+                            <p className="text-gray-600">RFPs will appear here after scanning from the Dashboard</p>
                         </div>
                     ) : filteredRfps.length === 0 ? (
                         <div className="bg-white p-12 rounded-xl border-2 border-black text-center">
@@ -181,8 +232,4 @@ export default function RFPsPage() {
             </div>
         </div>
     )
-}
-
-function cn(...classes: (string | boolean | undefined)[]) {
-    return classes.filter(Boolean).join(' ')
 }

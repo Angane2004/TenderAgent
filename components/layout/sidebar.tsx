@@ -16,7 +16,8 @@ import {
     ChevronLeft,
     ChevronRight,
     LogOut,
-    CheckCircle2
+    CheckCircle2,
+    CalendarCheck
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -46,7 +47,7 @@ export function Sidebar() {
         { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard, color: "text-blue-600" },
         { name: "RFPs", href: "/rfps", icon: FileText, color: "text-green-600" },
         { name: "Submissions", href: "/submissions", icon: CheckCircle2, color: "text-teal-600" },
-        { name: "Calendar", href: "/calendar", icon: BarChart3, color: "text-red-600" },
+        { name: "Calendar", href: "/calendar", icon: CalendarCheck, color: "text-red-600" },
         { name: "Analytics", href: "/analytics", icon: BarChart3, color: "text-purple-600" },
         { name: "Archive", href: "/archive", icon: Archive, color: "text-orange-600" },
         { name: "Settings", href: "/settings", icon: Settings, color: "text-gray-600" },
@@ -198,91 +199,89 @@ export function Sidebar() {
 
             <div
                 className={cn(
-                    "fixed left-0 top-0 h-full bg-white border-r-2 border-black transition-all duration-300 z-40",
+                    "fixed left-0 top-0 h-screen bg-white border-r-2 border-black transition-all duration-300 z-40 flex flex-col",
                     collapsed ? "w-20" : "w-64"
                 )}
             >
-                <div className="flex flex-col h-full">
-                    {/* Logo */}
-                    <div className="h-16 flex items-center justify-between px-4 border-b-2 border-black">
-                        {!collapsed && (
-                            <Link href="/dashboard" className="flex items-center gap-2 group">
-                                <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                                    <Bot className="h-5 w-5 text-white" />
-                                </div>
-                                <span className="font-bold text-lg">TenderAgent</span>
-                            </Link>
-                        )}
-                        {collapsed && (
-                            <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center mx-auto">
+                {/* Logo */}
+                <div className="h-16 flex items-center justify-between px-4 border-b-2 border-black flex-shrink-0">
+                    {!collapsed && (
+                        <Link href="/dashboard" className="flex items-center gap-2 group">
+                            <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
                                 <Bot className="h-5 w-5 text-white" />
                             </div>
-                        )}
-                    </div>
-
-                    {/* Navigation */}
-                    <nav className="flex-1 p-4 space-y-2">
-                        {navigation.map((item) => {
-                            const isActive = pathname === item.href || pathname?.startsWith(item.href + '/')
-                            return (
-                                <Link
-                                    key={item.name}
-                                    href={item.href}
-                                    className={cn(
-                                        "flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group relative overflow-hidden",
-                                        isActive
-                                            ? "bg-black text-white"
-                                            : "hover:bg-gray-100 text-gray-700"
-                                    )}
-                                    title={collapsed ? item.name : undefined}
-                                >
-                                    <item.icon className={cn(
-                                        "h-5 w-5 flex-shrink-0 transition-colors",
-                                        collapsed && "mx-auto",
-                                        !isActive && item.color
-                                    )} />
-                                    {!collapsed && (
-                                        <span className="font-medium">{item.name}</span>
-                                    )}
-                                </Link>
-                            )
-                        })}
-                    </nav>
-
-                    {/* User Section */}
-                    <div className="p-4 border-t-2 border-black space-y-2">
-                        {!collapsed && (
-                            <div className="px-3 py-2 bg-gray-50 rounded-lg border border-gray-200">
-                                <div className="text-sm font-medium truncate">{user?.fullName || user?.firstName || "User"}</div>
-                                <div className="text-xs text-gray-500 truncate">{user?.primaryEmailAddress?.emailAddress || "user@example.com"}</div>
-                            </div>
-                        )}
-                        <SignOutButton>
-                            <Button
-                                variant="outline"
-                                className={cn(
-                                    "w-full border-2 border-black hover:bg-black hover:text-white transition-all duration-200",
-                                    collapsed && "px-2"
-                                )}
-                            >
-                                <LogOut className={cn("h-4 w-4", !collapsed && "mr-2")} />
-                                {!collapsed && "Logout"}
-                            </Button>
-                        </SignOutButton>
-                    </div>
-
-                    {/* Collapse Toggle */}
-                    <button
-                        onClick={toggleCollapse}
-                        className="absolute -right-3 top-20 w-6 h-6 bg-black text-white rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
-                    >
-                        {collapsed ? (
-                            <ChevronRight className="h-4 w-4" />
-                        ) : (
-                            <ChevronLeft className="h-4 w-4" />
-                        )}
-                    </button>
+                            <span className="font-bold text-lg">TenderAgent</span>
+                        </Link>
+                    )}
+                    {collapsed && (
+                        <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center mx-auto">
+                            <Bot className="h-5 w-5 text-white" />
+                        </div>
+                    )}
                 </div>
+
+                {/* Navigation - Scrollable with max height */}
+                <nav className="flex-1 p-4 space-y-2 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 64px - 140px)' }}>
+                    {navigation.map((item) => {
+                        const isActive = pathname === item.href || pathname?.startsWith(item.href + '/')
+                        return (
+                            <Link
+                                key={item.name}
+                                href={item.href}
+                                className={cn(
+                                    "flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group relative overflow-hidden",
+                                    isActive
+                                        ? "bg-black text-white"
+                                        : "hover:bg-gray-100 text-gray-700"
+                                )}
+                                title={collapsed ? item.name : undefined}
+                            >
+                                <item.icon className={cn(
+                                    "h-5 w-5 flex-shrink-0 transition-colors",
+                                    collapsed && "mx-auto",
+                                    !isActive && item.color
+                                )} />
+                                {!collapsed && (
+                                    <span className="font-medium">{item.name}</span>
+                                )}
+                            </Link>
+                        )
+                    })}
+                </nav>
+
+                {/* User Section - Fixed at bottom, always visible */}
+                <div className="p-4 border-t-2 border-black space-y-2 bg-white flex-shrink-0">
+                    {!collapsed && (
+                        <div className="px-3 py-2 bg-gray-50 rounded-lg border border-gray-200">
+                            <div className="text-sm font-medium truncate">{user?.fullName || user?.firstName || "User"}</div>
+                            <div className="text-xs text-gray-500 truncate">{user?.primaryEmailAddress?.emailAddress || "user@example.com"}</div>
+                        </div>
+                    )}
+                    <SignOutButton>
+                        <Button
+                            variant="outline"
+                            className={cn(
+                                "w-full border-2 border-black hover:bg-black hover:text-white transition-all duration-200",
+                                collapsed && "px-2"
+                            )}
+                        >
+                            <LogOut className={cn("h-4 w-4", !collapsed && "mr-2")} />
+                            {!collapsed && "Logout"}
+                        </Button>
+                    </SignOutButton>
+                </div>
+
+                {/* Collapse Toggle */}
+                <button
+                    onClick={toggleCollapse}
+                    className="absolute -right-3 top-20 w-6 h-6 bg-black text-white rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
+                >
+                    {collapsed ? (
+                        <ChevronRight className="h-4 w-4" />
+                    ) : (
+                        <ChevronLeft className="h-4 w-4" />
+                    )}
+                </button>
             </div>
 
             {/* Spacer */}

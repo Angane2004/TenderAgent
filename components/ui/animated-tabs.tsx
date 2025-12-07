@@ -1,5 +1,6 @@
 "use client"
 
+import { memo } from "react"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 
@@ -10,9 +11,9 @@ interface AnimatedTabsProps {
     className?: string
 }
 
-export function AnimatedTabs({ tabs, activeTab, onTabChange, className }: AnimatedTabsProps) {
+export const AnimatedTabs = memo(function AnimatedTabs({ tabs, activeTab, onTabChange, className }: AnimatedTabsProps) {
     return (
-        <div className={cn("relative inline-flex bg-white rounded-lg p-1 border border-gray-300", className)}>
+        <div className={cn("relative inline-flex bg-white rounded-lg p-1 border border-gray-300", className)} style={{ willChange: "contents" }}>
             {/* Tab buttons */}
             {tabs.map((tab, _index) => {
                 const isActive = activeTab === tab
@@ -22,6 +23,7 @@ export function AnimatedTabs({ tabs, activeTab, onTabChange, className }: Animat
                         key={tab}
                         onClick={() => onTabChange(tab)}
                         className="relative px-6 py-2 text-sm font-semibold whitespace-nowrap rounded-md"
+                        style={{ willChange: isActive ? "transform" : "auto" }}
                     >
                         {/* Individual sliding background for active tab */}
                         {isActive && (
@@ -33,6 +35,7 @@ export function AnimatedTabs({ tabs, activeTab, onTabChange, className }: Animat
                                     stiffness: 400,
                                     damping: 35
                                 }}
+                                style={{ willChange: "transform" }}
                             />
                         )}
 
@@ -48,4 +51,4 @@ export function AnimatedTabs({ tabs, activeTab, onTabChange, className }: Animat
             })}
         </div>
     )
-}
+})

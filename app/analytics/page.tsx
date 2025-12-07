@@ -70,14 +70,14 @@ export default function AnalyticsPage() {
     const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#8B5CF6']
 
     return (
-        <div className="flex min-h-screen bg-gray-50 relative">
+        <div className="flex h-screen bg-gray-50 relative">
             <GradientBackground />
             <Sidebar />
 
-            <div className="flex-1">
+            <div className="flex-1 flex flex-col h-screen">
                 <Header />
 
-                <main className="p-6 space-y-6">
+                <main className="flex-1 overflow-y-auto p-6 space-y-6">
                     <div>
                         <h1 className="text-3xl font-bold">Analytics Dashboard</h1>
                         <p className="text-gray-600 mt-1">Track performance metrics and insights</p>

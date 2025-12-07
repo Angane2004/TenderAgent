@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Sidebar } from "@/components/layout/sidebar"
 import { Header } from "@/components/layout/header"
 import { RFPCard } from "@/components/rfp/rfp-card"
@@ -9,56 +9,31 @@ import { AnimatedTabs } from "@/components/ui/animated-tabs"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { FilterButton, FilterOptions } from "@/components/ui/filter-button"
 import { FileText, TrendingUp, Clock, CheckCircle2, Search } from "lucide-react"
 import { motion } from "framer-motion"
-import { RFP } from "@/types"
-import { DUMMY_RFPS } from "@/data/dummy-rfps"
-import { storage } from "@/lib/storage"
+import { useRFPs } from "@/contexts/rfp-context"
 
 export default function DashboardPage() {
-    const [rfps, setRfps] = useState<RFP[]>([])
-    const [loading, setLoading] = useState(true)
+    const { rfps, isScanning, scanForRFPs } = useRFPs()
     const [searchQuery, setSearchQuery] = useState("")
     const [filterStatus, setFilterStatus] = useState<string>("all")
-    const [isScanning, setIsScanning] = useState(false)
-
-    useEffect(() => {
-        // Load RFPs from storage (which now handles user-specific keys)
-        const savedRfps = storage.getRFPs()
-        setRfps(savedRfps)
-        setLoading(false)
-    }, [])
+    const [advancedFilters, setAdvancedFilters] = useState<FilterOptions>({
+        fitScore: [],
+        riskScore: [],
+        urgency: [],
+        certifications: []
+    })
 
     const handleScan = () => {
-        setIsScanning(true)
-
-        setTimeout(() => {
-            // Use imported dummy data
-            const data = DUMMY_RFPS
-
-            // Generate 10-20 random RFPs
-            const count = Math.floor(Math.random() * 11) + 10
-            const scannedRfps = []
-
-            for (let i = 0; i < count; i++) {
-                const randomRfp = data[Math.floor(Math.random() * data.length)]
-                scannedRfps.push({
-                    ...randomRfp,
-                    id: `${randomRfp.id}-scan-${Date.now()}-${i}`
-                })
-            }
-
-            // Replace existing data with new scan (fresh start simulation)
-            setRfps(scannedRfps)
-            storage.saveRFPs(scannedRfps)
-            setLoading(false)
-            setIsScanning(false)
-        }, 2000)
+        scanForRFPs()
     }
 
     const filteredRfps = rfps.filter(rfp => {
-        const matchesSearch = rfp.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            rfp.issuedBy.toLowerCase().includes(searchQuery.toLowerCase())
+        const matchesSearch = !searchQuery ||
+            rfp.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            rfp.issuedBy.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            rfp.summary.toLowerCase().includes(searchQuery.toLowerCase())
 
         // Check actual status from storage fields
         let status = rfp.status
@@ -69,7 +44,43 @@ export default function DashboardPage() {
         }
 
         const matchesFilter = filterStatus === 'all' || status === filterStatus
-        return matchesSearch && matchesFilter
+
+        // Advanced filters
+        let matchesFitScore = true
+        if (advancedFilters.fitScore.length > 0) {
+            matchesFitScore = advancedFilters.fitScore.some(filter => {
+                if (filter === 'excellent') return rfp.fitScore >= 85
+                if (filter === 'good') return rfp.fitScore >= 70 && rfp.fitScore < 85
+                if (filter === 'fair') return rfp.fitScore >= 50 && rfp.fitScore < 70
+                if (filter === 'low') return rfp.fitScore < 50
+                return false
+            })
+        }
+
+        let matchesRiskScore = true
+        if (advancedFilters.riskScore.length > 0) {
+            matchesRiskScore = advancedFilters.riskScore.includes(rfp.riskScore)
+        }
+
+        let matchesUrgency = true
+        if (advancedFilters.urgency.length > 0) {
+            const daysUntil = Math.ceil((new Date(rfp.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+            matchesUrgency = advancedFilters.urgency.some(filter => {
+                if (filter === 'urgent') return daysUntil <= 7
+                if (filter === 'upcoming') return daysUntil > 7 && daysUntil <= 30
+                if (filter === 'future') return daysUntil > 30
+                return false
+            })
+        }
+
+        let matchesCertifications = true
+        if (advancedFilters.certifications.length > 0) {
+            matchesCertifications = advancedFilters.certifications.some(cert =>
+                rfp.certifications.some(rfpCert => rfpCert.includes(cert))
+            )
+        }
+
+        return matchesSearch && matchesFilter && matchesFitScore && matchesRiskScore && matchesUrgency && matchesCertifications
     })
 
     const stats = [
@@ -107,7 +118,7 @@ export default function DashboardPage() {
     ]
 
     return (
-        <div className="flex min-h-screen bg-gradient-to-br from-purple-50 via-gray-50 to-blue-50 relative overflow-hidden">
+        <div className="flex h-screen bg-gradient-to-br from-purple-50 via-gray-50 to-blue-50 relative overflow-hidden">
             {/* Animated background blobs */}
             <div className="absolute inset-0 opacity-20 pointer-events-none">
                 <div className="absolute top-20 left-20 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob" />
@@ -117,10 +128,10 @@ export default function DashboardPage() {
 
             <Sidebar />
 
-            <div className="flex-1 relative z-10">
+            <div className="flex-1 flex flex-col h-screen relative z-10">
                 <Header />
 
-                <main className="p-6 space-y-6">
+                <main className="flex-1 overflow-y-auto p-6 space-y-6">
                     {/* Page Header */}
                     <div className="flex items-center justify-between">
                         <div>
@@ -181,8 +192,8 @@ export default function DashboardPage() {
                             </div>
                         </CardHeader>
                         <CardContent>
-                            <div className="flex gap-4 mb-6">
-                                <div className="flex-1 relative">
+                            <div className="flex gap-4 mb-6 flex-wrap">
+                                <div className="flex-1 min-w-[250px] relative">
                                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                                     <Input
                                         placeholder="Search by title or issuer..."
@@ -191,6 +202,10 @@ export default function DashboardPage() {
                                         className="pl-10"
                                     />
                                 </div>
+                                <FilterButton
+                                    onFilterChange={setAdvancedFilters}
+                                    activeFilters={advancedFilters}
+                                />
                                 <AnimatedTabs
                                     tabs={["All", "New", "In Progress", "Completed"]}
                                     activeTab={filterStatus === "all" ? "All" : filterStatus === "new" ? "New" : filterStatus === "in-progress" ? "In Progress" : "Completed"}
@@ -207,7 +222,7 @@ export default function DashboardPage() {
                             </div>
 
                             {/* RFP Grid */}
-                            {loading ? (
+                            {isScanning ? (
                                 <div className="flex items-center justify-center py-12">
                                     <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
                                 </div>

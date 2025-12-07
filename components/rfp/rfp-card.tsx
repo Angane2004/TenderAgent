@@ -1,10 +1,11 @@
 "use client"
 
+import { memo } from "react"
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Calendar, Building2, Clock, TrendingUp, AlertCircle, DollarSign } from "lucide-react"
+import { Calendar, Building2, Clock, TrendingUp, DollarSign } from "lucide-react"
 import { RFP } from "@/types"
 import { getDaysUntil, formatDate } from "@/lib/utils"
 
@@ -12,11 +13,15 @@ interface RFPCardProps {
     rfp: RFP
 }
 
-export function RFPCard({ rfp }: RFPCardProps) {
+function cn(...classes: (string | boolean | undefined)[]) {
+    return classes.filter(Boolean).join(' ')
+}
+
+export const RFPCard = memo(function RFPCard({ rfp }: RFPCardProps) {
     const daysUntil = getDaysUntil(rfp.deadline)
 
     return (
-        <Card className="hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-2 border-black bg-white">
+        <Card className="hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-2 border-black bg-white" style={{ willChange: "transform, box-shadow" }}>
             <CardHeader>
                 <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
@@ -132,8 +137,4 @@ export function RFPCard({ rfp }: RFPCardProps) {
             </CardFooter>
         </Card>
     )
-}
-
-function cn(...classes: (string | boolean | undefined)[]) {
-    return classes.filter(Boolean).join(' ')
-}
+})
