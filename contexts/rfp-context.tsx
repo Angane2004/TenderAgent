@@ -22,6 +22,9 @@ export function RFPProvider({ children }: { children: ReactNode }) {
 
     // Load RFPs from localStorage on mount
     useEffect(() => {
+        // Only access localStorage on client side
+        if (typeof window === 'undefined') return
+
         try {
             const savedRfps = localStorage.getItem(STORAGE_KEY)
             if (savedRfps) {
@@ -57,10 +60,12 @@ export function RFPProvider({ children }: { children: ReactNode }) {
             setHasScanned(true)
 
             // Save to localStorage
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(scannedRfps))
-            } catch (error) {
-                console.error('Error saving RFPs to localStorage:', error)
+            if (typeof window !== 'undefined') {
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(scannedRfps))
+                } catch (error) {
+                    console.error('Error saving RFPs to localStorage:', error)
+                }
             }
         }, 2000)
     }, [])
