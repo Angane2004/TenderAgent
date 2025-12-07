@@ -10,20 +10,20 @@ import { Badge } from "@/components/ui/badge"
 import { Archive as ArchiveIcon, Search, Download, Calendar } from "lucide-react"
 import { RFP } from "@/types"
 import { formatDate } from "@/lib/utils"
-
-import { storage } from "@/lib/storage"
+import { useRFPs } from "@/contexts/rfp-context"
 
 export default function ArchivePage() {
+    const { rfps } = useRFPs()
     const [archivedRfps, setArchivedRfps] = useState<RFP[]>([])
     const [searchQuery, setSearchQuery] = useState("")
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        const rfps = storage.getRFPs()
+        // In real app, "completed" RFPs that are past deadline would be archived
         const completed = rfps.filter(r => r.status === 'completed' || r.finalResponse?.status === 'submitted')
         setArchivedRfps(completed)
         setLoading(false)
-    }, [])
+    }, [rfps])
 
     const filteredRfps = archivedRfps.filter(rfp =>
         rfp.title.toLowerCase().includes(searchQuery.toLowerCase()) ||

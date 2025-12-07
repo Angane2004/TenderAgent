@@ -6,6 +6,9 @@ import { Input } from "@/components/ui/input"
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
+import { useRouter, usePathname } from "next/navigation"
+import { SignOutButton } from "@clerk/nextjs"
+import { useUser } from "@/contexts/user-context"
 
 interface HeaderProps {
     onSearch?: (query: string) => void
@@ -15,6 +18,12 @@ export function Header({ onSearch }: HeaderProps = {}) {
     const [notificationOpen, setNotificationOpen] = useState(false)
     const [settingsOpen, setSettingsOpen] = useState(false)
     const [searchQuery, setSearchQuery] = useState("")
+    const router = useRouter()
+    const { profile } = useUser()
+    const pathname = usePathname()
+
+    // Don't show header on onboarding page
+    if (pathname === '/onboarding') return null
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const query = e.target.value
@@ -29,7 +38,7 @@ export function Header({ onSearch }: HeaderProps = {}) {
     ]
 
     return (
-        <header className="h-16 border-b-2 border-black bg-white px-6 flex items-center justify-between sticky top-0 z-30">
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-white px-6 shadow-sm">
             <div className="flex-1 max-w-xl">
                 <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
@@ -43,6 +52,16 @@ export function Header({ onSearch }: HeaderProps = {}) {
             </div>
 
             <div className="flex items-center gap-4">
+                {/* Company Name Display */}
+                {profile?.companyName && (
+                    <div className="mr-2 hidden md:block text-right">
+                        <p className="text-sm font-semibold text-gray-900">{profile.companyName}</p>
+                        {profile.tenderPreferences.length > 0 && (
+                            <p className="text-xs text-gray-500">{profile.tenderPreferences[0]}...</p>
+                        )}
+                    </div>
+                )}
+
                 {/* Notifications */}
                 <div className="relative">
                     <Button
@@ -66,7 +85,7 @@ export function Header({ onSearch }: HeaderProps = {}) {
                                 initial={{ opacity: 0, y: -10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -10 }}
-                                className="absolute right-0 mt-2 w-80 bg-white border-2 border-black rounded-lg shadow-2xl overflow-hidden"
+                                className="absolute right-0 mt-2 w-80 bg-white border-2 border-black rounded-lg shadow-2xl overflow-hidden z-50"
                             >
                                 <div className="p-4 border-b-2 border-black bg-gray-50">
                                     <h3 className="font-bold">Notifications</h3>
@@ -120,7 +139,7 @@ export function Header({ onSearch }: HeaderProps = {}) {
                                 initial={{ opacity: 0, y: -10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -10 }}
-                                className="absolute right-0 mt-2 w-72 bg-white border-2 border-black rounded-lg shadow-2xl overflow-hidden"
+                                className="absolute right-0 mt-2 w-72 bg-white border-2 border-black rounded-lg shadow-2xl overflow-hidden z-50"
                             >
                                 <div className="p-4 border-b border-gray-200">
                                     <div className="flex items-center gap-3">
@@ -128,8 +147,8 @@ export function Header({ onSearch }: HeaderProps = {}) {
                                             <User className="h-6 w-6 text-white" />
                                         </div>
                                         <div>
-                                            <p className="font-bold text-base">Demo User</p>
-                                            <p className="text-sm text-gray-600">manager@company.com</p>
+                                            <p className="font-bold text-base">{profile?.companyName || "Demo User"}</p>
+                                            <p className="text-sm text-gray-600">user@example.com</p>
                                         </div>
                                     </div>
                                 </div>
@@ -144,12 +163,13 @@ export function Header({ onSearch }: HeaderProps = {}) {
                                         <Bell className="h-5 w-5 text-gray-700" />
                                         <span className="text-base font-medium">Preferences</span>
                                     </button>
-                                    <Link href="/">
+
+                                    <SignOutButton>
                                         <button className="w-full px-4 py-3 text-left hover:bg-gray-100 transition-colors flex items-center gap-3">
                                             <LogOut className="h-5 w-5 text-gray-700" />
                                             <span className="text-base font-medium">Logout</span>
                                         </button>
-                                    </Link>
+                                    </SignOutButton>
                                 </div>
                             </motion.div>
                         )}

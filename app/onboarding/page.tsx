@@ -2,295 +2,172 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { useUser } from "@clerk/nextjs"
-import { motion } from "framer-motion"
-import { Building2, FileText, Target, CheckCircle2, ArrowRight } from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useUser } from "@/contexts/user-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import GradientBackground from "@/components/background/gradient-background"
-import { saveUserProfile, saveUserSettings } from "@/lib/firebase-storage"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Building2, ArrowRight, CheckCircle2 } from "lucide-react"
+import { motion } from "framer-motion"
 
 export default function OnboardingPage() {
     const router = useRouter()
-    const { user } = useUser()
+    const { updateProfile } = useUser()
     const [step, setStep] = useState(1)
-    const [loading, setLoading] = useState(false)
-
     const [formData, setFormData] = useState({
         companyName: "",
-        industry: "",
-        companySize: "",
-        description: "",
-        tenderCategories: "",
-        specifications: "",
-        budget: "",
-        location: "",
+        preferences: [] as string[]
     })
 
-    const handleChange = (field: string, value: string) => {
-        setFormData(prev => ({ ...prev, [field]: value }))
-    }
-
-    const handleSubmit = async () => {
-        if (!user?.id) return
-
-        setLoading(true)
-
-        try {
-            // Save to Firebase user profile
-            await saveUserProfile(user.id, {
-                name: user.fullName || user.firstName || "User",
-                email: user.primaryEmailAddress?.emailAddress || "",
-                role: "Sales Manager",
-                ...formData
-            })
-
-            // Also save to settings
-            await saveUserSettings(user.id, {
-                companyName: formData.companyName,
-                industry: formData.industry,
-                emailNotifications: true,
-                deadlineReminders: true,
-                weeklyDigest: false,
-                theme: "light",
-                defaultCurrency: "USD",
-                timezone: "UTC"
-            })
-
-            // Redirect to dashboard
-            setTimeout(() => {
-                router.push("/dashboard")
-            }, 1000)
-        } catch (error) {
-            console.error("Error saving onboarding data:", error)
-            setLoading(false)
-        }
-    }
-
-    const steps = [
-        {
-            number: 1,
-            title: "Company Information",
-            icon: Building2,
-            fields: (
-                <>
-                    <div className="space-y-2">
-                        <Label>Company Name *</Label>
-                        <Input
-                            value={formData.companyName}
-                            onChange={(e) => handleChange("companyName", e.target.value)}
-                            placeholder="Enter your company name"
-                            className="border-2 border-gray-300 focus:border-black"
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Industry *</Label>
-                        <Input
-                            value={formData.industry}
-                            onChange={(e) => handleChange("industry", e.target.value)}
-                            placeholder="e.g., Technology, Construction, Healthcare"
-                            className="border-2 border-gray-300 focus:border-black"
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Company Size</Label>
-                        <select
-                            value={formData.companySize}
-                            onChange={(e) => handleChange("companySize", e.target.value)}
-                            className="w-full px-3 py-2 border-2 border-gray-300 rounded-md focus:border-black focus:outline-none"
-                        >
-                            <option value="">Select company size</option>
-                            <option value="1-10">1-10 employees</option>
-                            <option value="11-50">11-50 employees</option>
-                            <option value="51-200">51-200 employees</option>
-                            <option value="201-500">201-500 employees</option>
-                            <option value="500+">500+ employees</option>
-                        </select>
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Location</Label>
-                        <Input
-                            value={formData.location}
-                            onChange={(e) => handleChange("location", e.target.value)}
-                            placeholder="City, Country"
-                            className="border-2 border-gray-300 focus:border-black"
-                        />
-                    </div>
-                </>
-            )
-        },
-        {
-            number: 2,
-            title: "Tender Requirements",
-            icon: Target,
-            fields: (
-                <>
-                    <div className="space-y-2">
-                        <Label>Tender Categories *</Label>
-                        <Input
-                            value={formData.tenderCategories}
-                            onChange={(e) => handleChange("tenderCategories", e.target.value)}
-                            placeholder="e.g., IT Services, Construction, Consulting"
-                            className="border-2 border-gray-300 focus:border-black"
-                        />
-                        <p className="text-xs text-gray-500">Separate multiple categories with commas</p>
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Specifications & Requirements *</Label>
-                        <Textarea
-                            value={formData.specifications}
-                            onChange={(e) => handleChange("specifications", e.target.value)}
-                            placeholder="Describe what you're looking for in tenders (e.g., project types, technical requirements, certifications needed)"
-                            className="border-2 border-gray-300 focus:border-black min-h-32"
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Budget Range</Label>
-                        <Input
-                            value={formData.budget}
-                            onChange={(e) => handleChange("budget", e.target.value)}
-                            placeholder="e.g., $50,000 - $500,000"
-                            className="border-2 border-gray-300 focus:border-black"
-                        />
-                    </div>
-                </>
-            )
-        },
-        {
-            number: 3,
-            title: "Additional Details",
-            icon: FileText,
-            fields: (
-                <>
-                    <div className="space-y-2">
-                        <Label>Company Description</Label>
-                        <Textarea
-                            value={formData.description}
-                            onChange={(e) => handleChange("description", e.target.value)}
-                            placeholder="Brief description of your company and its capabilities"
-                            className="border-2 border-gray-300 focus:border-black min-h-32"
-                        />
-                    </div>
-                    <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
-                        <h4 className="font-semibold mb-2 flex items-center gap-2">
-                            <CheckCircle2 className="h-5 w-5 text-blue-600" />
-                            What happens next?
-                        </h4>
-                        <ul className="text-sm text-gray-700 space-y-1 ml-7">
-                            <li>• AI will scan for relevant tenders based on your criteria</li>
-                            <li>• You&apos;ll receive notifications for matching opportunities</li>
-                            <li>• Automated RFP response generation will be available</li>
-                            <li>• Track all your submissions in one dashboard</li>
-                        </ul>
-                    </div>
-                </>
-            )
-        }
+    const tenderCategories = [
+        "Electrical Infrastructure",
+        "Civil Construction",
+        "Renewable Energy",
+        "IT & Software Services",
+        "Industrial Machinery",
+        "Consultancy Services",
+        "Logistics & Supply Chain",
+        "Healthcare & Medical"
     ]
 
-    const currentStep = steps[step - 1]
-    const isLastStep = step === steps.length
-    const canProceed = step === 1
-        ? formData.companyName && formData.industry
-        : step === 2
-            ? formData.tenderCategories && formData.specifications
-            : true
+    const handlePreferenceToggle = (category: string) => {
+        setFormData(prev => {
+            if (prev.preferences.includes(category)) {
+                return { ...prev, preferences: prev.preferences.filter(c => c !== category) }
+            } else {
+                return { ...prev, preferences: [...prev.preferences, category] }
+            }
+        })
+    }
+
+    const handleSubmit = () => {
+        updateProfile({
+            companyName: formData.companyName,
+            tenderPreferences: formData.preferences,
+            isOnboarded: true
+        })
+
+        // Add a small delay for better UX
+        setTimeout(() => {
+            router.push('/dashboard')
+        }, 500)
+    }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 relative overflow-hidden p-4">
-            <GradientBackground />
+        <div className="min-h-screen bg-gradient-to-br from-purple-50 via-gray-50 to-blue-50 flex items-center justify-center p-4">
+            {/* Animated background blobs */}
+            <div className="absolute inset-0 opacity-20 pointer-events-none overflow-hidden">
+                <div className="absolute top-20 left-20 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob" />
+                <div className="absolute top-40 right-20 w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000" />
+                <div className="absolute bottom-20 left-1/2 w-96 h-96 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000" />
+            </div>
 
-            <div className="max-w-3xl w-full relative z-10">
-                {/* Progress Steps */}
-                <div className="mb-8">
-                    <div className="flex items-center justify-between mb-4">
-                        {steps.map((s, index) => (
-                            <div key={s.number} className="flex items-center flex-1">
-                                <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all ${step >= s.number
-                                    ? 'bg-black border-black text-white'
-                                    : 'bg-white border-gray-300 text-gray-400'
-                                    }`}>
-                                    {step > s.number ? (
-                                        <CheckCircle2 className="h-5 w-5" />
-                                    ) : (
-                                        <s.icon className="h-5 w-5" />
-                                    )}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="w-full max-w-lg relative z-10"
+            >
+                <Card className="border-2 border-black shadow-xl backdrop-blur-sm bg-white/90">
+                    <CardHeader className="text-center space-y-2">
+                        <div className="mx-auto w-12 h-12 bg-black rounded-xl flex items-center justify-center mb-2">
+                            <Building2 className="w-6 h-6 text-white" />
+                        </div>
+                        <CardTitle className="text-3xl font-bold">Welcome to TenderAI</CardTitle>
+                        <CardDescription className="text-lg">
+                            Let's set up your company profile to get started
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        {step === 1 && (
+                            <motion.div
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                className="space-y-4"
+                            >
+                                <div className="space-y-2">
+                                    <Label htmlFor="companyName" className="text-base font-semibold">
+                                        Company Name
+                                    </Label>
+                                    <Input
+                                        id="companyName"
+                                        placeholder="e.g. Acme Constructions Ltd."
+                                        className="h-12 text-lg border-2 border-gray-200 focus:border-black transition-colors"
+                                        value={formData.companyName}
+                                        onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+                                    />
                                 </div>
-                                {index < steps.length - 1 && (
-                                    <div className={`flex-1 h-1 mx-2 transition-all ${step > s.number ? 'bg-black' : 'bg-gray-300'
-                                        }`} />
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                    <p className="text-center text-sm text-gray-600">
-                        Step {step} of {steps.length}: {currentStep.title}
-                    </p>
-                </div>
+                                <Button
+                                    className="w-full h-12 text-lg bg-black text-white hover:bg-gray-800"
+                                    disabled={!formData.companyName}
+                                    onClick={() => setStep(2)}
+                                >
+                                    Continue <ArrowRight className="ml-2 w-5 h-5" />
+                                </Button>
+                            </motion.div>
+                        )}
 
-                {/* Form Card */}
-                <motion.div
-                    key={step}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.3 }}
-                >
-                    <Card className="border-2 border-black shadow-2xl">
-                        <CardHeader>
-                            <CardTitle className="text-2xl flex items-center gap-2">
-                                <currentStep.icon className="h-6 w-6" />
-                                {currentStep.title}
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-6">
-                            {currentStep.fields}
-
-                            {/* Navigation Buttons */}
-                            <div className="flex gap-4 pt-4">
-                                {step > 1 && (
+                        {step === 2 && (
+                            <motion.div
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                className="space-y-6"
+                            >
+                                <div className="space-y-3">
+                                    <Label className="text-base font-semibold">
+                                        What kind of tenders are you looking for?
+                                    </Label>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        {tenderCategories.map((category) => (
+                                            <div
+                                                key={category}
+                                                onClick={() => handlePreferenceToggle(category)}
+                                                className={`
+                                                    cursor-pointer p-4 rounded-lg border-2 transition-all duration-200 flex items-center gap-2
+                                                    ${formData.preferences.includes(category)
+                                                        ? 'border-black bg-black text-white'
+                                                        : 'border-gray-200 hover:border-black text-gray-700 hover:bg-gray-50'}
+                                                `}
+                                            >
+                                                <div className={`
+                                                    w-4 h-4 rounded-full border flex items-center justify-center
+                                                    ${formData.preferences.includes(category) ? 'border-white' : 'border-gray-400'}
+                                                `}>
+                                                    {formData.preferences.includes(category) && (
+                                                        <div className="w-2 h-2 bg-white rounded-full" />
+                                                    )}
+                                                </div>
+                                                <span className="text-sm font-medium">{category}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className="flex gap-4">
                                     <Button
-                                        onClick={() => setStep(step - 1)}
                                         variant="outline"
-                                        className="flex-1 border-2 border-black"
-                                        disabled={loading}
+                                        className="flex-1 h-12 border-2 border-black"
+                                        onClick={() => setStep(1)}
                                     >
                                         Back
                                     </Button>
-                                )}
-                                <Button
-                                    onClick={() => {
-                                        if (isLastStep) {
-                                            handleSubmit()
-                                        } else {
-                                            setStep(step + 1)
-                                        }
-                                    }}
-                                    disabled={!canProceed || loading}
-                                    className="flex-1 bg-black text-white hover:bg-gray-800"
-                                >
-                                    {loading ? (
-                                        "Saving..."
-                                    ) : isLastStep ? (
-                                        <>
-                                            Complete Setup
-                                            <CheckCircle2 className="h-4 w-4 ml-2" />
-                                        </>
-                                    ) : (
-                                        <>
-                                            Continue
-                                            <ArrowRight className="h-4 w-4 ml-2" />
-                                        </>
-                                    )}
-                                </Button>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </motion.div>
-            </div>
+                                    <Button
+                                        className="flex-1 h-12 bg-black text-white hover:bg-gray-800"
+                                        disabled={formData.preferences.length === 0}
+                                        onClick={handleSubmit}
+                                    >
+                                        Complete Setup <CheckCircle2 className="ml-2 w-5 h-5" />
+                                    </Button>
+                                </div>
+                            </motion.div>
+                        )}
+
+                        <div className="flex items-center justify-center gap-2 mt-4">
+                            <div className={`h-2 w-2 rounded-full transition-colors ${step === 1 ? 'bg-black' : 'bg-gray-200'}`} />
+                            <div className={`h-2 w-2 rounded-full transition-colors ${step === 2 ? 'bg-black' : 'bg-gray-200'}`} />
+                        </div>
+                    </CardContent>
+                </Card>
+            </motion.div>
         </div>
     )
 }

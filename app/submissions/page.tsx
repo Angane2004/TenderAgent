@@ -7,19 +7,19 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Send, FileText, Clock } from "lucide-react"
 import { RFP } from "@/types"
-import { storage } from "@/lib/storage"
+import { useRFPs } from "@/contexts/rfp-context"
 import { formatDate } from "@/lib/utils"
 
 export default function SubmissionsPage() {
+    const { rfps } = useRFPs()
     const [submissions, setSubmissions] = useState<RFP[]>([])
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        const rfps = storage.getRFPs()
         const submitted = rfps.filter(r => r.finalResponse?.status === 'submitted')
         setSubmissions(submitted)
         setLoading(false)
-    }, [])
+    }, [rfps])
 
     return (
         <div className="flex h-screen bg-gradient-to-br from-purple-50 via-gray-50 to-blue-50 relative overflow-hidden">

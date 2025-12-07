@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import { ClerkProvider } from "@clerk/nextjs"
 import { RFPProvider } from "@/contexts/rfp-context"
+import { UserProvider } from "@/contexts/user-context"
 import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -20,9 +21,11 @@ export default function RootLayout({
         <ClerkProvider>
             <html lang="en">
                 <body className={inter.className}>
-                    <RFPProvider>
-                        {children}
-                    </RFPProvider>
+                    <UserProvider>
+                        <RFPProvider>
+                            {children}
+                        </RFPProvider>
+                    </UserProvider>
                 </body>
             </html>
         </ClerkProvider>
