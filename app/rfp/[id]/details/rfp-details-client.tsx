@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button"
 import { ArrowLeft, FileText, TestTube, Package, Calendar, Building2 } from "lucide-react"
 import { RFP } from "@/types"
 import Link from "next/link"
-import { storage } from "@/lib/storage"
+import { useRFPs } from "@/contexts/rfp-context"
 
 interface RFPDetailsClientProps {
     id: string
@@ -18,16 +18,17 @@ interface RFPDetailsClientProps {
 
 export default function RFPDetailsClient({ id }: RFPDetailsClientProps) {
     const router = useRouter()
+    const { rfps } = useRFPs()
     const [rfp, setRfp] = useState<RFP | null>(null)
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        const foundRfp = storage.getRFP(id)
+        const foundRfp = rfps.find(r => r.id === id)
         if (foundRfp) {
             setRfp(foundRfp)
         }
         setLoading(false)
-    }, [id])
+    }, [id, rfps])
 
     if (loading) {
         return (
@@ -54,13 +55,20 @@ export default function RFPDetailsClient({ id }: RFPDetailsClientProps) {
     }
 
     return (
-        <div className="flex min-h-screen bg-gray-50">
+        <div className="flex h-screen bg-gradient-to-br from-purple-50 via-gray-50 to-blue-50 relative overflow-hidden">
+            {/* Animated background blobs */}
+            <div className="absolute inset-0 opacity-20 pointer-events-none">
+                <div className="absolute top-20 left-20 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob" />
+                <div className="absolute top-40 right-20 w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000" />
+                <div className="absolute bottom-20 left-1/2 w-96 h-96 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000" />
+            </div>
+
             <Sidebar />
 
-            <div className="flex-1">
+            <div className="flex-1 flex flex-col h-screen">
                 <Header />
 
-                <main className="p-6 space-y-6">
+                <main className="flex-1 overflow-y-auto p-6 space-y-6">
                     {/* Back Button */}
                     <Link href="/rfps">
                         <Button variant="outline" className="border-2 border-black hover:bg-black hover:text-white">

@@ -11,8 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ArrowRight, TestTube, Package } from "lucide-react"
 import { RFP } from "@/types"
-import { storage } from "@/lib/storage"
-import { DUMMY_RFPS } from "@/data/dummy-rfps"
+import { useRFPs } from "@/contexts/rfp-context"
 
 interface SalesAgentClientProps {
     id: string
@@ -20,6 +19,7 @@ interface SalesAgentClientProps {
 
 export default function SalesAgentClient({ id }: SalesAgentClientProps) {
     const router = useRouter()
+    const { rfps } = useRFPs()
     const [rfp, setRfp] = useState<RFP | null>(null)
     const [stage, setStage] = useState<'processing' | 'completed'>('processing')
     const [summary, setSummary] = useState<{
@@ -40,79 +40,50 @@ export default function SalesAgentClient({ id }: SalesAgentClientProps) {
     ]
 
     useEffect(() => {
-        const loadData = async () => {
-            // Try storage first
-            let foundRfp = storage.getRFP(id)
+        const foundRfp = rfps.find(r => r.id === id)
 
-            // If not in storage, try using dummy data (fallback for static IDs)
-            if (!foundRfp) {
-                try {
-                    const data = DUMMY_RFPS
-                    foundRfp = data.find((r: RFP) => r.id === id)
+        if (foundRfp) {
+            setRfp(foundRfp)
 
-                    // If found in dummy data, save to storage for future consistency
-                    if (foundRfp) {
-                        const currentStorage = storage.getRFPs()
-                        // Check if already exists to avoid duplicates
-                        if (!currentStorage.find(r => r.id === foundRfp!.id)) {
-                            storage.saveRFPs([...currentStorage, foundRfp])
-                        }
-                    }
-                } catch (error) {
-                    console.error("Error finding RFP:", error)
+            // Simulate processing
+            setTimeout(() => {
+                const newSummary = {
+                    scopeOfSupply: foundRfp.summary || "11kV XLPE insulated, Aluminum conductor, SWA armored cable",
+                    quantity: `${foundRfp.specifications.quantity.toLocaleString()} meters`,
+                    testingRequired: foundRfp.testingRequirements,
+                    certifications: foundRfp.certifications,
+                    deliveryTimeline: foundRfp.deliveryTimeline,
+                    status: 'completed' as const
                 }
-            }
-
-            if (foundRfp) {
-                setRfp(foundRfp)
-
-                // If already completed, show summary immediately
-                if (foundRfp.salesSummary?.status === 'completed') {
-                    setSummary(foundRfp.salesSummary)
-                    setStage('completed')
-                } else {
-                    // Simulate processing if not completed
-                    setTimeout(() => {
-                        const newSummary = {
-                            scopeOfSupply: "11kV XLPE insulated, Aluminum conductor, SWA armored cable",
-                            quantity: "5000 meters",
-                            testingRequired: ["Type Test", "Routine Test", "Sample Test"],
-                            certifications: ["BIS", "ISO 9001"],
-                            deliveryTimeline: "90 days from PO",
-                            status: 'completed' as const
-                        }
-                        setSummary(newSummary)
-                        setStage('completed')
-
-                        // Save to storage
-                        storage.updateRFP(id, {
-                            salesSummary: newSummary,
-                            status: 'in-progress'
-                        })
-                    }, 3000)
-                }
-            }
+                setSummary(newSummary)
+                setStage('completed')
+            }, 3000)
         }
-
-        loadData()
-    }, [id])
+    }, [id, rfps])
 
     if (!rfp) {
         return (
-            <div className="flex min-h-screen items-center justify-center bg-gray-50">
+            <div className="flex h-screen items-center justify-center bg-gradient-to-br from-purple-50 via-gray-50 to-blue-50">
                 <div className="h-8 w-8 border-4 border-black border-t-transparent rounded-full animate-spin" />
             </div>
         )
     }
 
     return (
-        <div className="flex min-h-screen bg-gray-50">
+        <div className="flex h-screen bg-gradient-to-br from-purple-50 via-gray-50 to-blue-50 relative overflow-hidden">
+            {/* Animated background blobs */}
+            <div className="absolute inset-0 opacity-20 pointer-events-none">
+                <div className="absolute top-20 left-20 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob" />
+                <div className="absolute top-40 right-20 w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000" />
+                <div className="absolute bottom-20 left-1/2 w-96 h-96 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000" />
+            </div>
+
             <Sidebar />
 
-            <div className="flex-1">
+            <div className="flex-1 flex flex-col h-screen">
                 <Header />
 
-                <main className="p-6 space-y-6">
+                <main className="flex-1 overflow-y-auto p-6 space-y-6">
                     {/* Header */}
                     <div>
                         <h1 className="text-3xl font-bold">Sales Discovery Agent</h1>
