@@ -286,21 +286,7 @@ export default function LandingPage() {
                     </motion.div>
                 </div>
 
-                {/* Scroll Indicator */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 1, delay: 1.5 }}
-                    className="absolute bottom-10 left-1/2 -translate-x-1/2"
-                >
-                    <div className="w-6 h-10 border-2 border-black rounded-full flex justify-center">
-                        <motion.div
-                            animate={{ y: [0, 12, 0] }}
-                            transition={{ duration: 1.5, repeat: Infinity }}
-                            className="w-1.5 h-1.5 bg-black rounded-full mt-2"
-                        />
-                    </div>
-                </motion.div>
+                {/* Scroll Indicator removed */}
             </section>
 
             {/* Workflow Section */}
@@ -500,7 +486,7 @@ export default function LandingPage() {
                             </div>
                             <span className="font-bold">TenderAgent</span>
                         </div>
-                        <p className="text-gray-600">&copy; 2025 TenderAgent. Powered by Multi-Agent AI.</p>
+                        <p className="text-gray-600">&copy; 2025 TenderAgent. Made By <b>Team Zero</b>.</p>
                     </div>
                 </div>
             </footer>

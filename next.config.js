@@ -3,6 +3,7 @@ const nextConfig = {
     reactStrictMode: true,
     images: {
         domains: [],
+        formats: ['image/avif', 'image/webp'],
     },
     // Performance optimizations
     compiler: {
@@ -10,12 +11,17 @@ const nextConfig = {
     },
     // Optimize production builds
     productionBrowserSourceMaps: false,
+    swcMinify: true,
     // Ignore ESLint and TypeScript errors during build
     eslint: {
         ignoreDuringBuilds: true,
     },
     typescript: {
         ignoreBuildErrors: true,
+    },
+    // Experimental features for better performance
+    experimental: {
+        optimizeCss: true,
     },
 }
 

@@ -309,7 +309,7 @@ export default function LandingPage() {
             {/* Footer */}
             <footer className="relative py-12 px-6 border-t border-white/10">
                 <div className="max-w-6xl mx-auto text-center text-gray-500">
-                    <p>&copy; 2025 TenderAgent. Powered by Multi-Agent AI.</p>
+                    <p>&copy; 2025 TenderAgent. Made By Team Zero.</p>
                 </div>
             </footer>
         </div>

@@ -91,11 +91,11 @@ export default function AdminPage() {
     ]
 
     return (
-        <div className="flex min-h-screen bg-gray-50 relative">
+        <div className="flex h-screen bg-gray-50 relative overflow-hidden">
             <GradientBackground />
 
-            {/* Admin Sidebar - Fixed, Static, No Scroll */}
-            <div className="fixed left-0 top-0 h-screen w-64 bg-black text-white border-r-2 border-gray-800 flex flex-col z-50">
+            {/* Admin Sidebar - Static, No Scroll */}
+            <div className="w-64 bg-black text-white border-r-2 border-gray-800 flex flex-col z-50 flex-shrink-0">
                 <div className="p-6 border-b border-gray-800">
                     <div className="flex items-center gap-2">
                         <Shield className="h-8 w-8" />
@@ -127,11 +127,11 @@ export default function AdminPage() {
                 </div>
             </div>
 
-            {/* Main Content - with left margin for fixed sidebar */}
-            <div className="flex-1 ml-64">
+            {/* Main Content */}
+            <div className="flex-1 flex flex-col h-screen relative z-10">
                 <Header />
 
-                <main className="p-6 space-y-6">
+                <main className="flex-1 overflow-y-auto p-6 space-y-6">
                     {/* Page Header */}
                     <div className="flex items-center justify-between">
                         <div>

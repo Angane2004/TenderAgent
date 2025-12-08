@@ -1,6 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { useUser } from "@/contexts/user-context"
+import { useEffect, useState } from "react"
 import { Sidebar } from "@/components/layout/sidebar"
 import { Header } from "@/components/layout/header"
 import { RFPCard } from "@/components/rfp/rfp-card"
@@ -16,6 +18,8 @@ import { useRFPs } from "@/contexts/rfp-context"
 
 export default function DashboardPage() {
     const { rfps, isScanning, scanForRFPs } = useRFPs()
+    const { profile, isLoading: isUserLoading, checkOnboardingStatus } = useUser()
+    const router = useRouter()
     const [searchQuery, setSearchQuery] = useState("")
     const [filterStatus, setFilterStatus] = useState<string>("all")
     const [advancedFilters, setAdvancedFilters] = useState<FilterOptions>({
@@ -24,6 +28,12 @@ export default function DashboardPage() {
         urgency: [],
         certifications: []
     })
+
+    useEffect(() => {
+        if (!isUserLoading && !checkOnboardingStatus()) {
+            router.push('/onboarding')
+        }
+    }, [isUserLoading, checkOnboardingStatus, router])
 
     const handleScan = () => {
         scanForRFPs()
@@ -116,6 +126,14 @@ export default function DashboardPage() {
             bgColor: "bg-purple-100"
         }
     ]
+
+    if (isUserLoading) {
+        return (
+            <div className="flex h-screen items-center justify-center bg-gray-50">
+                <div className="h-8 w-8 border-4 border-black border-t-transparent rounded-full animate-spin" />
+            </div>
+        )
+    }
 
     return (
         <div className="flex h-screen bg-gradient-to-br from-purple-50 via-gray-50 to-blue-50 relative overflow-hidden">
