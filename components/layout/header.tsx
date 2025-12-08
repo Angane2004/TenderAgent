@@ -1,6 +1,6 @@
 "use client"
 
-import { Bell, Settings, User, LogOut, Search, Building2 } from "lucide-react"
+import { Bell, Settings, User, LogOut, Search, Building2, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useState } from "react"
@@ -25,6 +25,7 @@ export function Header({ onSearch }: HeaderProps = {}) {
     const [notificationOpen, setNotificationOpen] = useState(false)
     const [settingsOpen, setSettingsOpen] = useState(false)
     const [searchQuery, setSearchQuery] = useState("")
+    const [tooltipOpen, setTooltipOpen] = useState(false)
     const [isEditMode, setIsEditMode] = useState(false)
     const [editFormData, setEditFormData] = useState({
         companyName: "",
@@ -93,6 +94,7 @@ export function Header({ onSearch }: HeaderProps = {}) {
     const handleCancelEdit = () => {
         setIsEditMode(false)
         setShowAllPreferences(false)
+        setTooltipOpen(false)
     }
 
     const handlePreferenceToggle = (category: string) => {
@@ -115,6 +117,7 @@ export function Header({ onSearch }: HeaderProps = {}) {
             })
             setIsEditMode(false)
             setShowAllPreferences(false)
+            setTooltipOpen(false)
         } catch (error) {
             console.error('Error updating profile:', error)
         }
@@ -144,8 +147,11 @@ export function Header({ onSearch }: HeaderProps = {}) {
                         transition={{ duration: 0.5, ease: "easeOut" }}
                         className="relative group"
                     >
-                        {/* Main Company Card */}
-                        <div className="hidden md:flex items-center gap-2 px-3 py-2 bg-white border-2 border-black rounded-lg hover:shadow-lg transition-all duration-300 cursor-pointer max-w-[180px]">
+                        {/* Main Company Card - Click to open */}
+                        <div
+                            className="hidden md:flex items-center gap-2 px-3 py-2 bg-white border-2 border-black rounded-lg hover:shadow-lg transition-all duration-300 cursor-pointer max-w-[180px]"
+                            onClick={() => setTooltipOpen(!tooltipOpen)}
+                        >
                             <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center flex-shrink-0">
                                 <Building2 className="w-5 h-5 text-white" />
                             </div>
@@ -162,169 +168,183 @@ export function Header({ onSearch }: HeaderProps = {}) {
                             </div>
                         </div>
 
-                        {/* Tooltip with Arrow - Using before pseudo-element for arrow */}
-                        <div
-                            className="absolute top-full left-[-20px] mt-4 w-96 bg-white border-2 border-black rounded-2xl shadow-2xl p-6 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 max-h-[600px] overflow-y-auto before:content-[''] before:absolute before:-top-2 before:left-10 before:w-4 before:h-4 before:bg-white before:border-l-2 before:border-t-2 before:border-black before:rotate-45 before:z-10"
-                        >
-                            {/* Tooltip Header */}
-                            <div className="flex items-center justify-between mb-3 pb-3 border-b-2 border-gray-200">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center">
-                                        <Building2 className="w-5 h-5 text-white" />
+                        {/* Tooltip - Click-based */}
+                        {tooltipOpen && (
+                            <div
+                                className="absolute top-full left-[-20px] mt-4 w-96 bg-white border-2 border-black rounded-2xl shadow-2xl p-6 z-50 max-h-[600px] overflow-y-auto"
+                            >
+                                {/* Tooltip Header with Close Button */}
+                                <div className="flex items-center justify-between mb-3 pb-3 border-b-2 border-gray-200">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center">
+                                            <Building2 className="w-5 h-5 text-white" />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-base text-gray-900">Company Profile</h4>
+                                            <p className="text-xs text-gray-500">{isEditMode ? 'Edit your details' : 'Your details'}</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h4 className="font-bold text-base text-gray-900">Company Profile</h4>
-                                        <p className="text-xs text-gray-500">{isEditMode ? 'Edit your details' : 'Your details'}</p>
+                                    <div className="flex items-center gap-2">
+                                        {!isEditMode ? (
+                                            <>
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={handleEditClick}
+                                                    className="border-2 border-black hover:bg-black hover:text-white text-xs h-8"
+                                                >
+                                                    Edit
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() => setTooltipOpen(false)}
+                                                    className="h-8 w-8 hover:bg-gray-100"
+                                                >
+                                                    <X className="h-4 w-4" />
+                                                </Button>
+                                            </>
+                                        ) : (
+                                            <div className="flex gap-2">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={handleCancelEdit}
+                                                    className="border-2 border-gray-300 hover:bg-gray-100 text-xs h-8"
+                                                >
+                                                    Cancel
+                                                </Button>
+                                                <Button
+                                                    size="sm"
+                                                    onClick={handleSaveEdit}
+                                                    className="bg-black text-white hover:bg-gray-800 text-xs h-8"
+                                                >
+                                                    Save
+                                                </Button>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
-                                {!isEditMode ? (
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={handleEditClick}
-                                        className="border-2 border-black hover:bg-black hover:text-white text-xs h-8"
-                                    >
-                                        Edit
-                                    </Button>
-                                ) : (
-                                    <div className="flex gap-2">
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={handleCancelEdit}
-                                            className="border-2 border-gray-300 hover:bg-gray-100 text-xs h-8"
-                                        >
-                                            Cancel
-                                        </Button>
-                                        <Button
-                                            size="sm"
-                                            onClick={handleSaveEdit}
-                                            className="bg-black text-white hover:bg-gray-800 text-xs h-8"
-                                        >
-                                            Save
-                                        </Button>
-                                    </div>
-                                )}
-                            </div>
 
-                            {/* Tooltip Content */}
-                            <div className="space-y-3">
-                                {isEditMode ? (
-                                    <>
-                                        {/* Edit Mode */}
-                                        <div className="space-y-3">
-                                            <div>
-                                                <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">Company</label>
-                                                <Input
-                                                    value={editFormData.companyName}
-                                                    onChange={(e) => setEditFormData({ ...editFormData, companyName: e.target.value })}
-                                                    className="h-9 text-sm"
-                                                    placeholder="Company name"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">Industry</label>
-                                                <Select value={editFormData.industry} onValueChange={(value) => setEditFormData({ ...editFormData, industry: value })}>
-                                                    <SelectTrigger className="h-9 text-sm">
-                                                        <SelectValue placeholder="Select industry" />
-                                                    </SelectTrigger>
-                                                    <SelectContent className="max-h-[200px]">
-                                                        {industries.map((industry) => (
-                                                            <SelectItem key={industry} value={industry} className="text-sm">
-                                                                {industry}
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-                                            <div>
-                                                <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">Size</label>
-                                                <Select value={editFormData.companySize} onValueChange={(value) => setEditFormData({ ...editFormData, companySize: value })}>
-                                                    <SelectTrigger className="h-9 text-sm">
-                                                        <SelectValue placeholder="Select size" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {companySizes.map((size) => (
-                                                            <SelectItem key={size} value={size} className="text-sm">
-                                                                {size}
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-                                            <div>
-                                                <label className="text-xs font-semibold text-gray-500 uppercase block mb-2">Tender Preferences</label>
-                                                <div className="grid grid-cols-2 gap-2 max-h-[250px] overflow-y-auto pr-1">
-                                                    {tenderCategories.map((category) => (
-                                                        <div
-                                                            key={category}
-                                                            onClick={() => handlePreferenceToggle(category)}
-                                                            className={`cursor-pointer p-2 rounded border text-xs transition-all ${editFormData.tenderPreferences.includes(category)
+                                {/* Tooltip Content */}
+                                <div className="space-y-3">
+                                    {isEditMode ? (
+                                        <>
+                                            {/* Edit Mode */}
+                                            <div className="space-y-3">
+                                                <div>
+                                                    <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">Company</label>
+                                                    <Input
+                                                        value={editFormData.companyName}
+                                                        onChange={(e) => setEditFormData({ ...editFormData, companyName: e.target.value })}
+                                                        className="h-9 text-sm"
+                                                        placeholder="Company name"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">Industry</label>
+                                                    <Select value={editFormData.industry} onValueChange={(value) => setEditFormData({ ...editFormData, industry: value })}>
+                                                        <SelectTrigger className="h-9 text-sm">
+                                                            <SelectValue placeholder="Select industry" />
+                                                        </SelectTrigger>
+                                                        <SelectContent className="max-h-[200px]">
+                                                            {industries.map((industry) => (
+                                                                <SelectItem key={industry} value={industry} className="text-sm">
+                                                                    {industry}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+                                                <div>
+                                                    <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">Size</label>
+                                                    <Select value={editFormData.companySize} onValueChange={(value) => setEditFormData({ ...editFormData, companySize: value })}>
+                                                        <SelectTrigger className="h-9 text-sm">
+                                                            <SelectValue placeholder="Select size" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {companySizes.map((size) => (
+                                                                <SelectItem key={size} value={size} className="text-sm">
+                                                                    {size}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+                                                <div>
+                                                    <label className="text-xs font-semibold text-gray-500 uppercase block mb-2">Tender Preferences</label>
+                                                    <div className="grid grid-cols-2 gap-2 max-h-[250px] overflow-y-auto pr-1">
+                                                        {tenderCategories.map((category) => (
+                                                            <div
+                                                                key={category}
+                                                                onClick={() => handlePreferenceToggle(category)}
+                                                                className={`cursor-pointer p-2 rounded border text-xs transition-all ${editFormData.tenderPreferences.includes(category)
                                                                     ? 'border-black bg-black text-white'
                                                                     : 'border-gray-300 hover:border-black'
-                                                                }`}
-                                                        >
-                                                            {category}
-                                                        </div>
-                                                    ))}
+                                                                    }`}
+                                                            >
+                                                                {category}
+                                                            </div>
+                                                        ))}
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </>
-                                ) : (
-                                    <>
-                                        {/* View Mode */}
-                                        <div className="bg-gray-50 rounded-lg p-2 border border-gray-200">
-                                            <span className="text-xs font-semibold text-gray-500 uppercase">Company</span>
-                                            <p className="text-sm font-bold text-gray-900">{profile.companyName}</p>
-                                        </div>
-
-                                        {profile.industry && (
+                                        </>
+                                    ) : (
+                                        <>
+                                            {/* View Mode */}
                                             <div className="bg-gray-50 rounded-lg p-2 border border-gray-200">
-                                                <span className="text-xs font-semibold text-gray-500 uppercase">Industry</span>
-                                                <p className="text-sm font-medium text-gray-900">{profile.industry}</p>
+                                                <span className="text-xs font-semibold text-gray-500 uppercase">Company</span>
+                                                <p className="text-sm font-bold text-gray-900">{profile.companyName}</p>
                                             </div>
-                                        )}
 
-                                        {profile.companySize && (
-                                            <div className="bg-gray-50 rounded-lg p-2 border border-gray-200">
-                                                <span className="text-xs font-semibold text-gray-500 uppercase">Size</span>
-                                                <p className="text-sm font-medium text-gray-900">{profile.companySize}</p>
-                                            </div>
-                                        )}
-
-                                        {profile.tenderPreferences.length > 0 && (
-                                            <div className="bg-gray-50 rounded-lg p-2 border border-gray-200">
-                                                <span className="text-xs font-semibold text-gray-500 uppercase mb-1 block">Preferences</span>
-                                                <div className="flex flex-wrap gap-1">
-                                                    {(showAllPreferences ? profile.tenderPreferences : profile.tenderPreferences.slice(0, 2)).map((pref, idx) => (
-                                                        <span key={idx} className="px-2 py-1 bg-black text-white text-xs rounded">
-                                                            {pref}
-                                                        </span>
-                                                    ))}
-                                                    {profile.tenderPreferences.length > 2 && !showAllPreferences && (
-                                                        <button
-                                                            onClick={() => setShowAllPreferences(true)}
-                                                            className="px-2 py-1 bg-gray-300 text-gray-700 text-xs rounded hover:bg-gray-400 transition-colors"
-                                                        >
-                                                            +{profile.tenderPreferences.length - 2} more
-                                                        </button>
-                                                    )}
-                                                    {showAllPreferences && profile.tenderPreferences.length > 2 && (
-                                                        <button
-                                                            onClick={() => setShowAllPreferences(false)}
-                                                            className="px-2 py-1 bg-gray-300 text-gray-700 text-xs rounded hover:bg-gray-400 transition-colors"
-                                                        >
-                                                            Show less
-                                                        </button>
-                                                    )}
+                                            {profile.industry && (
+                                                <div className="bg-gray-50 rounded-lg p-2 border border-gray-200">
+                                                    <span className="text-xs font-semibold text-gray-500 uppercase">Industry</span>
+                                                    <p className="text-sm font-medium text-gray-900">{profile.industry}</p>
                                                 </div>
-                                            </div>
-                                        )}
-                                    </>
-                                )}
+                                            )}
+
+                                            {profile.companySize && (
+                                                <div className="bg-gray-50 rounded-lg p-2 border border-gray-200">
+                                                    <span className="text-xs font-semibold text-gray-500 uppercase">Size</span>
+                                                    <p className="text-sm font-medium text-gray-900">{profile.companySize}</p>
+                                                </div>
+                                            )}
+
+                                            {profile.tenderPreferences.length > 0 && (
+                                                <div className="bg-gray-50 rounded-lg p-2 border border-gray-200">
+                                                    <span className="text-xs font-semibold text-gray-500 uppercase mb-1 block">Preferences</span>
+                                                    <div className="flex flex-wrap gap-1">
+                                                        {(showAllPreferences ? profile.tenderPreferences : profile.tenderPreferences.slice(0, 2)).map((pref, idx) => (
+                                                            <span key={idx} className="px-2 py-1 bg-black text-white text-xs rounded">
+                                                                {pref}
+                                                            </span>
+                                                        ))}
+                                                        {profile.tenderPreferences.length > 2 && !showAllPreferences && (
+                                                            <button
+                                                                onClick={() => setShowAllPreferences(true)}
+                                                                className="px-2 py-1 bg-gray-300 text-gray-700 text-xs rounded hover:bg-gray-400 transition-colors"
+                                                            >
+                                                                +{profile.tenderPreferences.length - 2} more
+                                                            </button>
+                                                        )}
+                                                        {showAllPreferences && profile.tenderPreferences.length > 2 && (
+                                                            <button
+                                                                onClick={() => setShowAllPreferences(false)}
+                                                                className="px-2 py-1 bg-gray-300 text-gray-700 text-xs rounded hover:bg-gray-400 transition-colors"
+                                                            >
+                                                                Show less
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </motion.div>
                 )}
 

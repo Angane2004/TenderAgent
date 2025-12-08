@@ -11,7 +11,6 @@ const nextConfig = {
     },
     // Optimize production builds
     productionBrowserSourceMaps: false,
-    swcMinify: true,
     // Ignore ESLint and TypeScript errors during build
     eslint: {
         ignoreDuringBuilds: true,
