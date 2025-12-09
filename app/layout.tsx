@@ -14,6 +14,10 @@ const ubuntu = Ubuntu({
 
 export const metadata: Metadata = {
     title: "TenderAgent - AI-Powered RFP Automation",
+    keywords: ["RFP Automation", "AI-Powered RFP", "Intelligent Multi-Agent System", "TenderAgent"],
+    icons: {
+        icon: "/meeting.png",
+    },
     description: "Automate your RFP lifecycle with intelligent multi-agent system",
 }
 
