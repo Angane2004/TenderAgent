@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Calendar as CalendarIcon, Clock, AlertCircle, Download, ChevronLeft, ChevronRight, X, ExternalLink } from "lucide-react"
+import { Calendar as CalendarIcon, Clock, AlertCircle, Download, ChevronLeft, ChevronRight, X, ExternalLink, CalendarRange } from "lucide-react"
 import { RFP } from "@/types"
 import Link from "next/link"
 import { useRFPs } from "@/contexts/rfp-context"
@@ -145,7 +145,7 @@ END:VEVENT
                                 variant="outline"
                                 className="border-2 border-black hover:bg-black hover:text-white"
                             >
-                                <CalendarIcon className="h-4 w-4 mr-2" />
+                                <CalendarRange className="h-4 w-4 mr-2" />
                                 {viewMode === 'list' ? 'Calendar View' : 'List View'}
                             </Button>
                             <Button
