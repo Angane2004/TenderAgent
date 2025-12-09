@@ -1,11 +1,12 @@
 "use client"
 
-import { memo } from "react"
+import { memo, useState } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Calendar, Building2, Clock, TrendingUp, CheckCircle, IndianRupeeIcon, ArrowRight } from "lucide-react"
+import { Calendar, Building2, Clock, TrendingUp, CheckCircle, IndianRupeeIcon, ArrowRight, Loader2 } from "lucide-react"
 import { RFP } from "@/types"
 import { getDaysUntil, formatDate } from "@/lib/utils"
 import { getActualRFPStatus, getNextAgentStep } from "@/lib/rfp-utils"
@@ -19,9 +20,18 @@ function cn(...classes: (string | boolean | undefined)[]) {
 }
 
 export const RFPCard = memo(function RFPCard({ rfp }: RFPCardProps) {
+    const router = useRouter()
     const daysUntil = getDaysUntil(rfp.deadline)
     const actualStatus = getActualRFPStatus(rfp)
     const nextStep = getNextAgentStep(rfp)
+    const [isNavigating, setIsNavigating] = useState(false)
+
+    const handleSelectResponse = () => {
+        setIsNavigating(true)
+        setTimeout(() => {
+            router.push(`/rfp/${rfp.id}/sales-agent`)
+        }, 300)
+    }
 
     return (
         <Card className="hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-2 border-black bg-white" style={{ willChange: "transform, box-shadow" }}>
@@ -38,92 +48,107 @@ export const RFPCard = memo(function RFPCard({ rfp }: RFPCardProps) {
                         <Badge
                             variant="outline"
                             className={cn(
-                                "border-2",
-                                rfp.riskScore === 'low' && "border-green-600 text-green-600 bg-green-50",
-                                rfp.riskScore === 'medium' && "border-yellow-600 text-yellow-600 bg-yellow-50",
-                                rfp.riskScore === 'high' && "border-red-600 text-red-600 bg-red-50"
+                                daysUntil <= 7
+                                    ? "border-red-600 text-red-600 bg-red-50"
+                                    : daysUntil <= 30
+                                        ? "border-yellow-600 text-yellow-600 bg-yellow-50"
+                                        : "border-green-600 text-green-600 bg-green-50",
+                                "font-semibold"
                             )}
                         >
-                            {rfp.riskScore.toUpperCase()} RISK
+                            <Clock className="mr-1 h-3 w-3" />
+                            {daysUntil > 0 ? `${daysUntil}d left` : "Overdue"}
                         </Badge>
-                        <Badge variant="outline" className="justify-center border-2 border-black">
-                            <TrendingUp className="h-3 w-3 mr-1" />
-                            {rfp.fitScore}% Fit
+                        <Badge variant="outline" className="border-blue-600 text-blue-600 bg-blue-50 justify-center">
+                            <TrendingUp className="mr-1 h-3 w-3" />
+                            {rfp.fitScore}% fit
                         </Badge>
                     </div>
                 </div>
             </CardHeader>
 
-            <CardContent>
-                <p className="text-sm text-gray-600 line-clamp-2 mb-4">
-                    {rfp.summary}
-                </p>
+            <CardContent className="space-y-3">
+                <p className="text-sm text-gray-600 line-clamp-2">{rfp.summary}</p>
 
-                <div className="grid grid-cols-2 gap-4 text-sm mb-4">
-                    <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-gray-500" />
-                        <span className="text-gray-600">Deadline:</span>
-                    </div>
-                    <div className="font-medium">{formatDate(rfp.deadline)}</div>
-
-                    <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-gray-500" />
-                        <span className="text-gray-600">Time Left:</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <Badge
-                            variant="outline"
-                            className={cn(
-                                "text-xs border-2",
-                                daysUntil <= 7 && "border-red-600 text-red-600 bg-red-50",
-                                daysUntil > 7 && daysUntil <= 30 && "border-yellow-600 text-yellow-600 bg-yellow-50",
-                                daysUntil > 30 && "border-green-600 text-green-600 bg-green-50"
-                            )}
-                        >
-                            {daysUntil > 0 ? `${daysUntil} days` : 'OVERDUE'}
-                        </Badge>
-                    </div>
-                </div>
-
-                <div className="flex flex-wrap gap-2">
-                    <Badge variant="outline" className="text-xs border-black">
-                        {rfp.specifications.voltage}
-                    </Badge>
-                    <Badge variant="outline" className="text-xs border-black">
-                        {rfp.specifications.size}
-                    </Badge>
-                    <Badge variant="outline" className="text-xs border-black">
-                        {rfp.specifications.quantity.toLocaleString()} meters
-                    </Badge>
-                </div>
-
-                {/* Profit & Price Section */}
-                <div className="mt-4 p-3 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-lg">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <IndianRupeeIcon className="h-5 w-5 text-green-600" />
-                            <div>
-                                <p className="text-xs text-gray-600">Estimated Value</p>
-                                <p className="text-lg font-bold text-green-700">
-                                    ₹{(rfp.pricingStrategy?.totalValue || Math.random() * 500000 + 100000).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                {/* Estimated Value Card with Profit/Loss */}
+                {(rfp.estimatedValue || rfp.pricingStrategy?.totalValue) && (
+                    <div className={`p-3 rounded-lg border-2 ${rfp.fitScore >= 85
+                            ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-600'
+                            : rfp.fitScore >= 70
+                                ? 'bg-gradient-to-br from-yellow-50 to-amber-50 border-yellow-600'
+                                : 'bg-gradient-to-br from-orange-50 to-red-50 border-orange-600'
+                        }`}>
+                        <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                                <IndianRupeeIcon className={`h-5 w-5 ${rfp.fitScore >= 85 ? 'text-green-600' :
+                                        rfp.fitScore >= 70 ? 'text-yellow-600' :
+                                            'text-orange-600'
+                                    }`} />
+                                <span className={`text-xs font-semibold uppercase ${rfp.fitScore >= 85 ? 'text-green-700' :
+                                        rfp.fitScore >= 70 ? 'text-yellow-700' :
+                                            'text-orange-700'
+                                    }`}>Estimated Value</span>
+                            </div>
+                            <Badge className={`text-white text-xs ${rfp.fitScore >= 85 ? 'bg-green-600' :
+                                    rfp.fitScore >= 70 ? 'bg-yellow-600' :
+                                        'bg-orange-600'
+                                }`}>
+                                {rfp.fitScore >= 85 ? 'High Profit' : rfp.fitScore >= 70 ? 'Good Margin' : 'Break Even'}
+                            </Badge>
+                        </div>
+                        <div className="flex items-baseline justify-between">
+                            <p className={`text-2xl font-bold ${rfp.fitScore >= 85 ? 'text-green-900' :
+                                    rfp.fitScore >= 70 ? 'text-yellow-900' :
+                                        'text-orange-900'
+                                }`}>
+                                ₹{((rfp.estimatedValue || rfp.pricingStrategy?.totalValue || 0) / 100000).toFixed(2)}L
+                            </p>
+                            <div className="text-right">
+                                {/* <p className="text-xs text-green-700 font-semibold">
+                                    Win Probability: {rfp.fitScore}%
+                                </p> */}
+                                <p className={`text-xs ${rfp.fitScore >= 85 ? 'text-green-600' :
+                                        rfp.fitScore >= 70 ? 'text-yellow-600' :
+                                            'text-orange-600'
+                                    }`}>
+                                    Est. Profit: ₹{(((rfp.estimatedValue || rfp.pricingStrategy?.totalValue || 0) * 0.18) / 100000).toFixed(2)}L
                                 </p>
                             </div>
                         </div>
-                        <div className="text-right">
-                            <p className="text-xs text-gray-600">Profitability</p>
-                            <Badge className={cn(
-                                "text-xs font-bold",
-                                (rfp.fitScore || 0) >= 80 ? "bg-green-600" :
-                                    (rfp.fitScore || 0) >= 60 ? "bg-yellow-600" :
-                                        "bg-orange-600"
-                            )}>
-                                {(rfp.fitScore || 0) >= 80 ? "HIGH" :
-                                    (rfp.fitScore || 0) >= 60 ? "MEDIUM" :
-                                        "LOW"}
-                            </Badge>
-                        </div>
+                    </div>
+                )}
+
+                <div className="grid grid-cols-2 gap-3">
+                    <div className="flex items-center gap-2 text-sm">
+                        <Calendar className="h-4 w-4 text-gray-500" />
+                        <span className="text-gray-600">{formatDate(rfp.deadline)}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                        <Clock className="h-4 w-4 text-gray-500" />
+                        <span className="text-gray-600 font-semibold">
+                            {daysUntil > 0 ? `${daysUntil} days left` : "Overdue"}
+                        </span>
                     </div>
                 </div>
+
+                {rfp.certifications && rfp.certifications.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                        {rfp.certifications.slice(0, 3).map((cert, idx) => (
+                            <Badge
+                                key={idx}
+                                variant="outline"
+                                className="text-xs border-gray-300"
+                            >
+                                {cert}
+                            </Badge>
+                        ))}
+                        {rfp.certifications.length > 3 && (
+                            <Badge variant="outline" className="text-xs border-gray-300">
+                                +{rfp.certifications.length - 3}
+                            </Badge>
+                        )}
+                    </div>
+                )}
             </CardContent>
 
             <CardFooter className="flex gap-2">
@@ -152,15 +177,27 @@ export const RFPCard = memo(function RFPCard({ rfp }: RFPCardProps) {
                 ) : (
                     <>
                         <Link href={`/rfp/${rfp.id}/details`} className="flex-1">
-                            <Button variant="outline" className="w-full border-2 border-black hover:bg-black hover:text-white">
+                            <Button
+                                variant="outline"
+                                className="w-full border-2 border-black hover:bg-gray-100"
+                            >
                                 View Details
                             </Button>
                         </Link>
-                        <Link href={`/rfp/${rfp.id}/sales-agent`} className="flex-1">
-                            <Button className="w-full bg-black text-white hover:bg-gray-800">
-                                Select for Response
-                            </Button>
-                        </Link>
+                        <Button
+                            onClick={handleSelectResponse}
+                            disabled={isNavigating}
+                            className="flex-1 bg-black text-white hover:bg-gray-800 disabled:opacity-70 disabled:cursor-not-allowed"
+                        >
+                            {isNavigating ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Starting...
+                                </>
+                            ) : (
+                                "Select for Response"
+                            )}
+                        </Button>
                     </>
                 )}
             </CardFooter>

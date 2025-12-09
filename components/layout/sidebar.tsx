@@ -17,7 +17,8 @@ import {
     ChevronRight,
     LogOut,
     CheckCircle2,
-    CalendarCheck
+    CalendarCheck,
+    Loader2
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -259,14 +260,25 @@ export function Sidebar() {
                     )}
                     <SignOutButton>
                         <Button
+                            onClick={() => setIsLoggingOut(true)}
                             variant="outline"
+                            disabled={isLoggingOut}
                             className={cn(
-                                "w-full border-2 border-black hover:bg-black hover:text-white transition-all duration-200",
+                                "w-full border-2 border-black hover:bg-black hover:text-white transition-all duration-200 disabled:opacity-70",
                                 collapsed && "px-2"
                             )}
                         >
-                            <LogOut className={cn("h-4 w-4", !collapsed && "mr-2")} />
-                            {!collapsed && "Logout"}
+                            {isLoggingOut ? (
+                                <>
+                                    <Loader2 className={cn("h-4 w-4 animate-spin", !collapsed && "mr-2")} />
+                                    {!collapsed && "Logging out..."}
+                                </>
+                            ) : (
+                                <>
+                                    <LogOut className={cn("h-4 w-4", !collapsed && "mr-2")} />
+                                    {!collapsed && "Logout"}
+                                </>
+                            )}
                         </Button>
                     </SignOutButton>
                 </div>

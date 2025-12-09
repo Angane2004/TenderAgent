@@ -9,7 +9,7 @@ import { AgentCard } from "@/components/agents/agent-card"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ArrowRight, Brain, CheckCircle } from "lucide-react"
+import { ArrowRight, Brain, CheckCircle, Zap, Bot, Loader2 } from "lucide-react"
 import { RFP } from "@/types"
 import { useRFPs } from "@/contexts/rfp-context"
 
@@ -22,6 +22,7 @@ export default function MasterAgentClient({ id }: MasterAgentClientProps) {
     const { rfps } = useRFPs()
     const [rfp, setRfp] = useState<RFP | null>(null)
     const [stage, setStage] = useState<'processing' | 'completed'>('processing')
+    const [isNavigating, setIsNavigating] = useState(false)
 
     const logs = [
         { message: "Receiving input from Sales Agent...", status: 'completed' as const, progress: 100 },
@@ -199,11 +200,24 @@ export default function MasterAgentClient({ id }: MasterAgentClientProps) {
 
                             <div className="flex justify-end">
                                 <Button
-                                    onClick={() => router.push(`/rfp/${id}/final-response`)}
-                                    className="bg-black text-white hover:bg-gray-800"
+                                    onClick={() => {
+                                        setIsNavigating(true)
+                                        setTimeout(() => router.push(`/rfp/${id}/final-response`), 300)
+                                    }}
+                                    disabled={isNavigating}
+                                    className="bg-black text-white hover:bg-gray-800 disabled:opacity-70"
                                 >
-                                    Generate Final Response
-                                    <ArrowRight className="ml-2 h-4 w-4" />
+                                    {isNavigating ? (
+                                        <>
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            Generating...
+                                        </>
+                                    ) : (
+                                        <>
+                                            Generate Final Response
+                                            <ArrowRight className="ml-2 h-4 w-4" />
+                                        </>
+                                    )}
                                 </Button>
                             </div>
                         </>

@@ -3,23 +3,24 @@ export interface RFP {
     title: string
     issuedBy: string
     summary: string
-    submissionDate: string
     deadline: string
-    status: 'new' | 'in-progress' | 'completed'
-    riskScore: 'low' | 'medium' | 'high'
+    estimatedValue?: number
     fitScore: number
-    scope: string
+    certifications: string[]
+    status: 'new' | 'in-progress' | 'completed'
+    submittedAt?: string
     specifications: {
+        quantity: number
         voltage: string
         size: string
-        conductor: string
-        insulation: string
-        armoring: string
-        standard: string
-        quantity: number
+        insulation?: string
+        conductor?: string
+        armoring?: string
+        standards?: string[]
     }
-    testingRequirements: string[]
-    certifications: string[]
+    requirements?: string[]
+    deliveryLocation?: string
+    paymentTerms?: string[]
     deliveryTimeline: string
     // Agent Outputs
     salesSummary?: {

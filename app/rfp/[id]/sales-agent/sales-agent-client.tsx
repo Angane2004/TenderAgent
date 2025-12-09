@@ -9,7 +9,7 @@ import { AgentCard } from "@/components/agents/agent-card"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ArrowRight, TestTube, Package } from "lucide-react"
+import { ArrowRight, TestTube, Package, Loader2 } from "lucide-react"
 import { RFP } from "@/types"
 import { useRFPs } from "@/contexts/rfp-context"
 
@@ -22,6 +22,7 @@ export default function SalesAgentClient({ id }: SalesAgentClientProps) {
     const { rfps, updateRFP } = useRFPs()
     const [rfp, setRfp] = useState<RFP | null>(null)
     const [stage, setStage] = useState<'processing' | 'completed'>('processing')
+    const [isNavigating, setIsNavigating] = useState(false)
     const [summary, setSummary] = useState<{
         scopeOfSupply: string;
         quantity: string;
@@ -154,11 +155,24 @@ export default function SalesAgentClient({ id }: SalesAgentClientProps) {
 
                             <div className="flex justify-end">
                                 <Button
-                                    onClick={() => router.push(`/rfp/${id}/technical-agent`)}
-                                    className="bg-black text-white hover:bg-gray-800"
+                                    onClick={() => {
+                                        setIsNavigating(true)
+                                        setTimeout(() => router.push(`/rfp/${id}/technical-agent`), 300)
+                                    }}
+                                    disabled={isNavigating}
+                                    className="bg-black text-white hover:bg-gray-800 disabled:opacity-70"
                                 >
-                                    Continue to Technical Agent
-                                    <ArrowRight className="ml-2 h-4 w-4" />
+                                    {isNavigating ? (
+                                        <>
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            Loading...
+                                        </>
+                                    ) : (
+                                        <>
+                                            Continue to Technical Agent
+                                            <ArrowRight className="ml-2 h-4 w-4" />
+                                        </>
+                                    )}
                                 </Button>
                             </div>
                         </>

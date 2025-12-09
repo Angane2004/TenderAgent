@@ -7,7 +7,7 @@ import { Header } from "@/components/layout/header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, FileText, TestTube, Package, Calendar, Building2 } from "lucide-react"
+import { ArrowLeft, FileText, Package, Calendar, Building2 } from "lucide-react"
 import { RFP } from "@/types"
 import Link from "next/link"
 import { useRFPs } from "@/contexts/rfp-context"
@@ -94,16 +94,7 @@ export default function RFPDetailsClient({ id }: RFPDetailsClientProps) {
                                 </div>
                             </div>
                             <div className="flex flex-col gap-2">
-                                <Badge
-                                    variant="outline"
-                                    className={`border-2 ${rfp.riskScore === 'low' ? 'border-green-600 text-green-600 bg-green-50' :
-                                        rfp.riskScore === 'medium' ? 'border-yellow-600 text-yellow-600 bg-yellow-50' :
-                                            'border-red-600 text-red-600 bg-red-50'
-                                        }`}
-                                >
-                                    {rfp.riskScore.toUpperCase()} RISK
-                                </Badge>
-                                <Badge variant="outline" className="border-2 border-black">
+                                <Badge variant="outline" className="border-2 border-blue-600 text-blue-600 bg-blue-50">
                                     {rfp.fitScore}% Fit Score
                                 </Badge>
                             </div>
@@ -154,8 +145,8 @@ export default function RFPDetailsClient({ id }: RFPDetailsClientProps) {
                                     <p className="font-semibold">{rfp.specifications.armoring}</p>
                                 </div>
                                 <div>
-                                    <p className="text-sm text-gray-600 mb-1">Standard</p>
-                                    <p className="font-semibold">{rfp.specifications.standard}</p>
+                                    <p className="text-sm text-gray-600 mb-1">Standards</p>
+                                    <p className="font-semibold">{rfp.specifications.standards?.join(', ') || 'N/A'}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-600 mb-1">Quantity</p>
@@ -165,24 +156,9 @@ export default function RFPDetailsClient({ id }: RFPDetailsClientProps) {
                         </CardContent>
                     </Card>
 
-                    {/* Testing Requirements */}
-                    <Card className="border-2 border-black bg-white">
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <TestTube className="h-5 w-5" />
-                                Testing Requirements
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="flex flex-wrap gap-2">
-                                {rfp.testingRequirements.map((test, idx) => (
-                                    <Badge key={idx} variant="outline" className="border-black">
-                                        {test}
-                                    </Badge>
-                                ))}
-                            </div>
-                        </CardContent>
-                    </Card>
+
+
+
 
                     {/* Certifications */}
                     <Card className="border-2 border-black bg-white">
@@ -194,11 +170,11 @@ export default function RFPDetailsClient({ id }: RFPDetailsClientProps) {
                         </CardHeader>
                         <CardContent>
                             <div className="flex flex-wrap gap-2">
-                                {rfp.certifications.map((cert, idx) => (
+                                {rfp.certifications?.map((cert, idx) => (
                                     <Badge key={idx} variant="outline" className="border-black">
                                         {cert}
                                     </Badge>
-                                ))}
+                                )) || <p className="text-gray-500">No certifications specified</p>}
                             </div>
                         </CardContent>
                     </Card>

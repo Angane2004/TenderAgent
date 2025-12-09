@@ -9,7 +9,7 @@ import { AgentCard } from "@/components/agents/agent-card"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ArrowRight, IndianRupee, TrendingUp } from "lucide-react"
+import { ArrowRight, IndianRupee, TrendingUp, Loader2 } from "lucide-react"
 import { RFP } from "@/types"
 import { useRFPs } from "@/contexts/rfp-context"
 
@@ -23,6 +23,7 @@ export default function PricingAgentClient({ id }: PricingAgentClientProps) {
     const { rfps, updateRFP } = useRFPs()
     const [rfp, setRfp] = useState<RFP | null>(null)
     const [stage, setStage] = useState<'processing' | 'completed'>('processing')
+    const [isNavigating, setIsNavigating] = useState(false)
 
     const logs = [
         { message: "Analyzing market pricing data...", status: 'completed' as const, progress: 100 },
@@ -169,8 +170,8 @@ export default function PricingAgentClient({ id }: PricingAgentClientProps) {
                                         <h4 className="font-semibold mb-2">Risk Assessment</h4>
                                         <div className="flex items-center gap-3">
                                             <Badge className={`text-sm font-bold ${rfp.pricingStrategy?.riskLevel === 'low' ? 'bg-green-600' :
-                                                    rfp.pricingStrategy?.riskLevel === 'medium' ? 'bg-yellow-600' :
-                                                        'bg-red-600'
+                                                rfp.pricingStrategy?.riskLevel === 'medium' ? 'bg-yellow-600' :
+                                                    'bg-red-600'
                                                 }`}>
                                                 {(rfp.pricingStrategy?.riskLevel || 'medium').toUpperCase()} RISK
                                             </Badge>
@@ -196,11 +197,24 @@ export default function PricingAgentClient({ id }: PricingAgentClientProps) {
 
                             <div className="flex justify-end">
                                 <Button
-                                    onClick={() => router.push(`/rfp/${id}/master-agent`)}
-                                    className="bg-black text-white hover:bg-gray-800"
+                                    onClick={() => {
+                                        setIsNavigating(true)
+                                        setTimeout(() => router.push(`/rfp/${id}/master-agent`), 300)
+                                    }}
+                                    disabled={isNavigating}
+                                    className="bg-black text-white hover:bg-gray-800 disabled:opacity-70"
                                 >
-                                    Continue to Master Agent
-                                    <ArrowRight className="ml-2 h-4 w-4" />
+                                    {isNavigating ? (
+                                        <>
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            Loading...
+                                        </>
+                                    ) : (
+                                        <>
+                                            Continue to Master Agent
+                                            <ArrowRight className="ml-2 h-4 w-4" />
+                                        </>
+                                    )}
                                 </Button>
                             </div>
                         </>

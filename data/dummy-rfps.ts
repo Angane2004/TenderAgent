@@ -71,32 +71,34 @@ const generateRFPs = (): RFP[] => {
         const fitScore = Math.floor(Math.random() * 40) + 60
         const riskScore = fitScore >= 85 ? 'low' : fitScore >= 70 ? 'medium' : 'high'
 
+        // Calculate estimated value based on specifications
+        const basePrice = voltage.includes('132') || voltage.includes('220') ? 800 :
+            voltage.includes('66') || voltage.includes('33') ? 600 :
+                voltage.includes('22') || voltage.includes('11') ? 450 :
+                    voltage.includes('6.6') || voltage.includes('3.3') ? 350 : 200
+
+        const conductorMultiplier = conductor.includes('Copper') ? 1.4 : 1.0
+        const pricePerMeter = basePrice * conductorMultiplier
+        const estimatedValue = Math.round(pricePerMeter * quantity)
+
         rfps.push({
             id: `rfp-${String(i).padStart(3, '0')}`,
             title: `Supply of ${voltage} ${cableType} - ${quantity.toLocaleString()} Meters`,
             issuedBy: getRandom(issuers),
             summary: `Tender for supply and delivery of ${voltage} ${cableType.toLowerCase()} with ${conductor.toLowerCase()} conductor, ${insulation} insulation.`,
-            submissionDate: deadline,
             deadline: deadline,
+            estimatedValue: estimatedValue,
             status: 'new',
-            riskScore: riskScore as 'low' | 'medium' | 'high',
             fitScore: fitScore,
-            scope: `Supply, testing, and delivery of ${voltage} cables with ${conductor} conductor, ${insulation} insulation, and ${armoring.toLowerCase()}. Includes factory acceptance tests and delivery to site.`,
             specifications: {
                 voltage: voltage,
                 size: `${cores}C x ${size}`,
                 conductor: conductor,
                 insulation: insulation,
                 armoring: armoring,
-                standard: standard,
+                standards: [standard],
                 quantity: quantity
             },
-            testingRequirements: [
-                `Routine Tests as per ${standard}`,
-                'High Voltage Test',
-                'Insulation Resistance Test',
-                'Conductor Resistance Test'
-            ],
             certifications: [
                 'BIS Certification',
                 'ISO 9001:2015',
@@ -117,32 +119,30 @@ const generateRFPs = (): RFP[] => {
         const deadline = getRandomDate(20 + Math.floor(Math.random() * 50), 10)
         const fitScore = Math.floor(Math.random() * 35) + 65
 
+        const estimatedValue = Math.round(quantity * (size.includes('2500') ? 40000000 :
+            size.includes('1600') ? 25000000 :
+                size.includes('1000') ? 15000000 :
+                    size.includes('630') ? 10000000 :
+                        size.includes('500') ? 8000000 : 5000000))
+
         rfps.push({
             id: `rfp-${String(i).padStart(3, '0')}`,
             title: `Distribution Transformers ${size} ${voltage} - ${quantity} Units`,
             issuedBy: getRandom(issuers),
             summary: `Procurement of oil-filled distribution transformers for grid strengthening project.`,
-            submissionDate: deadline,
             deadline: deadline,
+            estimatedValue: estimatedValue,
             status: 'new',
-            riskScore: fitScore >= 80 ? 'low' : 'medium' as 'low' | 'medium' | 'high',
             fitScore: fitScore,
-            scope: `Supply of distribution transformers with OLTC, complete with accessories and testing.`,
             specifications: {
                 voltage: voltage,
                 size: size,
                 conductor: 'Copper/Aluminum',
                 insulation: 'Mineral Oil',
                 armoring: 'Tank Mounted',
-                standard: 'IS 1180',
+                standards: ['IS 1180'],
                 quantity: quantity
             },
-            testingRequirements: [
-                'Routine Tests as per IS 1180',
-                'Temperature Rise Test',
-                'Impulse Voltage Test',
-                'Load Loss Test'
-            ],
             certifications: [
                 'BIS Certification',
                 'CPRI Approved',
@@ -163,32 +163,30 @@ const generateRFPs = (): RFP[] => {
         const deadline = getRandomDate(25 + Math.floor(Math.random() * 45), 10)
         const fitScore = Math.floor(Math.random() * 30) + 70
 
+        const unitPrice = type.includes('GIS') ? 50000000 :
+            type.includes('33kV') ? 35000000 :
+                type.includes('22kV') ? 25000000 :
+                    type.includes('11kV') && type.includes('VCB') ? 8000000 : 5000000
+        const estimatedValue = Math.round(quantity * unitPrice)
+
         rfps.push({
             id: `rfp-${String(i).padStart(3, '0')}`,
             title: `${type} Panels ${rating} - ${quantity} Panels`,
             issuedBy: getRandom(issuers),
             summary: `Supply of metal-clad switchgear for substation modernization project.`,
-            submissionDate: deadline,
             deadline: deadline,
+            estimatedValue: estimatedValue,
             status: 'new',
-            riskScore: fitScore >= 85 ? 'low' : fitScore >= 75 ? 'medium' : 'high' as 'low' | 'medium' | 'high',
             fitScore: fitScore,
-            scope: `Design, supply, and installation of switchgear with protection relays and SCADA integration.`,
             specifications: {
                 voltage: type.includes('11kV') ? '11kV' : type.includes('22kV') ? '22kV' : type.includes('33kV') ? '33kV' : '415V',
                 size: rating,
                 conductor: 'Copper Bus bars',
                 insulation: 'Epoxy Resin',
                 armoring: 'Metal Clad',
-                standard: 'IEC 62271-200',
+                standards: ['IEC 62271-200'],
                 quantity: quantity
             },
-            testingRequirements: [
-                'Type Tests as per IEC 62271',
-                'Dielectric Test',
-                'Short Circuit Test',
-                'Temperature Rise Test'
-            ],
             certifications: [
                 'IEC Certification',
                 'CPRI Type Tested',
@@ -215,31 +213,29 @@ const generateRFPs = (): RFP[] => {
         const deadline = getRandomDate(30 + Math.floor(Math.random() * 40), 10)
         const fitScore = Math.floor(Math.random() * 30) + 65
 
+        const capacityValue = parseFloat(capacity.replace(/[^\d.]/g, ''))
+        const estimatedValue = type.includes('Solar') ? Math.round(capacityValue * 40000000) :
+            type.includes('Wind') ? Math.round(capacityValue * 60000000) :
+                type.includes('Battery') ? Math.round(capacityValue * 15000000) : 50000000
+
         rfps.push({
             id: `rfp-${String(i).padStart(3, '0')}`,
             title: `${type} - ${capacity} Capacity`,
             issuedBy: getRandom(issuers),
             summary: `Supply and installation of ${type.toLowerCase()} for renewable energy project.`,
-            submissionDate: deadline,
             deadline: deadline,
+            estimatedValue: estimatedValue,
             status: 'new',
-            riskScore: fitScore >= 80 ? 'low' : 'medium' as 'low' | 'medium' | 'high',
             fitScore: fitScore,
-            scope: `Supply, installation, and commissioning of ${type.toLowerCase()} with grid connectivity and monitoring.`,
             specifications: {
                 voltage: type.includes('Solar') ? '1kV DC' : type.includes('Wind') ? '690V AC' : '1500V DC',
                 size: capacity,
                 conductor: 'Copper',
                 insulation: type.includes('Battery') ? 'Fire Rated' : 'Weather Resistant',
                 armoring: 'None',
-                standard: type.includes('Solar') ? 'IEC 61215' : type.includes('Wind') ? 'IEC 61400' : 'IEC 62619',
+                standards: [type.includes('Solar') ? 'IEC 61215' : type.includes('Wind') ? 'IEC 61400' : 'IEC 62619'],
                 quantity: Math.floor(Math.random() * 50) + 10
             },
-            testingRequirements: [
-                'Performance Test',
-                'Grid Synchronization Test',
-                'Safety Compliance Test'
-            ],
             certifications: [
                 'IEC Certification',
                 'MNRE Approved',
@@ -264,31 +260,31 @@ const generateRFPs = (): RFP[] => {
         const deadline = getRandomDate(15 + Math.floor(Math.random() * 50), 10)
         const fitScore = Math.floor(Math.random() * 35) + 65
 
+        const unitPrice = equipment.type.includes('Generator') ? 50000000 :
+            equipment.type.includes('LED') ? 15000 :
+                equipment.type.includes('SCADA') ? 100000000 :
+                    equipment.type.includes('EV') ? 3000000 :
+                        equipment.type.includes('Fiber') ? 50000 : 100000
+        const estimatedValue = Math.round(quantity * unitPrice)
+
         rfps.push({
             id: `rfp-${String(i).padStart(3, '0')}`,
             title: `${equipment.type} ${equipment.size} - ${quantity} Units`,
             issuedBy: getRandom(issuers),
             summary: `Supply and installation of ${equipment.type.toLowerCase()} for infrastructure project.`,
-            submissionDate: deadline,
             deadline: deadline,
+            estimatedValue: estimatedValue,
             status: 'new',
-            riskScore: fitScore >= 85 ? 'low' : fitScore >= 72 ? 'medium' : 'high' as 'low' | 'medium' | 'high',
             fitScore: fitScore,
-            scope: `Complete supply and commissioning of ${equipment.type.toLowerCase()} with all accessories.`,
             specifications: {
                 voltage: equipment.voltage,
                 size: equipment.size,
                 conductor: 'Copper',
                 insulation: equipment.type.includes('LED') ? 'IP65 Rated' : equipment.type.includes('SCADA') ? 'Industrial Grade' : 'Standard',
                 armoring: 'As per standard',
-                standard: equipment.type.includes('LED') ? 'BIS 16102' : equipment.type.includes('EV') ? 'IEC 61851' : 'IEC 61850',
+                standards: [equipment.type.includes('LED') ? 'BIS 16102' : equipment.type.includes('EV') ? 'IEC 61851' : 'IEC 61850'],
                 quantity: quantity
             },
-            testingRequirements: [
-                'Performance Test',
-                'System Integration Test',
-                'Safety Compliance Test'
-            ],
             certifications: [
                 'BIS/IEC Certification',
                 'ISO 9001:2015',
