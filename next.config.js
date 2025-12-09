@@ -2,6 +2,7 @@
 const nextConfig = {
     reactStrictMode: true,
     images: {
+        unoptimized: true, // Disable image optimization for Netlify
         domains: [],
         formats: ['image/avif', 'image/webp'],
         minimumCacheTTL: 60,
@@ -34,12 +35,6 @@ const nextConfig = {
         // Aggressive code splitting
         optimizeServerReact: true,
     },
-
-    // Enable SWC minification for faster builds
-    swcMinify: true,
-
-    // Optimize output for production
-    output: 'standalone',
 
     // Configure caching headers for better performance
     async headers() {

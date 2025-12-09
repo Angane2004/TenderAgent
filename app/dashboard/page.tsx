@@ -15,6 +15,7 @@ import { FilterButton, FilterOptions } from "@/components/ui/filter-button"
 import { FileText, TrendingUp, Clock, CheckCircle2, Search } from "lucide-react"
 import { motion } from "framer-motion"
 import { useRFPs } from "@/contexts/rfp-context"
+import { getActualRFPStatus } from "@/lib/rfp-utils"
 
 export default function DashboardPage() {
     const { rfps, isScanning, scanForRFPs } = useRFPs()
@@ -45,15 +46,9 @@ export default function DashboardPage() {
             rfp.issuedBy.toLowerCase().includes(searchQuery.toLowerCase()) ||
             rfp.summary.toLowerCase().includes(searchQuery.toLowerCase())
 
-        // Check actual status from storage fields
-        let status = rfp.status
-        if (rfp.finalResponse?.status === 'submitted') {
-            status = 'completed'
-        } else if (rfp.salesSummary?.status === 'completed') {
-            status = 'in-progress'
-        }
-
-        const matchesFilter = filterStatus === 'all' || status === filterStatus
+        // Use unified status helper to determine actual status
+        const actualStatus = getActualRFPStatus(rfp)
+        const matchesFilter = filterStatus === 'all' || actualStatus === filterStatus
 
         // Advanced filters
         let matchesFitScore = true
@@ -120,7 +115,7 @@ export default function DashboardPage() {
         },
         {
             title: "In Progress",
-            value: rfps.filter(r => r.status === 'in-progress').length,
+            value: rfps.filter(r => getActualRFPStatus(r) === 'in-progress').length,
             icon: CheckCircle2,
             color: "text-purple-600",
             bgColor: "bg-purple-100"

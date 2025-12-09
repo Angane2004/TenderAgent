@@ -10,6 +10,7 @@ import { Search, FileText, TrendingUp, AlertCircle, Clock } from "lucide-react"
 import { AnimatedTabs } from "@/components/ui/animated-tabs"
 import { motion } from "framer-motion"
 import { useRFPs } from "@/contexts/rfp-context"
+import { getActualRFPStatus } from "@/lib/rfp-utils"
 
 export default function RFPsPage() {
     const { rfps, isScanning } = useRFPs()
@@ -31,8 +32,9 @@ export default function RFPsPage() {
                 rfp.issuedBy.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 rfp.summary.toLowerCase().includes(searchQuery.toLowerCase())
 
-            // Status filter
-            const matchesStatus = activeFilter === "all" || rfp.status === activeFilter
+            // Status filter - use actual status based on agent task completion
+            const actualStatus = getActualRFPStatus(rfp)
+            const matchesStatus = activeFilter === "all" || actualStatus === activeFilter
 
             // Fit Score filter
             let matchesFitScore = true
