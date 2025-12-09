@@ -19,7 +19,7 @@ interface SalesAgentClientProps {
 
 export default function SalesAgentClient({ id }: SalesAgentClientProps) {
     const router = useRouter()
-    const { rfps } = useRFPs()
+    const { rfps, updateRFP } = useRFPs()
     const [rfp, setRfp] = useState<RFP | null>(null)
     const [stage, setStage] = useState<'processing' | 'completed'>('processing')
     const [summary, setSummary] = useState<{
@@ -57,9 +57,14 @@ export default function SalesAgentClient({ id }: SalesAgentClientProps) {
                 }
                 setSummary(newSummary)
                 setStage('completed')
+
+                // Update the RFP with sales summary
+                updateRFP(id, {
+                    salesSummary: newSummary
+                })
             }, 3000)
         }
-    }, [id, rfps])
+    }, [id, rfps, updateRFP])
 
     if (!rfp) {
         return (

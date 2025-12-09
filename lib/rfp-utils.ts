@@ -28,3 +28,36 @@ export function getActualRFPStatus(rfp: RFP): 'new' | 'in-progress' | 'completed
     // Otherwise, use the RFP's current status (or default to 'new')
     return rfp.status || 'new'
 }
+
+/**
+ * Determines the next agent step to continue from based on completed tasks
+ * 
+ * @param rfp - The RFP object to check
+ * @returns The path to the next agent step
+ * 
+ * Flow: sales-agent → technical-agent → pricing-agent → final-response
+ */
+export function getNextAgentStep(rfp: RFP): string {
+    // If final response is generated but not submitted, continue to final response
+    if (rfp.finalResponse && rfp.finalResponse.status !== 'submitted') {
+        return `/rfp/${rfp.id}/final-response`
+    }
+
+    // If pricing is completed, go to final response
+    if (rfp.pricingStrategy?.status === 'completed') {
+        return `/rfp/${rfp.id}/final-response`
+    }
+
+    // If technical analysis is completed, go to pricing agent
+    if (rfp.technicalAnalysis?.status === 'completed') {
+        return `/rfp/${rfp.id}/pricing-agent`
+    }
+
+    // If sales summary is completed, go to technical agent
+    if (rfp.salesSummary?.status === 'completed') {
+        return `/rfp/${rfp.id}/technical-agent`
+    }
+
+    // Otherwise, start from sales agent
+    return `/rfp/${rfp.id}/sales-agent`
+}
