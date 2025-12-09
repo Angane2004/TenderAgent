@@ -43,6 +43,7 @@ export interface RFP {
         totalValue: number
         riskLevel: 'low' | 'medium' | 'high'
         status: 'completed' | 'pending'
+        paymentTerms?: string
     }
     finalResponse?: {
         generatedAt: string

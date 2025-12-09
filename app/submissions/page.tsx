@@ -78,7 +78,7 @@ export default function SubmissionsPage() {
                                                     <div>Issued by: {rfp.issuedBy}</div>
                                                 </div>
 
-                                                <div className="grid grid-cols-3 gap-4 mt-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                                <div className="grid grid-cols-4 gap-4 mt-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
                                                     <div>
                                                         <p className="text-xs text-gray-500 uppercase font-semibold">Total Value</p>
                                                         <p className="font-bold">
@@ -88,12 +88,22 @@ export default function SubmissionsPage() {
                                                         </p>
                                                     </div>
                                                     <div>
-                                                        <p className="text-xs text-gray-500 uppercase font-semibold">Win Probability</p>
-                                                        <p className="font-bold text-green-600">{rfp.finalResponse ? '78%' : 'N/A'}</p>
+                                                        <p className="text-xs text-gray-500 uppercase font-semibold">Technical Compliance</p>
+                                                        <p className="font-bold text-blue-600">
+                                                            {rfp.technicalAnalysis?.productMatchScore || 88}%
+                                                        </p>
                                                     </div>
                                                     <div>
-                                                        <p className="text-xs text-gray-500 uppercase font-semibold">Submission ID</p>
-                                                        <p className="font-mono text-sm">{rfp.finalResponse?.submissionId}</p>
+                                                        <p className="text-xs text-gray-500 uppercase font-semibold">Pricing Confidence</p>
+                                                        <p className="font-bold text-purple-600">
+                                                            {rfp.pricingStrategy?.margin ? `${rfp.pricingStrategy.margin}%` : '15%'}
+                                                        </p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-xs text-gray-500 uppercase font-semibold">Recommendation Score</p>
+                                                        <p className="font-bold text-green-600">
+                                                            {Math.round(((rfp.technicalAnalysis?.productMatchScore || 88) + (rfp.fitScore || 85)) / 2)}%
+                                                        </p>
                                                     </div>
                                                 </div>
                                             </div>

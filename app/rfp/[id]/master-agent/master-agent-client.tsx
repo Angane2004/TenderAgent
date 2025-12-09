@@ -121,13 +121,70 @@ export default function MasterAgentClient({ id }: MasterAgentClientProps) {
                                         </div>
                                     </div>
 
-                                    <div>
-                                        <h4 className="font-semibold mb-2">Win Probability</h4>
-                                        <div className="flex items-center gap-4">
-                                            <div className="flex-1 bg-gray-200 rounded-full h-4 border-2 border-black">
-                                                <div className="bg-green-600 h-full rounded-full" style={{ width: '78%' }} />
+                                    {/* Tender Alignment Metrics */}
+                                    <div className="grid grid-cols-2 gap-4 mt-4">
+                                        <div className="p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
+                                            <h4 className="font-semibold mb-2 flex items-center gap-2 text-blue-700">
+                                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                Tender Alignment Score
+                                            </h4>
+                                            <div className="flex items-center gap-3">
+                                                <div className="flex-1 bg-gray-200 rounded-full h-3 border-2 border-black">
+                                                    <div className="bg-blue-600 h-full rounded-full transition-all duration-500" style={{ width: '85%' }} />
+                                                </div>
+                                                <span className="text-xl font-bold text-blue-700">85%</span>
                                             </div>
-                                            <span className="text-2xl font-bold">78%</span>
+                                            <p className="text-xs text-gray-600 mt-1">Overall fit with tender requirements</p>
+                                        </div>
+
+                                        <div className="p-4 bg-green-50 rounded-lg border-2 border-green-200">
+                                            <h4 className="font-semibold mb-2 flex items-center gap-2 text-green-700">
+                                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                Requirement Match
+                                            </h4>
+                                            <div className="flex items-center gap-3">
+                                                <div className="flex-1 bg-gray-200 rounded-full h-3 border-2 border-black">
+                                                    <div className="bg-green-600 h-full rounded-full transition-all duration-500" style={{ width: '92%' }} />
+                                                </div>
+                                                <span className="text-xl font-bold text-green-700">92%</span>
+                                            </div>
+                                            <p className="text-xs text-gray-600 mt-1">Specifications we can fulfill</p>
+                                        </div>
+
+                                        <div className="p-4 bg-purple-50 rounded-lg border-2 border-purple-200">
+                                            <h4 className="font-semibold mb-2 flex items-center gap-2 text-purple-700">
+                                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                                </svg>
+                                                Capability Score
+                                            </h4>
+                                            <div className="flex items-center gap-3">
+                                                <div className="flex-1 bg-gray-200 rounded-full h-3 border-2 border-black">
+                                                    <div className="bg-purple-600 h-full rounded-full transition-all duration-500" style={{ width: '88%' }} />
+                                                </div>
+                                                <span className="text-xl font-bold text-purple-700">88%</span>
+                                            </div>
+                                            <p className="text-xs text-gray-600 mt-1">Technical capability alignment</p>
+                                        </div>
+
+                                        <div className="p-4 bg-orange-50 rounded-lg border-2 border-orange-200">
+                                            <h4 className="font-semibold mb-2 flex items-center gap-2 text-orange-700">
+                                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                                                </svg>
+                                                Strategic Fit
+                                            </h4>
+                                            <div className="flex items-center gap-3">
+                                                <div className="flex-1 bg-gray-200 rounded-full h-3 border-2 border-black">
+                                                    <div className="bg-orange-600 h-full rounded-full transition-all duration-500" style={{ width: '80%' }} />
+                                                </div>
+                                                <span className="text-xl font-bold text-orange-700">80%</span>
+                                            </div>
+                                            <p className="text-xs text-gray-600 mt-1">Alignment with business goals</p>
                                         </div>
                                     </div>
 

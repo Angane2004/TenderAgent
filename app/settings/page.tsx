@@ -10,9 +10,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { motion } from "framer-motion"
-import { Settings, User, Bell, Save, CheckCircle2 } from "lucide-react"
+import { Settings, User, Bell, Save, CheckCircle2, Mail, Palette } from "lucide-react"
 import GradientBackground from "@/components/background/gradient-background"
 import { saveUserSettings, getUserSettings } from "@/lib/firebase-storage"
+import { setRFPAlertsEnabled, areRFPAlertsEnabled, initializeRFPAlerts } from "@/lib/rfp-alerts"
 
 export default function SettingsPage() {
     const { user } = useUser()
@@ -21,12 +22,17 @@ export default function SettingsPage() {
 
     const [settings, setSettings] = useState({
         emailNotifications: true,
+        pushNotifications: false,
         deadlineReminders: true,
-        weeklyDigest: false,
+        autoArchive: false,
+        autoArchiveDays: 30,
+        weeklyDigest: true,
         theme: "light",
+        newRfpAlerts: true,
         companyName: "",
-        defaultCurrency: "USD",
-        timezone: "UTC"
+        currency: 'INR',
+        timezone: "Indian",
+        dateFormat: 'DD/MM/YYYY'
     })
 
     const loadSettings = async () => {
@@ -41,6 +47,13 @@ export default function SettingsPage() {
     useEffect(() => {
         if (user?.id) {
             loadSettings()
+
+            // Initialize RFP alerts based on stored state
+            initializeRFPAlerts()
+
+            // Sync newRfpAlerts state from localStorage
+            const alertsEnabled = areRFPAlertsEnabled()
+            setSettings(prev => ({ ...prev, newRfpAlerts: alertsEnabled }))
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user?.id])
@@ -195,6 +208,80 @@ export default function SettingsPage() {
                         </Card>
                     </motion.div>
 
+                    {/* Email Preferences */}
+                    <Card className="border-2 border-black">
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <Mail className="h-5 w-5" />
+                                Email Preferences
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <Label htmlFor="newRfp">New RFP Alerts</Label>
+                                    <p className="text-xs text-gray-500">Get notified when new RFPs match your criteria</p>
+                                </div>
+                                <Switch
+                                    id="newRfp"
+                                    checked={settings.newRfpAlerts}
+                                    onCheckedChange={(checked) => {
+                                        setSettings({ ...settings, newRfpAlerts: checked })
+                                        setRFPAlertsEnabled(checked)
+                                    }}
+                                />
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <Label htmlFor="deadline">Deadline Reminders</Label>
+                                    <p className="text-xs text-gray-500">Reminders 24 hours before deadline</p>
+                                </div>
+                                <Switch
+                                    id="deadline"
+                                    checked={settings.deadlineReminders}
+                                    onCheckedChange={(checked) => setSettings({ ...settings, deadlineReminders: checked })}
+                                />
+                            </div>
+                        </CardContent>
+                    </Card>
+                    {/* Display Preferences */}
+                    <Card className="border-2 border-black">
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <Palette className="h-5 w-5" />
+                                Display Preferences
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div>
+                                <Label htmlFor="currency">Currency Display</Label>
+                                <select
+                                    id="currency"
+                                    value={settings.currency}
+                                    onChange={(e) => setSettings({ ...settings, currency: e.target.value })}
+                                    className="w-full mt-2 p-2 border-2 border-black rounded-md"
+                                >
+                                    <option value="INR">Indian Rupee (₹)</option>
+                                    <option value="USD">US Dollar ($)</option>
+                                    <option value="EUR">Euro (€)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <Label htmlFor="dateFormat">Date Format</Label>
+                                <select
+                                    id="dateFormat"
+                                    value={settings.dateFormat}
+                                    onChange={(e) => setSettings({ ...settings, dateFormat: e.target.value })}
+                                    className="w-full mt-2 p-2 border-2 border-black rounded-md"
+                                >
+                                    <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                                    <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                                    <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                                </select>
+                            </div>
+                        </CardContent>
+                    </Card>
+
                     {/* Preferences */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
@@ -213,7 +300,7 @@ export default function SettingsPage() {
                                     <div className="space-y-2">
                                         <Label>Default Currency</Label>
                                         <select
-                                            value={settings.defaultCurrency}
+                                            value={settings.currency}
                                             onChange={(e) => handleChange("defaultCurrency", e.target.value)}
                                             className="w-full px-3 py-2 border-2 border-gray-300 rounded-md focus:border-black focus:outline-none"
                                         >

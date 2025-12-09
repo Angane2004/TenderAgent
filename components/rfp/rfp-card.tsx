@@ -5,7 +5,7 @@ import Link from "next/link"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Calendar, Building2, Clock, TrendingUp, DollarSign } from "lucide-react"
+import { Calendar, Building2, Clock, TrendingUp, CheckCircle, IndianRupeeIcon } from "lucide-react"
 import { RFP } from "@/types"
 import { getDaysUntil, formatDate } from "@/lib/utils"
 
@@ -98,11 +98,11 @@ export const RFPCard = memo(function RFPCard({ rfp }: RFPCardProps) {
                 <div className="mt-4 p-3 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-lg">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <DollarSign className="h-5 w-5 text-green-600" />
+                            <IndianRupeeIcon className="h-5 w-5 text-green-600" />
                             <div>
                                 <p className="text-xs text-gray-600">Estimated Value</p>
                                 <p className="text-lg font-bold text-green-700">
-                                    ${(rfp.pricingStrategy?.totalValue || Math.random() * 500000 + 100000).toLocaleString('en-US', { maximumFractionDigits: 0 })}
+                                    ₹{(rfp.pricingStrategy?.totalValue || Math.random() * 500000 + 100000).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                                 </p>
                             </div>
                         </div>
@@ -124,16 +124,27 @@ export const RFPCard = memo(function RFPCard({ rfp }: RFPCardProps) {
             </CardContent>
 
             <CardFooter className="flex gap-2">
-                <Link href={`/rfp/${rfp.id}/details`} className="flex-1">
-                    <Button variant="outline" className="w-full border-2 border-black hover:bg-black hover:text-white">
-                        View Details
-                    </Button>
-                </Link>
-                <Link href={`/rfp/${rfp.id}/sales-agent`} className="flex-1">
-                    <Button className="w-full bg-black text-white hover:bg-gray-800">
-                        Select for Response
-                    </Button>
-                </Link>
+                {rfp.finalResponse?.status === 'submitted' || rfp.status === 'completed' ? (
+                    <div className="w-full flex items-center justify-center py-2">
+                        <Badge className="bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-700 hover:to-emerald-700 px-6 py-2 text-sm font-semibold border-2 border-green-700 shadow-lg">
+                            <CheckCircle className="h-4 w-4 mr-2" />
+                            Successfully Submitted
+                        </Badge>
+                    </div>
+                ) : (
+                    <>
+                        <Link href={`/rfp/${rfp.id}/details`} className="flex-1">
+                            <Button variant="outline" className="w-full border-2 border-black hover:bg-black hover:text-white">
+                                View Details
+                            </Button>
+                        </Link>
+                        <Link href={`/rfp/${rfp.id}/sales-agent`} className="flex-1">
+                            <Button className="w-full bg-black text-white hover:bg-gray-800">
+                                Select for Response
+                            </Button>
+                        </Link>
+                    </>
+                )}
             </CardFooter>
         </Card>
     )

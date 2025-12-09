@@ -43,16 +43,22 @@ export function RFPProvider({ children }: { children: ReactNode }) {
 
         // Simulate scanning for RFPs
         setTimeout(() => {
-            // Generate 5-15 random RFPs
-            const count = Math.floor(Math.random() * 11) + 5
+            // Generate 5-15 random UNIQUE RFPs
+            const count = Math.min(Math.floor(Math.random() * 11) + 5, DUMMY_RFPS.length)
             const scannedRfps: RFP[] = []
+            const usedIndices = new Set<number>()
 
-            for (let i = 0; i < count; i++) {
-                const randomRfp = DUMMY_RFPS[Math.floor(Math.random() * DUMMY_RFPS.length)]
-                scannedRfps.push({
-                    ...randomRfp,
-                    id: `${randomRfp.id}-scan-${Date.now()}-${i}`
-                })
+            while (scannedRfps.length < count) {
+                const randomIndex = Math.floor(Math.random() * DUMMY_RFPS.length)
+                if (!usedIndices.has(randomIndex)) {
+                    usedIndices.add(randomIndex)
+                    const randomRfp = DUMMY_RFPS[randomIndex]
+                    scannedRfps.push({
+                        ...randomRfp,
+                        // Keep original ID for uniqueness
+                        id: randomRfp.id
+                    })
+                }
             }
 
             // Save to state

@@ -6,22 +6,20 @@ import { Header } from "@/components/layout/header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Calendar as CalendarIcon, Clock, AlertCircle, Download, ChevronLeft, ChevronRight } from "lucide-react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Calendar as CalendarIcon, Clock, AlertCircle, Download, ChevronLeft, ChevronRight, X, ExternalLink } from "lucide-react"
 import { RFP } from "@/types"
 import Link from "next/link"
-
-import { storage } from "@/lib/storage"
+import { useRFPs } from "@/contexts/rfp-context"
 import GradientBackground from "@/components/background/gradient-background"
+import { formatINR } from "@/lib/currency"
 
 export default function CalendarPage() {
-    const [rfps, setRfps] = useState<RFP[]>([])
+    const { rfps } = useRFPs() // Use RFP context instead of local storage
     const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list')
     const [currentMonth, setCurrentMonth] = useState(new Date())
-
-    useEffect(() => {
-        const savedRfps = storage.getRFPs()
-        setRfps(savedRfps)
-    }, [])
+    const [selectedRFP, setSelectedRFP] = useState<RFP | null>(null)
+    const [modalOpen, setModalOpen] = useState(false)
 
     const getDaysUntil = (deadline: string) => {
         return Math.ceil((new Date(deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
@@ -302,7 +300,7 @@ END:VEVENT
                                     {/* Calendar days */}
                                     {generateCalendarDays().map((day, index) => {
                                         if (day === null) {
-                                            return <div key={`empty-${index}`} className="min-h-[100px] p-2 border border-gray-200 bg-gray-50" />
+                                            return <div key={`empty-${index}`} className="min-h-[120px] p-2 border border-gray-200 bg-gray-50" />
                                         }
 
                                         const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day)
@@ -312,10 +310,10 @@ END:VEVENT
                                         return (
                                             <div
                                                 key={day}
-                                                className={`min-h-[100px] p-2 border-2 ${today ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
-                                                    } hover:border-black transition-colors cursor-pointer`}
+                                                className={`min-h-[120px] p-2 border-2 ${today ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
+                                                    } hover:border-black transition-all`}
                                             >
-                                                <div className={`text-sm font-bold mb-1 ${today ? 'text-blue-600' : ''}`}>
+                                                <div className={`text-sm font-bold mb-2 ${today ? 'text-blue-600' : ''}`}>
                                                     {day}
                                                 </div>
                                                 <div className="space-y-1">
@@ -323,14 +321,21 @@ END:VEVENT
                                                         const daysUntil = getDaysUntil(rfp.deadline)
                                                         const urgency = getUrgencyColor(daysUntil)
                                                         return (
-                                                            <Link key={rfp.id} href={`/rfp/${rfp.id}/details`}>
-                                                                <div
-                                                                    className={`text-xs p-1 rounded ${urgency.bg} ${urgency.text} border ${urgency.border} hover:shadow-md transition-shadow truncate`}
-                                                                    title={rfp.title}
-                                                                >
+                                                            <div
+                                                                key={rfp.id}
+                                                                onClick={() => {
+                                                                    setSelectedRFP(rfp)
+                                                                    setModalOpen(true)
+                                                                }}
+                                                                className={`text-xs p-2 rounded-md ${urgency.bg} ${urgency.text} border-2 ${urgency.border} hover:shadow-lg transition-all cursor-pointer`}
+                                                            >
+                                                                <p className="font-bold truncate" title={rfp.title}>
                                                                     {rfp.title}
-                                                                </div>
-                                                            </Link>
+                                                                </p>
+                                                                <p className="text-[10px] opacity-75 truncate">
+                                                                    {rfp.issuedBy}
+                                                                </p>
+                                                            </div>
                                                         )
                                                     })}
                                                 </div>
@@ -343,6 +348,106 @@ END:VEVENT
                     )}
                 </main>
             </div>
+
+            {/* Tender Detail Modal */}
+            <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+                <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                    {selectedRFP && (
+                        <>
+                            <DialogHeader>
+                                <DialogTitle className="text-2xl font-bold pr-8">
+                                    {selectedRFP.title}
+                                </DialogTitle>
+                            </DialogHeader>
+
+                            <div className="space-y-4">
+                                {/* Quick Stats */}
+                                <div className="grid grid-cols-3 gap-3">
+                                    <div className="bg-blue-50 border-2 border-blue-500 rounded-lg p-3">
+                                        <p className="text-xs text-blue-600 font-semibold">Fit Score</p>
+                                        <p className="text-2xl font-bold text-blue-600">{selectedRFP.fitScore}%</p>
+                                    </div>
+                                    <div className="bg-gray-50 border-2 border-gray-300 rounded-lg p-3">
+                                        <p className="text-xs text-gray-600 font-semibold">Days Left</p>
+                                        <p className="text-2xl font-bold text-gray-900">
+                                            {getDaysUntil(selectedRFP.deadline)}
+                                        </p>
+                                    </div>
+                                    <div className="bg-green-50 border-2 border-green-500 rounded-lg p-3">
+                                        <p className="text-xs text-green-600 font-semibold">Est. Value</p>
+                                        <p className="text-lg font-bold text-green-600">
+                                            {formatINR(selectedRFP.pricingStrategy?.totalValue || 500000, { compact: true })}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Details */}
+                                <div className="space-y-3">
+                                    <div>
+                                        <p className="text-xs font-semibold text-gray-500 uppercase mb-1">Issued By</p>
+                                        <p className="text-sm font-medium">{selectedRFP.issuedBy}</p>
+                                    </div>
+
+                                    <div>
+                                        <p className="text-xs font-semibold text-gray-500 uppercase mb-1">Deadline</p>
+                                        <div className="flex items-center gap-2">
+                                            <CalendarIcon className="h-4 w-4 text-gray-500" />
+                                            <p className="text-sm font-medium">
+                                                {new Date(selectedRFP.deadline).toLocaleDateString('en-IN', {
+                                                    weekday: 'long',
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric'
+                                                })}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <p className="text-xs font-semibold text-gray-500 uppercase mb-1">Summary</p>
+                                        <p className="text-sm text-gray-700">{selectedRFP.summary}</p>
+                                    </div>
+
+                                    {selectedRFP.certifications && selectedRFP.certifications.length > 0 && (
+                                        <div>
+                                            <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Required Certifications</p>
+                                            <div className="flex flex-wrap gap-2">
+                                                {selectedRFP.certifications.map((cert, idx) => (
+                                                    <Badge key={idx} variant="outline" className="border-black">
+                                                        {cert}
+                                                    </Badge>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Actions */}
+                                <div className="flex gap-3 pt-4 border-t-2 border-gray-200">
+                                    <Link href={`/rfp/${selectedRFP.id}/details`} className="flex-1">
+                                        <Button
+                                            variant="outline"
+                                            className="w-full border-2 border-black hover:bg-black hover:text-white"
+                                            onClick={() => setModalOpen(false)}
+                                        >
+                                            <ExternalLink className="h-4 w-4 mr-2" />
+                                            View Full Details
+                                        </Button>
+                                    </Link>
+                                    <Link href={`/rfp/${selectedRFP.id}/sales-agent`} className="flex-1">
+                                        <Button
+                                            className="w-full bg-black text-white hover:bg-gray-800"
+                                            onClick={() => setModalOpen(false)}
+                                        >
+                                            Start Response
+                                        </Button>
+                                    </Link>
+                                </div>
+                            </div>
+                        </>
+                    )}
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }

@@ -3,44 +3,48 @@
 import { Sidebar } from "@/components/layout/sidebar"
 import { Header } from "@/components/layout/header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Target, TrendingUp, DollarSign, Award } from "lucide-react"
+import { Target, TrendingUp, Award, IndianRupeeIcon } from "lucide-react"
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts"
 
-import { storage } from "@/lib/storage"
+import { useRFPs } from "@/contexts/rfp-context"
 import GradientBackground from "@/components/background/gradient-background"
 import { useState, useEffect } from "react"
+import { formatINR } from "@/lib/currency"
+
 
 export default function AnalyticsPage() {
+    const { rfps } = useRFPs()
     const [winRate, setWinRate] = useState("0%")
-    const [revenue, setRevenue] = useState("$0")
+    const [alignmentScore, setAlignmentScore] = useState("0%")
+    const [revenue, setRevenue] = useState("₹0")
+    const [submissionCount, setSubmissionCount] = useState(0)
+    const [avgValue, setAvgValue] = useState("₹0")
 
     useEffect(() => {
         const updateAnalytics = () => {
-            const rfps = storage.getRFPs()
-            const completed = rfps.filter(r => r.status === 'completed' || r.finalResponse?.status === 'submitted')
-            const totalValue = completed.reduce((acc, r) => acc + (r.pricingStrategy?.totalValue || 0), 0)
+            const submitted = rfps.filter(r => r.finalResponse?.status === 'submitted')
 
-            setRevenue(`$${(totalValue / 1000).toFixed(1)}K`)
-            setWinRate(completed.length > 0 ? "78%" : "0%") // Mock win rate for now
+            // Calculate total revenue in INR
+            const totalValue = submitted.reduce((acc, r) => acc + (r.pricingStrategy?.totalValue || 0), 0)
+            setRevenue(formatINR(totalValue, { compact: true }))
+
+            // Calculate average tender alignment score
+            if (submitted.length > 0) {
+                const avgScore = submitted.reduce((acc, r) => acc + (r.fitScore || 0), 0) / submitted.length
+                setAlignmentScore(`${Math.round(avgScore)}%`)
+
+                // Average value per submission
+                const avgVal = totalValue / submitted.length
+                setAvgValue(formatINR(avgVal, { compact: true }))
+            } else {
+                setAlignmentScore("0%")
+                setAvgValue("₹0")
+            }
+
+            setSubmissionCount(submitted.length)
         }
-
-        // Initial load
         updateAnalytics()
-
-        // Listen for storage changes
-        const handleStorageChange = () => {
-            updateAnalytics()
-        }
-
-        window.addEventListener('storage', handleStorageChange)
-        // Also listen for custom event when RFPs are updated
-        window.addEventListener('rfpsUpdated', handleStorageChange)
-
-        return () => {
-            window.removeEventListener('storage', handleStorageChange)
-            window.removeEventListener('rfpsUpdated', handleStorageChange)
-        }
-    }, [])
+    }, [rfps])
 
     const winRateData = [
         { month: "Jan", rate: 65 },
@@ -86,10 +90,12 @@ export default function AnalyticsPage() {
                     {/* KPI Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         {[
-                            { label: "Win Rate", value: winRate, icon: Target, trend: "+5%", color: "bg-blue-500", iconColor: "text-blue-500" },
+                            // { label: "Win Rate", value: winRate, icon: Target, trend: "+5%", color: "bg-blue-500", iconColor: "text-blue-500" },
                             { label: "Avg Response Time", value: "2.3 hrs", icon: TrendingUp, trend: "-12%", color: "bg-green-500", iconColor: "text-green-500" },
-                            { label: "Total Revenue", value: revenue, icon: DollarSign, trend: "+18%", color: "bg-yellow-500", iconColor: "text-yellow-500" },
-                            { label: "Success Score", value: "92/100", icon: Award, trend: "+3%", color: "bg-purple-500", iconColor: "text-purple-500" }
+                            { label: "Total Revenue", value: revenue, icon: IndianRupeeIcon, trend: "+18%", color: "bg-yellow-500", iconColor: "text-yellow-500" },
+                            // { label: "Tender Alignment Score", value: alignmentScore, icon: Target, trend: "+5%", color: "bg-blue-500", iconColor: "text-blue-500" },
+                            { label: "Total Submissions", value: submissionCount.toString(), icon: Award, trend: `+${submissionCount}`, color: "bg-purple-500", iconColor: "text-purple-500" },
+                            { label: "Avg Deal Value", value: avgValue, icon: TrendingUp, trend: "+8%", color: "bg-orange-500", iconColor: "text-orange-500" },
                         ].map((kpi, i) => (
                             <Card key={i} className="border-2 border-black hover:shadow-lg transition-shadow bg-white">
                                 <CardContent className="p-6">
@@ -219,31 +225,106 @@ export default function AnalyticsPage() {
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
                                     <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                                    Key Insights
+                                    Performance Analytics
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                <div className="p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
-                                    <h4 className="font-semibold mb-2 flex items-center gap-2">
-                                        <Target className="h-4 w-4 text-blue-600" />
-                                        Top Performing Agent
-                                    </h4>
-                                    <p className="text-sm text-gray-600">Sales Agent with 95% accuracy rate</p>
-                                </div>
-                                <div className="p-4 bg-green-50 rounded-lg border-2 border-green-200">
-                                    <h4 className="font-semibold mb-2 flex items-center gap-2">
-                                        <TrendingUp className="h-4 w-4 text-green-600" />
-                                        Fastest Response
-                                    </h4>
-                                    <p className="text-sm text-gray-600">Average 2.3 hours per RFP</p>
-                                </div>
-                                <div className="p-4 bg-purple-50 rounded-lg border-2 border-purple-200">
-                                    <h4 className="font-semibold mb-2 flex items-center gap-2">
-                                        <Award className="h-4 w-4 text-purple-600" />
-                                        Win Rate Improvement
-                                    </h4>
-                                    <p className="text-sm text-gray-600">+17% increase over last quarter</p>
-                                </div>
+                                {(() => {
+                                    const submitted = rfps.filter((r: any) => r.finalResponse?.status === 'submitted')
+
+                                    // Calculate response efficiency
+                                    const avgResponseTime = submitted.length > 0
+                                        ? Math.round(Math.random() * 24 + 12) // Simulated: 12-36 hours
+                                        : 0
+
+                                    // Calculate category performance
+                                    const categoryRevenue: Record<string, number> = {}
+                                    submitted.forEach((r: any) => {
+                                        const category = r.specifications.voltage
+                                        const value = r.pricingStrategy?.totalValue || 0
+                                        categoryRevenue[category] = (categoryRevenue[category] || 0) + value
+                                    })
+                                    const topRevenueCategory = Object.entries(categoryRevenue)
+                                        .sort((a, b) => b[1] - a[1])[0]
+
+                                    // Calculate quality metrics
+                                    const avgTechnicalScore = submitted.length > 0
+                                        ? Math.round(submitted.reduce((acc: number, r: any) =>
+                                            acc + (r.technicalAnalysis?.productMatchScore || 0), 0) / submitted.length)
+                                        : 0
+
+                                    // Calculate completion rate
+                                    const completionRate = rfps.length > 0
+                                        ? Math.round((submitted.length / rfps.length) * 100)
+                                        : 0
+
+                                    return (
+                                        <>
+                                            <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border-2 border-blue-200">
+                                                <h4 className="font-semibold mb-2 flex items-center gap-2">
+                                                    <TrendingUp className="h-4 w-4 text-blue-600" />
+                                                    Response Efficiency
+                                                </h4>
+                                                <div className="grid grid-cols-2 gap-3 mt-3">
+                                                    <div>
+                                                        <p className="text-xs text-gray-500">Avg Response Time</p>
+                                                        <p className="text-lg font-bold text-blue-700">
+                                                            {avgResponseTime > 0 ? `${avgResponseTime} hrs` : 'N/A'}
+                                                        </p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-xs text-gray-500">Completion Rate</p>
+                                                        <p className="text-lg font-bold text-blue-700">{completionRate}%</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border-2 border-green-200">
+                                                <h4 className="font-semibold mb-2 flex items-center gap-2">
+                                                    <Award className="h-4 w-4 text-green-600" />
+                                                    Category Performance
+                                                </h4>
+                                                <p className="text-sm text-gray-600 mb-2">
+                                                    {topRevenueCategory
+                                                        ? `Highest Revenue: ${topRevenueCategory[0]}`
+                                                        : 'No data yet'}
+                                                </p>
+                                                {topRevenueCategory && (
+                                                    <div className="flex items-center gap-2 mt-2">
+                                                        <div className="flex-1 bg-gray-200 h-2 rounded-full overflow-hidden">
+                                                            <div
+                                                                className="bg-green-600 h-full rounded-full"
+                                                                style={{ width: '75%' }}
+                                                            />
+                                                        </div>
+                                                        <span className="text-xs font-bold text-green-700">
+                                                            {formatINR(topRevenueCategory[1], { compact: true })}
+                                                        </span>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border-2 border-purple-200">
+                                                <h4 className="font-semibold mb-2 flex items-center gap-2">
+                                                    <Target className="h-4 w-4 text-purple-600" />
+                                                    Quality Metrics
+                                                </h4>
+                                                <div className="grid grid-cols-2 gap-3 mt-3">
+                                                    <div>
+                                                        <p className="text-xs text-gray-500">Technical Score</p>
+                                                        <p className="text-lg font-bold text-purple-700">
+                                                            {avgTechnicalScore > 0 ? `${avgTechnicalScore}%` : 'N/A'}
+                                                        </p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-xs text-gray-500">Submissions</p>
+                                                        <p className="text-lg font-bold text-purple-700">{submissionCount}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </>
+                                    )
+                                })()}
                             </CardContent>
                         </Card>
                     </div>

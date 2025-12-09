@@ -21,7 +21,11 @@ const nextConfig = {
     // Experimental features for better performance
     experimental: {
         optimizeCss: true,
+        // Optimize package imports for faster builds
+        optimizePackageImports: ['lucide-react', 'recharts', 'framer-motion'],
     },
+    // Enable SWC minification for faster builds
+    swcMinify: true,
 }
 
 module.exports = nextConfig
