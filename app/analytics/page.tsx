@@ -250,7 +250,7 @@ export default function AnalyticsPage() {
                                     // Calculate quality metrics
                                     const avgTechnicalScore = submitted.length > 0
                                         ? Math.round(submitted.reduce((acc: number, r: any) =>
-                                            acc + (r.technicalAnalysis?.productMatchScore || 0), 0) / submitted.length)
+                                            acc + (r.fitScore || 0), 0) / submitted.length)
                                         : 0
 
                                     // Calculate completion rate
