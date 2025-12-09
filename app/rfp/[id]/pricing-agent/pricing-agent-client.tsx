@@ -9,9 +9,9 @@ import { AgentCard } from "@/components/agents/agent-card"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ArrowRight, DollarSign, TrendingUp } from "lucide-react"
+import { ArrowRight, IndianRupee, TrendingUp } from "lucide-react"
 import { RFP } from "@/types"
-import { storage } from "@/lib/storage"
+import { useRFPs } from "@/contexts/rfp-context"
 
 
 interface PricingAgentClientProps {
@@ -20,6 +20,7 @@ interface PricingAgentClientProps {
 
 export default function PricingAgentClient({ id }: PricingAgentClientProps) {
     const router = useRouter()
+    const { rfps, updateRFP } = useRFPs()
     const [rfp, setRfp] = useState<RFP | null>(null)
     const [stage, setStage] = useState<'processing' | 'completed'>('processing')
 
@@ -32,7 +33,7 @@ export default function PricingAgentClient({ id }: PricingAgentClientProps) {
     ]
 
     useEffect(() => {
-        const foundRfp = storage.getRFP(id)
+        const foundRfp = rfps.find(r => r.id === id)
         if (foundRfp) {
             setRfp(foundRfp)
 
@@ -40,22 +41,57 @@ export default function PricingAgentClient({ id }: PricingAgentClientProps) {
                 setStage('completed')
             } else {
                 setTimeout(() => {
+                    // Calculate pricing based on RFP specifications
+                    const quantity = foundRfp.specifications.quantity || 5000
+                    const voltage = foundRfp.specifications.voltage || "11kV"
+
+                    // Base price per meter based on voltage and specifications
+                    let basePricePerMeter = 450 // Default base price
+
+                    // Adjust price based on voltage
+                    if (voltage.includes("33kV")) basePricePerMeter = 650
+                    else if (voltage.includes("22kV")) basePricePerMeter = 550
+                    else if (voltage.includes("11kV")) basePricePerMeter = 450
+                    else if (voltage.includes("6.6kV")) basePricePerMeter = 400
+
+                    // Add premium for special features
+                    if (foundRfp.specifications.armoring?.includes("SWA")) basePricePerMeter += 30
+                    if (foundRfp.specifications.conductor?.includes("Copper")) basePricePerMeter += 50
+
+                    // Calculate total and different pricing strategies
+                    const aggressivePrice = Math.round(basePricePerMeter * 0.92) // 8% discount
+                    const recommendedPrice = basePricePerMeter
+                    const premiumPrice = Math.round(basePricePerMeter * 1.08) // 8% premium
+
+                    const totalValue = recommendedPrice * quantity
+
+                    // Determine risk level based on quantity and deadline
+                    const deadline = new Date(foundRfp.deadline)
+                    const today = new Date()
+                    const daysUntilDeadline = Math.floor((deadline.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+
+                    let riskLevel: 'low' | 'medium' | 'high' = 'medium'
+                    if (daysUntilDeadline > 45 && quantity < 10000) riskLevel = 'low'
+                    else if (daysUntilDeadline < 20 || quantity > 20000) riskLevel = 'high'
+
                     const strategy = {
-                        recommendedPrice: 525,
+                        recommendedPrice,
+                        aggressivePrice,
+                        premiumPrice,
                         margin: 18,
-                        totalValue: 2625000,
-                        riskLevel: 'low' as const,
+                        totalValue,
+                        riskLevel,
                         status: 'completed' as const
                     }
                     setStage('completed')
 
-                    storage.updateRFP(id, {
+                    updateRFP(id, {
                         pricingStrategy: strategy
                     })
                 }, 3000)
             }
         }
-    }, [id])
+    }, [id, rfps, updateRFP])
 
     if (!rfp) {
         return (
@@ -82,7 +118,7 @@ export default function PricingAgentClient({ id }: PricingAgentClientProps) {
                         <Card className="border-2 border-black">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
-                                    <DollarSign className="h-5 w-5" />
+                                    <IndianRupee className="h-5 w-5" />
                                     Calculating Pricing Strategy...
                                 </CardTitle>
                             </CardHeader>
@@ -99,7 +135,7 @@ export default function PricingAgentClient({ id }: PricingAgentClientProps) {
                                     <div className="grid grid-cols-3 gap-4">
                                         <div className="p-4 bg-red-50 rounded-lg border-2 border-red-600">
                                             <h4 className="font-semibold mb-2 text-red-600">Aggressive</h4>
-                                            <p className="text-2xl font-bold">₹485/m</p>
+                                            <p className="text-2xl font-bold">₹{rfp.pricingStrategy?.aggressivePrice || 485}/m</p>
                                             <p className="text-sm text-gray-600 mt-1">12% margin</p>
                                             <Badge variant="outline" className="mt-2 border-red-600 text-red-600">
                                                 High Risk
@@ -107,7 +143,7 @@ export default function PricingAgentClient({ id }: PricingAgentClientProps) {
                                         </div>
                                         <div className="p-4 bg-green-50 rounded-lg border-2 border-green-600">
                                             <h4 className="font-semibold mb-2 text-green-600">Recommended</h4>
-                                            <p className="text-2xl font-bold">₹525/m</p>
+                                            <p className="text-2xl font-bold">₹{rfp.pricingStrategy?.recommendedPrice || 525}/m</p>
                                             <p className="text-sm text-gray-600 mt-1">18% margin</p>
                                             <Badge variant="outline" className="mt-2 border-green-600 text-green-600">
                                                 Optimal
@@ -115,7 +151,7 @@ export default function PricingAgentClient({ id }: PricingAgentClientProps) {
                                         </div>
                                         <div className="p-4 bg-blue-50 rounded-lg border-2 border-blue-600">
                                             <h4 className="font-semibold mb-2 text-blue-600">Premium</h4>
-                                            <p className="text-2xl font-bold">₹565/m</p>
+                                            <p className="text-2xl font-bold">₹{rfp.pricingStrategy?.premiumPrice || 565}/m</p>
                                             <p className="text-sm text-gray-600 mt-1">24% margin</p>
                                             <Badge variant="outline" className="mt-2 border-blue-600 text-blue-600">
                                                 Low Risk
@@ -125,8 +161,25 @@ export default function PricingAgentClient({ id }: PricingAgentClientProps) {
 
                                     <div>
                                         <h4 className="font-semibold mb-2">Total Project Value</h4>
-                                        <p className="text-3xl font-bold">₹26,25,000</p>
-                                        <p className="text-sm text-gray-600">(Based on recommended pricing)</p>
+                                        <p className="text-3xl font-bold">₹{(rfp.pricingStrategy?.totalValue || 2625000).toLocaleString('en-IN')}</p>
+                                        <p className="text-sm text-gray-600">Based on {rfp.specifications.quantity.toLocaleString()} meters at recommended pricing</p>
+                                    </div>
+
+                                    <div className="p-4 bg-gray-50 rounded-lg border-2 border-gray-200">
+                                        <h4 className="font-semibold mb-2">Risk Assessment</h4>
+                                        <div className="flex items-center gap-3">
+                                            <Badge className={`text-sm font-bold ${rfp.pricingStrategy?.riskLevel === 'low' ? 'bg-green-600' :
+                                                    rfp.pricingStrategy?.riskLevel === 'medium' ? 'bg-yellow-600' :
+                                                        'bg-red-600'
+                                                }`}>
+                                                {(rfp.pricingStrategy?.riskLevel || 'medium').toUpperCase()} RISK
+                                            </Badge>
+                                            <p className="text-sm text-gray-600">
+                                                {rfp.pricingStrategy?.riskLevel === 'low' && 'Good timeline and reasonable quantity. Safe to bid competitively.'}
+                                                {rfp.pricingStrategy?.riskLevel === 'medium' && 'Moderate timeline or quantity. Recommended pricing is optimal.'}
+                                                {rfp.pricingStrategy?.riskLevel === 'high' && 'Tight timeline or large quantity. Consider premium pricing for risk mitigation.'}
+                                            </p>
+                                        </div>
                                     </div>
 
                                     <div>
@@ -134,7 +187,7 @@ export default function PricingAgentClient({ id }: PricingAgentClientProps) {
                                         <div className="flex items-center gap-2">
                                             <TrendingUp className="h-4 w-4 text-green-600" />
                                             <span className="text-sm text-gray-600">
-                                                Recommended price is 8% below market average, increasing win probability
+                                                Recommended price is competitive for {rfp.specifications.voltage} {rfp.specifications.size} cable
                                             </span>
                                         </div>
                                     </div>

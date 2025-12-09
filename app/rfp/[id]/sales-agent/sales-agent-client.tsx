@@ -154,10 +154,10 @@ export default function SalesAgentClient({ id }: SalesAgentClientProps) {
 
                             <div className="flex justify-end">
                                 <Button
-                                    onClick={() => router.push(`/rfp/${id}/master-agent`)}
+                                    onClick={() => router.push(`/rfp/${id}/technical-agent`)}
                                     className="bg-black text-white hover:bg-gray-800"
                                 >
-                                    Continue to Master Agent
+                                    Continue to Technical Agent
                                     <ArrowRight className="ml-2 h-4 w-4" />
                                 </Button>
                             </div>

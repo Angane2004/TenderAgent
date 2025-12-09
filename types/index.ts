@@ -39,6 +39,8 @@ export interface RFP {
     }
     pricingStrategy?: {
         recommendedPrice: number
+        aggressivePrice?: number
+        premiumPrice?: number
         margin: number
         totalValue: number
         riskLevel: 'low' | 'medium' | 'high'

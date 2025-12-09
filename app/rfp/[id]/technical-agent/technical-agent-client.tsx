@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ArrowRight, Wrench } from "lucide-react"
 import { RFP } from "@/types"
-import { storage } from "@/lib/storage"
+import { useRFPs } from "@/contexts/rfp-context"
 
 
 interface TechnicalAgentClientProps {
@@ -20,6 +20,7 @@ interface TechnicalAgentClientProps {
 
 export default function TechnicalAgentClient({ id }: TechnicalAgentClientProps) {
     const router = useRouter()
+    const { rfps, updateRFP } = useRFPs()
     const [rfp, setRfp] = useState<RFP | null>(null)
     const [stage, setStage] = useState<'processing' | 'completed'>('processing')
 
@@ -32,7 +33,7 @@ export default function TechnicalAgentClient({ id }: TechnicalAgentClientProps) 
     ]
 
     useEffect(() => {
-        const foundRfp = storage.getRFP(id)
+        const foundRfp = rfps.find(r => r.id === id)
         if (foundRfp) {
             setRfp(foundRfp)
 
@@ -49,13 +50,13 @@ export default function TechnicalAgentClient({ id }: TechnicalAgentClientProps) 
                     }
                     setStage('completed')
 
-                    storage.updateRFP(id, {
+                    updateRFP(id, {
                         technicalAnalysis: analysis
                     })
                 }, 3000)
             }
         }
-    }, [id])
+    }, [id, rfps, updateRFP])
 
     if (!rfp) {
         return (
