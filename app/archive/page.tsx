@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Archive as ArchiveIcon, Search, Download, Calendar, Target, DollarSign, FileText, Trash2 } from "lucide-react"
+import { Archive as ArchiveIcon, Search, Download, Calendar, Target, DollarSign, FileText, Trash2, IndianRupeeIcon } from "lucide-react"
 import { RFP } from "@/types"
 import { formatDate } from "@/lib/utils"
 import { useRFPs } from "@/contexts/rfp-context"
@@ -151,7 +151,7 @@ ${rfp.specifications ? JSON.stringify(rfp.specifications, null, 2) : 'N/A'}
                                     <CardContent className="p-6">
                                         <div className="flex items-center gap-3">
                                             <div className="p-3 bg-blue-500 rounded-lg">
-                                                <DollarSign className="h-6 w-6 text-white" />
+                                                <IndianRupeeIcon className="h-6 w-6 text-white" />
                                             </div>
                                             <div>
                                                 <p className="text-sm text-blue-600 font-semibold">Total Value</p>

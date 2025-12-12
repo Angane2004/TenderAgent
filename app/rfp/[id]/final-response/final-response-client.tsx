@@ -197,11 +197,10 @@ export default function FinalResponseClient({ id }: FinalResponseClientProps) {
                                             className="border-2 border-black"
                                             disabled={isSubmitted}
                                         >
-                                            <button className="flex items-center gap-2 px-4 py-2 rounded-md">
+                                            <button className="flex items-center gap-2">
                                                 <Edit className="h-6 w-6" />
                                                 Edit Values
                                             </button>
-
                                         </LoadingButton>
                                     ) : (
                                         <LoadingButton
@@ -209,7 +208,7 @@ export default function FinalResponseClient({ id }: FinalResponseClientProps) {
                                             size="lg"
                                             className="bg-green-600 hover:bg-green-700 text-white"
                                         >
-                                            <button className="flex items-center gap-2 px-4 py-2 rounded-md">
+                                            <button className="flex items-center gap-2">
                                                 <Save className="h-6 w-6" />
                                                 Save
                                             </button>
@@ -285,8 +284,8 @@ export default function FinalResponseClient({ id }: FinalResponseClientProps) {
                                     variant="outline"
                                     className="w-full border-2 border-black hover:bg-gray-100 h-12 text-base font-medium"
                                 >
-                                    <button className="flex items-center gap-2 px-4 py-2 rounded-md">
-                                        <Download className="mr-2 h-5 w-5" />
+                                    <button className="flex items-center gap-2">
+                                        <Download className="h-6 w-6" />
                                         Download PDF
                                     </button>
                                 </LoadingButton>

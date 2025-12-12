@@ -1,5 +1,6 @@
 export interface RFP {
     id: string
+    riskScore: "low" | "medium" | "high"
     title: string
     issuedBy: string
     summary: string
@@ -22,6 +23,7 @@ export interface RFP {
     deliveryLocation?: string
     paymentTerms?: string[]
     deliveryTimeline: string
+    testingRequirements: string[]
     // Agent Outputs
     salesSummary?: {
         scopeOfSupply: string

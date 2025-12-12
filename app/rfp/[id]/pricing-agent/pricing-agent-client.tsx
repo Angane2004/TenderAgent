@@ -9,7 +9,7 @@ import { AgentCard } from "@/components/agents/agent-card"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ArrowRight, IndianRupee, TrendingUp, Loader2 } from "lucide-react"
+import { ArrowRight, IndianRupee, TrendingUp, Loader2, ThumbsUp } from "lucide-react"
 import { RFP } from "@/types"
 import { useRFPs } from "@/contexts/rfp-context"
 
@@ -103,13 +103,13 @@ export default function PricingAgentClient({ id }: PricingAgentClientProps) {
     }
 
     return (
-        <div className="flex min-h-screen bg-gray-50">
+        <div className="flex h-screen bg-gray-50 overflow-hidden">
             <Sidebar />
 
-            <div className="flex-1">
+            <div className="flex-1 flex flex-col h-screen overflow-hidden">
                 <Header />
 
-                <main className="p-6 space-y-6">
+                <main className="flex-1 overflow-y-auto p-6 space-y-6">
                     <div>
                         <h1 className="text-3xl font-bold">Pricing Strategy Agent</h1>
                         <p className="text-gray-600 mt-1">Calculating optimal pricing for: {rfp.title}</p>
@@ -194,6 +194,177 @@ export default function PricingAgentClient({ id }: PricingAgentClientProps) {
                                     </div>
                                 </div>
                             </AgentCard>
+
+                            {/* Pricing Comparison Table */}
+                            <Card className="border-2 border-black bg-white">
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2">
+                                        <TrendingUp className="h-5 w-5" />
+                                        Pricing Strategy Comparison
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full">
+                                            <thead>
+                                                <tr className="border-b-2 border-gray-200">
+                                                    <th className="text-left py-3 px-4 font-semibold text-gray-700">Metric</th>
+                                                    <th className="text-center py-3 px-4 font-semibold text-red-700">
+                                                        <div className="flex flex-col items-center">
+                                                            <span>Aggressive</span>
+                                                            <Badge variant="outline" className="mt-1 border-red-600 text-red-600 text-xs">
+                                                                High Win Rate
+                                                            </Badge>
+                                                        </div>
+                                                    </th>
+                                                    <th className="text-center py-3 px-4 font-semibold text-green-700 bg-green-50">
+                                                        <div className="flex flex-col items-center">
+                                                            <span>AI Recommended</span>
+                                                            <Badge className="mt-1 bg-green-600 text-white text-xs">
+                                                                <ThumbsUp className="mr-3 h-4 w-4" /> Best Value
+                                                            </Badge>
+                                                        </div>
+                                                    </th>
+                                                    <th className="text-center py-3 px-4 font-semibold text-blue-700">
+                                                        <div className="flex flex-col items-center">
+                                                            <span>Premium</span>
+                                                            <Badge variant="outline" className="mt-1 border-blue-600 text-blue-600 text-xs">
+                                                                High Margin
+                                                            </Badge>
+                                                        </div>
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {/* Price Per Meter */}
+                                                <tr className="border-b border-gray-100 hover:bg-gray-50">
+                                                    <td className="py-3 px-4 font-medium">Price per Meter</td>
+                                                    <td className="py-3 px-4 text-center text-lg font-bold text-red-600">
+                                                        ₹{rfp.pricingStrategy?.aggressivePrice || 485}
+                                                    </td>
+                                                    <td className="py-3 px-4 text-center text-lg font-bold text-green-600 bg-green-50">
+                                                        ₹{rfp.pricingStrategy?.recommendedPrice || 525}
+                                                    </td>
+                                                    <td className="py-3 px-4 text-center text-lg font-bold text-blue-600">
+                                                        ₹{rfp.pricingStrategy?.premiumPrice || 565}
+                                                    </td>
+                                                </tr>
+
+                                                {/* Total Value */}
+                                                <tr className="border-b border-gray-100 hover:bg-gray-50">
+                                                    <td className="py-3 px-4 font-medium">Total Project Value</td>
+                                                    <td className="py-3 px-4 text-center font-semibold">
+                                                        ₹{((rfp.pricingStrategy?.aggressivePrice || 485) * rfp.specifications.quantity).toLocaleString('en-IN')}
+                                                    </td>
+                                                    <td className="py-3 px-4 text-center font-semibold bg-green-50">
+                                                        ₹{(rfp.pricingStrategy?.totalValue || 2625000).toLocaleString('en-IN')}
+                                                    </td>
+                                                    <td className="py-3 px-4 text-center font-semibold">
+                                                        ₹{((rfp.pricingStrategy?.premiumPrice || 565) * rfp.specifications.quantity).toLocaleString('en-IN')}
+                                                    </td>
+                                                </tr>
+
+                                                {/* Profit Margin */}
+                                                <tr className="border-b border-gray-100 hover:bg-gray-50">
+                                                    <td className="py-3 px-4 font-medium">Profit Margin</td>
+                                                    <td className="py-3 px-4 text-center">
+                                                        <Badge variant="outline" className="border-red-600 text-red-600">12%</Badge>
+                                                    </td>
+                                                    <td className="py-3 px-4 text-center bg-green-50">
+                                                        <Badge className="bg-green-600 text-white">18%</Badge>
+                                                    </td>
+                                                    <td className="py-3 px-4 text-center">
+                                                        <Badge variant="outline" className="border-blue-600 text-blue-600">24%</Badge>
+                                                    </td>
+                                                </tr>
+
+                                                {/* Estimated Profit */}
+                                                <tr className="border-b border-gray-100 hover:bg-gray-50">
+                                                    <td className="py-3 px-4 font-medium">Estimated Profit</td>
+                                                    <td className="py-3 px-4 text-center font-semibold text-red-600">
+                                                        ₹{(((rfp.pricingStrategy?.aggressivePrice || 485) * rfp.specifications.quantity) * 0.12).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                                                    </td>
+                                                    <td className="py-3 px-4 text-center font-semibold text-green-600 bg-green-50">
+                                                        ₹{((rfp.pricingStrategy?.totalValue || 2625000) * 0.18).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                                                    </td>
+                                                    <td className="py-3 px-4 text-center font-semibold text-blue-600">
+                                                        ₹{(((rfp.pricingStrategy?.premiumPrice || 565) * rfp.specifications.quantity) * 0.24).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                                                    </td>
+                                                </tr>
+
+                                                {/* Win Probability */}
+                                                <tr className="border-b border-gray-100 hover:bg-gray-50">
+                                                    <td className="py-3 px-4 font-medium">Win Probability</td>
+                                                    <td className="py-3 px-4 text-center">
+                                                        <div className="flex flex-col items-center">
+                                                            <span className="font-bold text-red-600">85%</span>
+                                                            <span className="text-xs text-gray-500">High</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="py-3 px-4 text-center bg-green-50">
+                                                        <div className="flex flex-col items-center">
+                                                            <span className="font-bold text-green-600">72%</span>
+                                                            <span className="text-xs text-gray-500">Good</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="py-3 px-4 text-center">
+                                                        <div className="flex flex-col items-center">
+                                                            <span className="font-bold text-blue-600">55%</span>
+                                                            <span className="text-xs text-gray-500">Moderate</span>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+
+                                                {/* Risk Level */}
+                                                <tr className="border-b border-gray-100 hover:bg-gray-50">
+                                                    <td className="py-3 px-4 font-medium">Risk Level</td>
+                                                    <td className="py-3 px-4 text-center">
+                                                        <Badge className="bg-red-600 text-white">High</Badge>
+                                                    </td>
+                                                    <td className="py-3 px-4 text-center bg-green-50">
+                                                        <Badge className="bg-yellow-600 text-white">Medium</Badge>
+                                                    </td>
+                                                    <td className="py-3 px-4 text-center">
+                                                        <Badge className="bg-green-600 text-white">Low</Badge>
+                                                    </td>
+                                                </tr>
+
+                                                {/* Competitiveness */}
+                                                <tr className="hover:bg-gray-50">
+                                                    <td className="py-3 px-4 font-medium">Market Position</td>
+                                                    <td className="py-3 px-4 text-center text-sm text-gray-600">
+                                                        Highly competitive,<br />may raise concerns
+                                                    </td>
+                                                    <td className="py-3 px-4 text-center text-sm text-gray-600 bg-green-50">
+                                                        Balanced pricing,<br />strong value proposition
+                                                    </td>
+                                                    <td className="py-3 px-4 text-center text-sm text-gray-600">
+                                                        Premium positioning,<br />quality focus
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    {/* Recommendation Box */}
+                                    <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-600 rounded-lg">
+                                        <div className="flex items-start gap-3">
+                                            <div className="bg-green-600 text-white p-2 rounded-full">
+                                                <TrendingUp className="h-5 w-5" />
+                                            </div>
+                                            <div className="flex-1">
+                                                <h4 className="font-bold text-green-900 mb-1">AI Recommendation</h4>
+                                                <p className="text-sm text-green-800">
+                                                    Based on market analysis, project complexity, and risk assessment, we recommend the
+                                                    <span className="font-bold"> Recommended Pricing Strategy (₹{rfp.pricingStrategy?.recommendedPrice || 525}/m)</span>.
+                                                    This offers the best balance between competitiveness and profitability, with a healthy 18% margin
+                                                    and 72% win probability.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
 
                             <div className="flex justify-end">
                                 <Button

@@ -16,13 +16,21 @@ export default function LandingPage() {
 
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
     const [scrolled, setScrolled] = useState(false)
+    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
 
     useEffect(() => {
         const handleScroll = () => {
             setScrolled(window.scrollY > 50)
         }
+        const handleMouseMove = (e: MouseEvent) => {
+            setMousePosition({ x: e.clientX, y: e.clientY })
+        }
         window.addEventListener("scroll", handleScroll)
-        return () => window.removeEventListener("scroll", handleScroll)
+        window.addEventListener("mousemove", handleMouseMove)
+        return () => {
+            window.removeEventListener("scroll", handleScroll)
+            window.removeEventListener("mousemove", handleMouseMove)
+        }
     }, [])
 
     const smoothScrollTo = (id: string) => {
@@ -95,36 +103,53 @@ export default function LandingPage() {
     ]
 
     return (
-        <div ref={containerRef} className="min-h-screen bg-white text-black">
+        <div ref={containerRef} className="min-h-screen bg-white text-black overflow-hidden">
+            {/* Mouse follower glow effect */}
+            <div
+                className="fixed w-96 h-96 rounded-full pointer-events-none z-0 transition-all duration-300 ease-out"
+                style={{
+                    left: mousePosition.x - 192,
+                    top: mousePosition.y - 192,
+                    background: 'radial-gradient(circle, rgba(168, 85, 247, 0.15) 0%, transparent 70%)',
+                    filter: 'blur(40px)',
+                }}
+            />
+
             {/* Navigation */}
             <motion.nav
                 initial={{ y: -100 }}
                 animate={{ y: 0 }}
-                className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "bg-white/95 backdrop-blur-lg shadow-lg" : "bg-transparent"
+                className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "bg-white/95 backdrop-blur-lg shadow-lg border-b-2 border-purple-100" : "bg-transparent"
                     }`}
             >
                 <div className="max-w-7xl mx-auto px-6 py-4">
                     <div className="flex items-center justify-between">
                         <Link href="/" className="flex items-center gap-2 group">
-                            <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <motion.div
+                                whileHover={{ rotate: 360, scale: 1.1 }}
+                                transition={{ duration: 0.6 }}
+                                className="w-10 h-10 bg-gradient-to-br from-gray-900 to-gray-700 rounded-lg flex items-center justify-center group-hover:shadow-xl transition-all"
+                            >
                                 <Bot className="h-6 w-6 text-white" />
-                            </div>
-                            <span className="text-2xl font-bold">TenderAgent</span>
+                            </motion.div>
+                            <span className="text-2xl font-bold text-black">TenderAgent</span>
                         </Link>
 
                         {/* Desktop Menu */}
                         <div className="hidden md:flex items-center gap-8">
                             <button
                                 onClick={() => smoothScrollTo('workflow')}
-                                className="text-sm font-medium hover:text-gray-600 transition-colors cursor-pointer"
+                                className="text-sm font-medium hover:text-gray-500 transition-colors cursor-pointer relative group"
                             >
                                 How It Works
+                                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gray-800 group-hover:w-full transition-all duration-300" />
                             </button>
                             <button
                                 onClick={() => smoothScrollTo('features')}
-                                className="text-sm font-medium hover:text-gray-600 transition-colors cursor-pointer"
+                                className="text-sm font-medium hover:text-gray-500 transition-colors cursor-pointer relative group"
                             >
                                 Features
+                                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gray-800 group-hover:w-full transition-all duration-300" />
                             </button>
                             <Link href="/login">
                                 <Button
@@ -135,10 +160,12 @@ export default function LandingPage() {
                                 </Button>
                             </Link>
                             <Link href="/login">
-                                <Button className="bg-black text-white hover:bg-gray-800 transition-all duration-300 shadow-lg hover:shadow-xl">
-                                    Get Started
-                                    <ArrowRight className="ml-2 h-4 w-4" />
-                                </Button>
+                                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                                    <Button className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white hover:from-black hover:via-gray-900 hover:to-black transition-all duration-300 shadow-lg hover:shadow-2xl group">
+                                        Get Started
+                                        <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                                    </Button>
+                                </motion.div>
                             </Link>
                         </div>
 
@@ -161,13 +188,13 @@ export default function LandingPage() {
                         >
                             <button
                                 onClick={() => smoothScrollTo('workflow')}
-                                className="block w-full text-left text-sm font-medium hover:text-gray-600 transition-colors"
+                                className="block w-full text-left text-sm font-medium hover:text-purple-600 transition-colors"
                             >
                                 How It Works
                             </button>
                             <button
                                 onClick={() => smoothScrollTo('features')}
-                                className="block w-full text-left text-sm font-medium hover:text-gray-600 transition-colors"
+                                className="block w-full text-left text-sm font-medium hover:text-purple-600 transition-colors"
                             >
                                 Features
                             </button>
@@ -177,7 +204,7 @@ export default function LandingPage() {
                                 </Button>
                             </Link>
                             <Link href="/login" className="block">
-                                <Button className="w-full bg-black text-white hover:bg-gray-800">
+                                <Button className="w-full bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white hover:from-black hover:via-gray-900 hover:to-black transition-all">
                                     Get Started
                                 </Button>
                             </Link>
@@ -190,15 +217,53 @@ export default function LandingPage() {
             <section className="relative min-h-screen flex items-center justify-center px-6 pt-20 overflow-hidden">
                 {/* Animated Gradient Background */}
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-50 via-white to-blue-50">
-                    {/* Animated mesh gradient */}
-                    <div className="absolute inset-0 opacity-30">
-                        <div className="absolute top-0 -left-4 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob" />
-                        <div className="absolute top-0 -right-4 w-96 h-96 bg-yellow-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000" />
-                        <div className="absolute -bottom-8 left-20 w-96 h-96 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000" />
+                    {/* Enhanced animated mesh gradient with glow */}
+                    <div className="absolute inset-0 opacity-40">
+                        <motion.div
+                            animate={{
+                                scale: [1, 1.2, 1],
+                                x: [0, 100, 0],
+                                y: [0, 50, 0],
+                            }}
+                            transition={{
+                                duration: 20,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                            }}
+                            className="absolute top-0 -left-4 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl"
+                        />
+                        <motion.div
+                            animate={{
+                                scale: [1, 1.3, 1],
+                                x: [0, -100, 0],
+                                y: [0, -50, 0],
+                            }}
+                            transition={{
+                                duration: 25,
+                                repeat: Infinity,
+                                ease: "easeInOut",
+                                delay: 2
+                            }}
+                            className="absolute top-0 -right-4 w-96 h-96 bg-yellow-400 rounded-full mix-blend-multiply filter blur-3xl"
+                        />
+                        <motion.div
+                            animate={{
+                                scale: [1, 1.4, 1],
+                                x: [0, 50, 0],
+                                y: [0, 100, 0],
+                            }}
+                            transition={{
+                                duration: 30,
+                                repeat: Infinity,
+                                ease: "easeInOut",
+                                delay: 4
+                            }}
+                            className="absolute -bottom-8 left-20 w-96 h-96 bg-pink-400 rounded-full mix-blend-multiply filter blur-3xl"
+                        />
                     </div>
                 </div>
 
-                {/* Grid Pattern Overlay */}
+                {/* Grid Pattern Overlay with shimmer */}
                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]" />
 
                 {/* Radial gradient overlay */}
@@ -211,17 +276,25 @@ export default function LandingPage() {
                         transition={{ duration: 0.8 }}
                         className="mb-6"
                     >
-                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border-2 border-black mb-8 hover:bg-black hover:text-white transition-all duration-300 cursor-default">
-                            <Sparkles className="h-4 w-4" />
-                            <span className="text-sm font-medium">AI-Powered RFP Automation</span>
-                        </div>
+                        <motion.div
+                            whileHover={{ scale: 1.05 }}
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border-2 border-gray-300 bg-gray-50 mb-8 hover:shadow-lg hover:border-black transition-all duration-300 cursor-default"
+                        >
+                            <motion.div
+                                animate={{ rotate: 360 }}
+                                transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                            >
+                                <Sparkles className="h-4 w-4 text-gray-700" />
+                            </motion.div>
+                            <span className="text-sm font-medium text-black">AI-Powered RFP Automation</span>
+                        </motion.div>
                     </motion.div>
 
                     <motion.h1
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, delay: 0.2 }}
-                        className="text-6xl md:text-8xl font-bold mb-6"
+                        className="text-6xl md:text-8xl font-bold mb-6 text-black"
                     >
                         TenderAgent
                     </motion.h1>
@@ -243,22 +316,27 @@ export default function LandingPage() {
                         className="flex flex-col sm:flex-row gap-4 justify-center"
                     >
                         <Link href="/login">
-                            <Button
-                                size="lg"
-                                className="bg-black text-white hover:bg-gray-800 px-8 py-6 text-lg group shadow-2xl hover:shadow-3xl transition-all duration-300"
-                            >
-                                Get Started Free
-                                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                            </Button>
+                            <motion.div whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.95 }}>
+                                <Button
+                                    size="lg"
+                                    className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white hover:from-black hover:via-gray-900 hover:to-black px-8 py-6 text-lg group shadow-2xl hover:shadow-3xl transition-all duration-300 relative overflow-hidden"
+                                >
+                                    <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                                    <span className="relative">Get Started Free</span>
+                                    <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform relative" />
+                                </Button>
+                            </motion.div>
                         </Link>
                         <div onClick={() => smoothScrollTo('workflow')}>
-                            <Button
-                                size="lg"
-                                variant="outline"
-                                className="border-2 border-black hover:bg-black hover:text-white px-8 py-6 text-lg transition-all duration-300"
-                            >
-                                See How It Works
-                            </Button>
+                            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                                <Button
+                                    size="lg"
+                                    variant="outline"
+                                    className="border-2 border-black hover:bg-black hover:text-white px-8 py-6 text-lg transition-all duration-300"
+                                >
+                                    See How It Works
+                                </Button>
+                            </motion.div>
                         </div>
                     </motion.div>
 
@@ -270,23 +348,24 @@ export default function LandingPage() {
                         className="grid grid-cols-1 sm:grid-cols-3 gap-8 mt-20 max-w-3xl mx-auto"
                     >
                         {[
-                            { value: "10x", label: "Faster Processing" },
-                            { value: "95%", label: "Match Accuracy" },
-                            { value: "78%", label: "Win Probability" }
+                            { value: "10x", label: "Faster Processing", color: "from-purple-600 to-blue-600" },
+                            { value: "95%", label: "Match Accuracy", color: "from-blue-600 to-cyan-600" },
+                            { value: "78%", label: "Win Probability", color: "from-cyan-600 to-purple-600" }
                         ].map((stat, index) => (
                             <motion.div
                                 key={index}
-                                whileHover={{ scale: 1.05 }}
-                                className="p-6 border-2 border-black rounded-2xl hover:bg-black hover:text-white transition-all duration-300 cursor-default"
+                                whileHover={{ scale: 1.05, y: -5 }}
+                                className="p-6 border-2 border-black rounded-2xl bg-white hover:shadow-2xl hover:shadow-purple-200 transition-all duration-300 cursor-default relative overflow-hidden group"
                             >
-                                <div className="text-4xl font-bold mb-2">{stat.value}</div>
-                                <div className="text-sm opacity-70">{stat.label}</div>
+                                <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
+                                <div className="relative z-10">
+                                    <div className="text-4xl font-bold mb-2 text-black">{stat.value}</div>
+                                    <div className="text-sm opacity-70">{stat.label}</div>
+                                </div>
                             </motion.div>
                         ))}
                     </motion.div>
                 </div>
-
-                {/* Scroll Indicator removed */}
             </section>
 
             {/* Workflow Section */}
@@ -309,7 +388,7 @@ export default function LandingPage() {
                         transition={{ duration: 0.8 }}
                         className="text-center mb-20"
                     >
-                        <h2 className="text-5xl font-bold mb-6">How It Works</h2>
+                        <h2 className="text-5xl font-bold mb-6 text-black">How It Works</h2>
                         <p className="text-xl text-gray-600 max-w-2xl mx-auto">
                             Our multi-agent AI system handles the entire RFP lifecycle automatically
                         </p>
@@ -327,9 +406,13 @@ export default function LandingPage() {
                             >
                                 <div className="flex-1 space-y-4">
                                     <div className="inline-flex items-center gap-3 mb-4">
-                                        <div className="w-16 h-16 bg-black rounded-2xl flex items-center justify-center">
+                                        <motion.div
+                                            whileHover={{ rotate: 360, scale: 1.1 }}
+                                            transition={{ duration: 0.6 }}
+                                            className="w-16 h-16 bg-gradient-to-br from-gray-900 to-gray-700 rounded-2xl flex items-center justify-center shadow-xl"
+                                        >
                                             <item.icon className="h-8 w-8 text-white" />
-                                        </div>
+                                        </motion.div>
                                         <div className="text-sm font-medium text-gray-500">Step {item.step}</div>
                                     </div>
                                     <h3 className="text-3xl font-bold">{item.title}</h3>
@@ -340,12 +423,12 @@ export default function LandingPage() {
                                     whileHover={{ scale: 1.02 }}
                                 >
                                     <div className="relative group">
-                                        {/* Glow effect on hover */}
-                                        <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-3xl opacity-0 group-hover:opacity-30 blur-xl transition-all duration-500" />
+                                        {/* Enhanced glow effect on hover */}
+                                        <div className="absolute -inset-2 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-3xl opacity-0 group-hover:opacity-50 blur-2xl transition-all duration-500" />
 
                                         {/* Image container with 3D transform */}
                                         <motion.div
-                                            className="relative h-80 rounded-2xl border-2 border-black bg-white overflow-hidden"
+                                            className="relative h-80 rounded-2xl border-2 border-black bg-white overflow-hidden shadow-xl"
                                             whileHover={{
                                                 rotateY: 5,
                                                 rotateX: 5,
@@ -362,7 +445,7 @@ export default function LandingPage() {
                                             }}
                                         >
                                             {/* Overlay gradient on hover */}
-                                            <div className="absolute inset-0 bg-gradient-to-br from-black/0 via-black/0 to-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10" />
+                                            <div className="absolute inset-0 bg-gradient-to-br from-purple-600/10 via-transparent to-blue-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10" />
 
                                             {/* Image */}
                                             <Image
@@ -376,7 +459,7 @@ export default function LandingPage() {
 
                                             {/* Floating icon on hover */}
                                             <motion.div
-                                                className="absolute bottom-4 right-4 w-16 h-16 bg-black/90 backdrop-blur-sm rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 z-20"
+                                                className="absolute bottom-4 right-4 w-16 h-16 bg-black/90 backdrop-blur-sm rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 z-20 shadow-2xl"
                                                 initial={{ y: 20, opacity: 0 }}
                                                 whileHover={{ y: 0, opacity: 1 }}
                                                 transition={{ duration: 0.3 }}
@@ -386,7 +469,7 @@ export default function LandingPage() {
 
                                             {/* Shimmer effect */}
                                             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                                             </div>
                                         </motion.div>
                                     </div>
@@ -416,7 +499,7 @@ export default function LandingPage() {
                         transition={{ duration: 0.8 }}
                         className="text-center mb-20"
                     >
-                        <h2 className="text-5xl font-bold mb-6">Powerful Features</h2>
+                        <h2 className="text-5xl font-bold mb-6 text-black">Powerful Features</h2>
                         <p className="text-xl text-gray-600 max-w-2xl mx-auto">
                             Everything you need to win more tenders
                         </p>
@@ -430,14 +513,21 @@ export default function LandingPage() {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                                whileHover={{ scale: 1.02 }}
-                                className="p-8 rounded-2xl border-2 border-black hover:bg-black hover:text-white transition-all duration-300 group cursor-default"
+                                whileHover={{ scale: 1.02, y: -5 }}
+                                className="p-8 rounded-2xl border-2 border-black bg-white hover:shadow-2xl hover:shadow-gray-300 transition-all duration-300 group cursor-default relative overflow-hidden"
                             >
-                                <div className="w-14 h-14 rounded-xl bg-black group-hover:bg-white flex items-center justify-center mb-6 transition-colors">
-                                    <feature.icon className="h-7 w-7 text-white group-hover:text-black transition-colors" />
+                                <div className="absolute inset-0 bg-gradient-to-br from-gray-600/5 to-gray-800/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                <div className="relative z-10">
+                                    <motion.div
+                                        whileHover={{ rotate: 360, scale: 1.1 }}
+                                        transition={{ duration: 0.6 }}
+                                        className="w-14 h-14 rounded-xl bg-gradient-to-br from-gray-900 to-gray-700 flex items-center justify-center mb-6 shadow-xl"
+                                    >
+                                        <feature.icon className="h-7 w-7 text-white" />
+                                    </motion.div>
+                                    <h3 className="text-2xl font-bold mb-3">{feature.title}</h3>
+                                    <p className="opacity-70">{feature.description}</p>
                                 </div>
-                                <h3 className="text-2xl font-bold mb-3">{feature.title}</h3>
-                                <p className="opacity-70">{feature.description}</p>
                             </motion.div>
                         ))}
                     </div>
@@ -445,11 +535,11 @@ export default function LandingPage() {
             </section>
 
             {/* CTA Section */}
-            <section className="relative py-32 px-6 bg-black text-white overflow-hidden">
+            {/* <section className="relative py-32 px-6 bg-gradient-to-br from-purple-600 via-blue-600 to-cyan-600 text-white overflow-hidden"> */}
                 {/* Animated gradient accents */}
-                <div className="absolute inset-0 opacity-20">
-                    <div className="absolute top-20 left-20 w-96 h-96 bg-purple-600 rounded-full mix-blend-screen filter blur-3xl animate-blob" />
-                    <div className="absolute bottom-20 right-20 w-96 h-96 bg-blue-600 rounded-full mix-blend-screen filter blur-3xl animate-blob animation-delay-2000" />
+                {/* <div className="absolute inset-0 opacity-20">
+                    <div className="absolute top-20 left-20 w-96 h-96 bg-white rounded-full mix-blend-overlay filter blur-3xl animate-blob" />
+                    <div className="absolute bottom-20 right-20 w-96 h-96 bg-white rounded-full mix-blend-overlay filter blur-3xl animate-blob animation-delay-2000" />
                 </div>
 
                 <div className="max-w-4xl mx-auto text-center relative z-10">
@@ -460,31 +550,34 @@ export default function LandingPage() {
                         transition={{ duration: 0.8 }}
                     >
                         <h2 className="text-5xl font-bold mb-6">Ready to Transform Your RFP Process?</h2>
-                        <p className="text-xl text-gray-400 mb-12">
+                        <p className="text-xl text-purple-100 mb-12">
                             Join leading companies using AI to win more tenders
                         </p>
                         <Link href="/login">
-                            <Button
-                                size="lg"
-                                className="bg-white text-black hover:bg-gray-200 px-12 py-6 text-lg group shadow-2xl transition-all duration-300"
-                            >
-                                Start Free Trial
-                                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                            </Button>
+                            <motion.div whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.95 }}>
+                                <Button
+                                    size="lg"
+                                    className="bg-white text-black hover:bg-gray-100 px-12 py-6 text-lg group shadow-2xl hover:shadow-3xl transition-all duration-300 border-2 border-white hover:border-gray-200 relative overflow-hidden"
+                                >
+                                    <span className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-200/50 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                                    <span className="relative">Start Free Trial</span>
+                                    <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform relative" />
+                                </Button>
+                            </motion.div>
                         </Link>
                     </motion.div>
                 </div>
-            </section>
+            </section> */}
 
             {/* Footer */}
             <footer className="relative py-12 px-6 border-t-2 border-black bg-gradient-to-br from-gray-50 to-white overflow-hidden">
                 <div className="max-w-6xl mx-auto relative z-10">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-6">
                         <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
+                            <div className="w-8 h-8 bg-gradient-to-br from-gray-900 to-gray-700 rounded-lg flex items-center justify-center">
                                 <Bot className="h-5 w-5 text-white" />
                             </div>
-                            <span className="font-bold">TenderAgent</span>
+                            <span className="font-bold text-black">TenderAgent</span>
                         </div>
                         <p className="text-gray-600">&copy; 2025 TenderAgent. Made By <b>Team Zero</b>.</p>
                     </div>

@@ -13,7 +13,7 @@ import { formatDate } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
 
 export default function SubmissionsPage() {
-    const { rfps, updateRFP } = useRFPs()
+    const { rfps, updateRFP, deleteRFP } = useRFPs()
     const [submissions, setSubmissions] = useState<RFP[]>([])
     const [loading, setLoading] = useState(true)
     const [deletingId, setDeletingId] = useState<string | null>(null)
@@ -25,31 +25,32 @@ export default function SubmissionsPage() {
         setLoading(false)
     }, [rfps])
 
-    const handleDelete = (id: string) => {
+    const handleDelete = async (id: string) => {
         setDeletingId(id)
 
         // Animate deletion
-        setTimeout(() => {
-            // Save to deleted RFPs in localStorage
-            const deletedRFPs = JSON.parse(localStorage.getItem('deleted_rfps') || '[]')
-            const rfpToDelete = submissions.find(r => r.id === id)
-            if (rfpToDelete) {
-                deletedRFPs.push({
-                    ...rfpToDelete,
-                    deletedAt: new Date().toISOString()
-                })
-                localStorage.setItem('deleted_rfps', JSON.stringify(deletedRFPs))
+        setTimeout(async () => {
+            try {
+                // Use context deleteRFP function
+                await deleteRFP(id)
+
+                // Save to deleted RFPs in localStorage for tracking
+                const deletedRFPs = JSON.parse(localStorage.getItem('deleted_rfps') || '[]')
+                const rfpToDelete = submissions.find(r => r.id === id)
+                if (rfpToDelete) {
+                    deletedRFPs.push({
+                        ...rfpToDelete,
+                        deletedAt: new Date().toISOString()
+                    })
+                    localStorage.setItem('deleted_rfps', JSON.stringify(deletedRFPs))
+                }
+
+                setDeletingId(null)
+                setShowConfirm(null)
+            } catch (error) {
+                console.error('Failed to delete RFP:', error)
+                setDeletingId(null)
             }
-
-            // Remove from main RFPs list
-            const allRfps = JSON.parse(localStorage.getItem('tenderai_scanned_rfps') || '[]')
-            const filtered = allRfps.filter((r: RFP) => r.id !== id)
-            localStorage.setItem('tenderai_scanned_rfps', JSON.stringify(filtered))
-
-            // Update UI
-            setSubmissions(prev => prev.filter(r => r.id !== id))
-            setDeletingId(null)
-            setShowConfirm(null)
         }, 500)
     }
 

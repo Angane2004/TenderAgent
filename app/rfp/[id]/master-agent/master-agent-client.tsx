@@ -32,10 +32,67 @@ export default function MasterAgentClient({ id }: MasterAgentClientProps) {
         { message: "Preparing final response strategy...", status: 'completed' as const, progress: 100 },
     ]
 
+    // Real-time calculated scores
+    const [scores, setScores] = useState({
+        tenderAlignment: 0,
+        requirementMatch: 0,
+        capabilityScore: 0,
+        strategicFit: 0
+    })
+
+    // Calculate scores based on RFP data and agent outputs
+    const calculateScores = (rfp: RFP) => {
+        // 1. Tender Alignment Score (based on fit score and overall compatibility)
+        const tenderAlignment = Math.round(
+            (rfp.fitScore * 0.4) + // 40% from fit score
+            ((rfp.technicalAnalysis?.compatible ? 30 : 10)) + // 30% if compatible
+            ((rfp.pricingStrategy ? 30 : 10)) // 30% if pricing available
+        )
+
+        // 2. Requirement Match (based on technical analysis and certifications)
+        const hasCertifications = rfp.certifications && rfp.certifications.length > 0
+        const hasTesting = rfp.testingRequirements && rfp.testingRequirements.length > 0
+        const requirementMatch = Math.round(
+            (rfp.technicalAnalysis?.productMatchScore || 70) * 0.7 + // 70% from product match
+            (hasCertifications ? 15 : 5) + // 15% if certifications available
+            (hasTesting ? 15 : 5) // 15% if testing requirements met
+        )
+
+        // 3. Capability Score (based on technical capabilities and resources)
+        const hasSpecs = rfp.specifications && Object.keys(rfp.specifications).length > 0
+        const hasDelivery = rfp.deliveryTimeline && rfp.deliveryTimeline.length > 0
+        const capabilityScore = Math.round(
+            (rfp.technicalAnalysis?.productMatchScore || 70) * 0.6 + // 60% from technical match
+            (hasSpecs ? 20 : 10) + // 20% if detailed specs
+            (hasDelivery ? 20 : 10) // 20% if delivery timeline clear
+        )
+
+        // 4. Strategic Fit (based on value, margin, and risk)
+        const hasGoodMargin = rfp.pricingStrategy && rfp.pricingStrategy.margin >= 15
+        const isLowRisk = rfp.pricingStrategy && rfp.pricingStrategy.riskLevel === 'low'
+        const hasGoodValue = rfp.estimatedValue && rfp.estimatedValue > 1000000
+        const strategicFit = Math.round(
+            (rfp.fitScore * 0.5) + // 50% from overall fit
+            (hasGoodMargin ? 20 : 10) + // 20% if good margin
+            (isLowRisk ? 15 : 5) + // 15% if low risk
+            (hasGoodValue ? 15 : 10) // 15% if high value
+        )
+
+        setScores({
+            tenderAlignment,
+            requirementMatch,
+            capabilityScore,
+            strategicFit
+        })
+    }
+
     useEffect(() => {
         const foundRfp = rfps.find(r => r.id === id)
         if (foundRfp) {
             setRfp(foundRfp)
+
+            // Calculate scores immediately
+            calculateScores(foundRfp)
 
             // Simulate processing
             setTimeout(() => {
@@ -133,9 +190,9 @@ export default function MasterAgentClient({ id }: MasterAgentClientProps) {
                                             </h4>
                                             <div className="flex items-center gap-3">
                                                 <div className="flex-1 bg-gray-200 rounded-full h-3 border-2 border-black">
-                                                    <div className="bg-blue-600 h-full rounded-full transition-all duration-500" style={{ width: '85%' }} />
+                                                    <div className="bg-blue-600 h-full rounded-full transition-all duration-500" style={{ width: `${scores.tenderAlignment}%` }} />
                                                 </div>
-                                                <span className="text-xl font-bold text-blue-700">85%</span>
+                                                <span className="text-xl font-bold text-blue-700">{scores.tenderAlignment}%</span>
                                             </div>
                                             <p className="text-xs text-gray-600 mt-1">Overall fit with tender requirements</p>
                                         </div>
@@ -149,9 +206,9 @@ export default function MasterAgentClient({ id }: MasterAgentClientProps) {
                                             </h4>
                                             <div className="flex items-center gap-3">
                                                 <div className="flex-1 bg-gray-200 rounded-full h-3 border-2 border-black">
-                                                    <div className="bg-green-600 h-full rounded-full transition-all duration-500" style={{ width: '92%' }} />
+                                                    <div className="bg-green-600 h-full rounded-full transition-all duration-500" style={{ width: `${scores.requirementMatch}%` }} />
                                                 </div>
-                                                <span className="text-xl font-bold text-green-700">92%</span>
+                                                <span className="text-xl font-bold text-green-700">{scores.requirementMatch}%</span>
                                             </div>
                                             <p className="text-xs text-gray-600 mt-1">Specifications we can fulfill</p>
                                         </div>
@@ -165,9 +222,9 @@ export default function MasterAgentClient({ id }: MasterAgentClientProps) {
                                             </h4>
                                             <div className="flex items-center gap-3">
                                                 <div className="flex-1 bg-gray-200 rounded-full h-3 border-2 border-black">
-                                                    <div className="bg-purple-600 h-full rounded-full transition-all duration-500" style={{ width: '88%' }} />
+                                                    <div className="bg-purple-600 h-full rounded-full transition-all duration-500" style={{ width: `${scores.capabilityScore}%` }} />
                                                 </div>
-                                                <span className="text-xl font-bold text-purple-700">88%</span>
+                                                <span className="text-xl font-bold text-purple-700">{scores.capabilityScore}%</span>
                                             </div>
                                             <p className="text-xs text-gray-600 mt-1">Technical capability alignment</p>
                                         </div>
@@ -181,9 +238,9 @@ export default function MasterAgentClient({ id }: MasterAgentClientProps) {
                                             </h4>
                                             <div className="flex items-center gap-3">
                                                 <div className="flex-1 bg-gray-200 rounded-full h-3 border-2 border-black">
-                                                    <div className="bg-orange-600 h-full rounded-full transition-all duration-500" style={{ width: '80%' }} />
+                                                    <div className="bg-orange-600 h-full rounded-full transition-all duration-500" style={{ width: `${scores.strategicFit}%` }} />
                                                 </div>
-                                                <span className="text-xl font-bold text-orange-700">80%</span>
+                                                <span className="text-xl font-bold text-orange-700">{scores.strategicFit}%</span>
                                             </div>
                                             <p className="text-xs text-gray-600 mt-1">Alignment with business goals</p>
                                         </div>

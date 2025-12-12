@@ -73,33 +73,33 @@ export const RFPCard = memo(function RFPCard({ rfp }: RFPCardProps) {
                 {/* Estimated Value Card with Profit/Loss */}
                 {(rfp.estimatedValue || rfp.pricingStrategy?.totalValue) && (
                     <div className={`p-3 rounded-lg border-2 ${rfp.fitScore >= 85
-                            ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-600'
-                            : rfp.fitScore >= 70
-                                ? 'bg-gradient-to-br from-yellow-50 to-amber-50 border-yellow-600'
-                                : 'bg-gradient-to-br from-orange-50 to-red-50 border-orange-600'
+                        ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-600'
+                        : rfp.fitScore >= 70
+                            ? 'bg-gradient-to-br from-yellow-50 to-amber-50 border-yellow-600'
+                            : 'bg-gradient-to-br from-orange-50 to-red-50 border-orange-600'
                         }`}>
                         <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2">
                                 <IndianRupeeIcon className={`h-5 w-5 ${rfp.fitScore >= 85 ? 'text-green-600' :
-                                        rfp.fitScore >= 70 ? 'text-yellow-600' :
-                                            'text-orange-600'
+                                    rfp.fitScore >= 70 ? 'text-yellow-600' :
+                                        'text-orange-600'
                                     }`} />
                                 <span className={`text-xs font-semibold uppercase ${rfp.fitScore >= 85 ? 'text-green-700' :
-                                        rfp.fitScore >= 70 ? 'text-yellow-700' :
-                                            'text-orange-700'
+                                    rfp.fitScore >= 70 ? 'text-yellow-700' :
+                                        'text-orange-700'
                                     }`}>Estimated Value</span>
                             </div>
                             <Badge className={`text-white text-xs ${rfp.fitScore >= 85 ? 'bg-green-600' :
-                                    rfp.fitScore >= 70 ? 'bg-yellow-600' :
-                                        'bg-orange-600'
+                                rfp.fitScore >= 70 ? 'bg-yellow-600' :
+                                    'bg-orange-600'
                                 }`}>
                                 {rfp.fitScore >= 85 ? 'High Profit' : rfp.fitScore >= 70 ? 'Good Margin' : 'Break Even'}
                             </Badge>
                         </div>
                         <div className="flex items-baseline justify-between">
                             <p className={`text-2xl font-bold ${rfp.fitScore >= 85 ? 'text-green-900' :
-                                    rfp.fitScore >= 70 ? 'text-yellow-900' :
-                                        'text-orange-900'
+                                rfp.fitScore >= 70 ? 'text-yellow-900' :
+                                    'text-orange-900'
                                 }`}>
                                 ₹{((rfp.estimatedValue || rfp.pricingStrategy?.totalValue || 0) / 100000).toFixed(2)}L
                             </p>
@@ -108,8 +108,8 @@ export const RFPCard = memo(function RFPCard({ rfp }: RFPCardProps) {
                                     Win Probability: {rfp.fitScore}%
                                 </p> */}
                                 <p className={`text-xs ${rfp.fitScore >= 85 ? 'text-green-600' :
-                                        rfp.fitScore >= 70 ? 'text-yellow-600' :
-                                            'text-orange-600'
+                                    rfp.fitScore >= 70 ? 'text-yellow-600' :
+                                        'text-orange-600'
                                     }`}>
                                     Est. Profit: ₹{(((rfp.estimatedValue || rfp.pricingStrategy?.totalValue || 0) * 0.18) / 100000).toFixed(2)}L
                                 </p>
@@ -131,7 +131,7 @@ export const RFPCard = memo(function RFPCard({ rfp }: RFPCardProps) {
                     </div>
                 </div>
 
-                {rfp.certifications && rfp.certifications.length > 0 && (
+                {rfp.certifications && Array.isArray(rfp.certifications) && rfp.certifications.length > 0 && (
                     <div className="flex flex-wrap gap-1">
                         {rfp.certifications.slice(0, 3).map((cert, idx) => (
                             <Badge

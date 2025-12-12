@@ -170,11 +170,15 @@ export default function RFPDetailsClient({ id }: RFPDetailsClientProps) {
                         </CardHeader>
                         <CardContent>
                             <div className="flex flex-wrap gap-2">
-                                {rfp.certifications?.map((cert, idx) => (
-                                    <Badge key={idx} variant="outline" className="border-black">
-                                        {cert}
-                                    </Badge>
-                                )) || <p className="text-gray-500">No certifications specified</p>}
+                                {(rfp.certifications && rfp.certifications.length > 0) ? (
+                                    rfp.certifications.map((cert, idx) => (
+                                        <Badge key={idx} variant="outline" className="border-black">
+                                            {cert}
+                                        </Badge>
+                                    ))
+                                ) : (
+                                    <p className="text-gray-500">No certifications specified</p>
+                                )}
                             </div>
                         </CardContent>
                     </Card>

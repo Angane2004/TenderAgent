@@ -221,8 +221,8 @@ export function Sidebar() {
                     )}
                 </div>
 
-                {/* Navigation - Scrollable with max height */}
-                <nav className="flex-1 p-4 space-y-2 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 64px - 140px)' }}>
+                {/* Navigation - No scrolling */}
+                <nav className="flex-1 p-4 space-y-2">
                     {navigation.map((item) => {
                         const isActive = pathname === item.href || pathname?.startsWith(item.href + '/')
                         return (
