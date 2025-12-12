@@ -21,24 +21,33 @@ interface DeletedRFP extends RFP {
 }
 
 export default function ArchivePage() {
-    const { rfps } = useRFPs()
+    const { rfps, getDeletedRFPs, permanentlyDeleteRFP } = useRFPs()
     const [archivedRfps, setArchivedRfps] = useState<RFP[]>([])
     const [deletedRfps, setDeletedRfps] = useState<DeletedRFP[]>([])
     const [searchQuery, setSearchQuery] = useState("")
     const [loading, setLoading] = useState(true)
     const [activeTab, setActiveTab] = useState("Archived")
+    const [removingId, setRemovingId] = useState<string | null>(null)
+    const [showRemoveConfirm, setShowRemoveConfirm] = useState<string | null>(null)
 
     useEffect(() => {
         // Load archived RFPs
         const completed = rfps.filter(r => r.status === 'completed' || r.finalResponse?.status === 'submitted')
         setArchivedRfps(completed)
 
-        // Load deleted RFPs from localStorage
-        const deleted = JSON.parse(localStorage.getItem('deleted_rfps') || '[]')
-        setDeletedRfps(deleted)
+        // Load deleted RFPs from Firebase
+        const loadDeletedRFPs = async () => {
+            try {
+                const deleted = await getDeletedRFPs()
+                setDeletedRfps(deleted as DeletedRFP[])
+            } catch (error) {
+                console.error('Error loading deleted RFPs:', error)
+            }
+        }
+        loadDeletedRFPs()
 
         setLoading(false)
-    }, [rfps])
+    }, [rfps, getDeletedRFPs])
 
     const currentData = activeTab === "Archived" ? archivedRfps : deletedRfps
 
@@ -78,6 +87,28 @@ ${rfp.specifications ? JSON.stringify(rfp.specifications, null, 2) : 'N/A'}
         URL.revokeObjectURL(url)
 
         toast.success('Archive downloaded successfully!')
+    }
+
+    const handlePermanentRemove = async (id: string) => {
+        setRemovingId(id)
+
+        setTimeout(async () => {
+            try {
+                // Permanently delete from Firebase/database
+                await permanentlyDeleteRFP(id)
+
+                // Remove from local state immediately
+                setDeletedRfps(current => current.filter(rfp => rfp.id !== id))
+
+                setRemovingId(null)
+                setShowRemoveConfirm(null)
+                toast.success('RFP permanently removed!')
+            } catch (error) {
+                console.error('Failed to permanently remove RFP:', error)
+                toast.error('Failed to remove RFP')
+                setRemovingId(null)
+            }
+        }, 500)
     }
 
     return (
@@ -304,6 +335,47 @@ ${rfp.specifications ? JSON.stringify(rfp.specifications, null, 2) : 'N/A'}
                                                                 </p>
                                                             </div>
                                                         </div>
+                                                    </div>
+
+                                                    {/* Permanent Remove Button */}
+                                                    <div className="ml-4">
+                                                        {showRemoveConfirm === rfp.id ? (
+                                                            <div className="flex flex-col gap-2">
+                                                                <p className="text-sm font-semibold text-red-600 mb-1">Permanently delete?</p>
+                                                                <div className="flex gap-2">
+                                                                    <Button
+                                                                        size="sm"
+                                                                        onClick={() => handlePermanentRemove(rfp.id)}
+                                                                        className="bg-red-600 text-white hover:bg-red-700 border-2 border-red-700"
+                                                                    >
+                                                                        Yes, Remove
+                                                                    </Button>
+                                                                    <Button
+                                                                        size="sm"
+                                                                        variant="outline"
+                                                                        onClick={() => setShowRemoveConfirm(null)}
+                                                                        className="border-2 border-black"
+                                                                    >
+                                                                        Cancel
+                                                                    </Button>
+                                                                </div>
+                                                            </div>
+                                                        ) : (
+                                                            <Button
+                                                                onClick={() => setShowRemoveConfirm(rfp.id)}
+                                                                disabled={removingId === rfp.id}
+                                                                variant="destructive"
+                                                                className="relative overflow-hidden bg-gradient-to-r from-red-600 via-red-700 to-red-800 text-white border-2 border-red-700 hover:border-red-500 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group"
+                                                            >
+                                                                {/* Shimmer effect */}
+                                                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+
+                                                                <span className="relative z-10 flex items-center gap-2">
+                                                                    <Trash2 className="h-4 w-4 group-hover:rotate-12 transition-transform duration-300" />
+                                                                    {removingId === rfp.id ? 'Removing...' : 'Remove'}
+                                                                </span>
+                                                            </Button>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </CardContent>

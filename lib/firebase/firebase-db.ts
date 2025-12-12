@@ -77,13 +77,17 @@ export class FirebaseDBService {
 
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
-                rfps.push({
-                    id: doc.id,
-                    ...data,
-                    // Convert Firestore timestamps to strings
-                    deadline: data.deadline instanceof Timestamp ? data.deadline.toDate().toISOString() : data.deadline,
-                    submittedAt: data.submittedAt instanceof Timestamp ? data.submittedAt.toDate().toISOString() : data.submittedAt,
-                } as RFP);
+                // Filter out deleted RFPs
+                if (!data.deleted) {
+                    rfps.push({
+                        id: doc.id,
+                        ...data,
+                        // Convert Firestore timestamps to strings
+                        deadline: data.deadline instanceof Timestamp ? data.deadline.toDate().toISOString() : data.deadline,
+                        submittedAt: data.submittedAt instanceof Timestamp ? data.submittedAt.toDate().toISOString() : data.submittedAt,
+                        deletedAt: data.deletedAt instanceof Timestamp ? data.deletedAt.toDate().toISOString() : data.deletedAt,
+                    } as RFP);
+                }
             });
 
             // Sort in memory if we filtered by companyId
@@ -94,6 +98,51 @@ export class FirebaseDBService {
             return rfps;
         } catch (error) {
             console.error('Error fetching RFPs from Firebase:', error);
+            return [];
+        }
+    }
+
+    /**
+     * Get deleted RFPs for a company
+     */
+    async getDeletedRFPs(companyId?: string): Promise<RFP[]> {
+        try {
+            const rfpsRef = collection(db, COLLECTIONS.RFPS);
+            let q;
+
+            if (companyId) {
+                q = query(rfpsRef, where('userId', '==', companyId), where('deleted', '==', true));
+            } else {
+                q = query(rfpsRef, where('deleted', '==', true));
+            }
+
+            const querySnapshot = await getDocs(q);
+            const rfps: RFP[] = [];
+
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                rfps.push({
+                    id: doc.id,
+                    ...data,
+                    // Convert Firestore timestamps to strings
+                    deadline: data.deadline instanceof Timestamp ? data.deadline.toDate().toISOString() : data.deadline,
+                    submittedAt: data.submittedAt instanceof Timestamp ? data.submittedAt.toDate().toISOString() : data.submittedAt,
+                    deletedAt: data.deletedAt instanceof Timestamp ? data.deletedAt.toDate().toISOString() : data.deletedAt,
+                } as RFP);
+            });
+
+            // Sort by deletion date (most recent first)
+            if (rfps.length > 0) {
+                rfps.sort((a, b) => {
+                    const dateA = a.deletedAt ? new Date(a.deletedAt).getTime() : 0;
+                    const dateB = b.deletedAt ? new Date(b.deletedAt).getTime() : 0;
+                    return dateB - dateA;
+                });
+            }
+
+            return rfps;
+        } catch (error) {
+            console.error('Error fetching deleted RFPs from Firebase:', error);
             return [];
         }
     }
@@ -174,43 +223,70 @@ export class FirebaseDBService {
     }
 
     /**
-     * Delete an RFP
+     * Delete an RFP (soft delete - marks as deleted)
      */
     async deleteRFP(id: string): Promise<void> {
         try {
             const rfpRef = doc(db, COLLECTIONS.RFPS, id);
-            await deleteDoc(rfpRef);
+            await updateDoc(rfpRef, {
+                deleted: true,
+                deletedAt: Timestamp.now()
+            });
         } catch (error) {
-            console.error('Error deleting RFP from Firebase:', error);
+            console.error('Error soft deleting RFP from Firebase:', error);
             throw error;
         }
     }
 
     /**
-     * Subscribe to RFP changes (real-time updates)
+     * Permanently delete an RFP (hard delete - removes from database)
      */
+    async permanentlyDeleteRFP(id: string): Promise<void> {
+        try {
+            const rfpRef = doc(db, COLLECTIONS.RFPS, id);
+            await deleteDoc(rfpRef);
+            console.log('RFP permanently deleted from Firebase:', id);
+        } catch (error) {
+            console.error('Error permanently deleting RFP from Firebase:', error);
+            throw error;
+        }
+    }
+
     subscribeToRFPs(
         companyId: string | undefined,
         callback: (rfps: RFP[]) => void
     ): () => void {
         const rfpsRef = collection(db, COLLECTIONS.RFPS);
-        let q = query(rfpsRef, orderBy('deadline', 'asc'));
+        let q;
 
         if (companyId) {
-            q = query(rfpsRef, where('companyId', '==', companyId), orderBy('deadline', 'asc'));
+            // When filtering by userId, don't use orderBy to avoid composite index requirement
+            q = query(rfpsRef, where('userId', '==', companyId));
+        } else {
+            q = query(rfpsRef, orderBy('deadline', 'asc'));
         }
 
         const unsubscribe = onSnapshot(q, (querySnapshot: QuerySnapshot<DocumentData>) => {
             const rfps: RFP[] = [];
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
-                rfps.push({
-                    id: doc.id,
-                    ...data,
-                    deadline: data.deadline instanceof Timestamp ? data.deadline.toDate().toISOString() : data.deadline,
-                    submittedAt: data.submittedAt instanceof Timestamp ? data.submittedAt.toDate().toISOString() : data.submittedAt,
-                } as RFP);
+                // Filter out deleted RFPs from real-time updates
+                if (!data.deleted) {
+                    rfps.push({
+                        id: doc.id,
+                        ...data,
+                        deadline: data.deadline instanceof Timestamp ? data.deadline.toDate().toISOString() : data.deadline,
+                        submittedAt: data.submittedAt instanceof Timestamp ? data.submittedAt.toDate().toISOString() : data.submittedAt,
+                        deletedAt: data.deletedAt instanceof Timestamp ? data.deletedAt.toDate().toISOString() : data.deletedAt,
+                    } as RFP);
+                }
             });
+
+            // Sort in memory if we filtered by userId
+            if (companyId && rfps.length > 0) {
+                rfps.sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime());
+            }
+
             callback(rfps);
         });
 
@@ -308,7 +384,7 @@ export class FirebaseDBService {
             const demoRFPs = require('@/data/rfps.json');
 
             // Add demo RFPs to Firebase with company ID
-            const batch: Promise<void>[] = [];
+            const batch: Promise<any>[] = [];
             demoRFPs.forEach((rfp: any) => {
                 batch.push(
                     addDoc(collection(db, COLLECTIONS.RFPS), {

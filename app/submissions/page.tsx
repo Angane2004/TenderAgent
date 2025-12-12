@@ -31,19 +31,8 @@ export default function SubmissionsPage() {
         // Animate deletion
         setTimeout(async () => {
             try {
-                // Use context deleteRFP function
+                // Soft delete - context will handle marking as deleted
                 await deleteRFP(id)
-
-                // Save to deleted RFPs in localStorage for tracking
-                const deletedRFPs = JSON.parse(localStorage.getItem('deleted_rfps') || '[]')
-                const rfpToDelete = submissions.find(r => r.id === id)
-                if (rfpToDelete) {
-                    deletedRFPs.push({
-                        ...rfpToDelete,
-                        deletedAt: new Date().toISOString()
-                    })
-                    localStorage.setItem('deleted_rfps', JSON.stringify(deletedRFPs))
-                }
 
                 setDeletingId(null)
                 setShowConfirm(null)

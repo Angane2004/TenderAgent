@@ -10,6 +10,8 @@ export interface RFP {
     certifications: string[]
     status: 'new' | 'in-progress' | 'completed'
     submittedAt?: string
+    deleted?: boolean
+    deletedAt?: string
     specifications: {
         quantity: number
         voltage: string

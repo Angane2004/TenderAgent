@@ -13,6 +13,8 @@ interface RFPContextType {
     scanForRFPs: () => void
     updateRFP: (id: string, updates: Partial<RFP>) => void
     deleteRFP: (id: string) => Promise<void>
+    permanentlyDeleteRFP: (id: string) => Promise<void>
+    getDeletedRFPs: () => Promise<RFP[]>
     refreshRFPs: () => Promise<void>
 }
 
@@ -315,35 +317,101 @@ export function RFPProvider({ children }: { children: ReactNode }) {
     const deleteRFP = useCallback(async (id: string) => {
         const userId = user?.id
         if (useFirebase) {
-            // Delete from Firebase
+            // Soft delete in Firebase - mark as deleted instead of removing
             try {
-                await firebaseDB.deleteRFP(id)
-                console.log('RFP deleted from Firebase:', id)
+                await firebaseDB.updateRFP(id, {
+                    deleted: true,
+                    deletedAt: new Date().toISOString()
+                })
+                console.log('RFP soft deleted in Firebase:', id)
             } catch (error) {
-                console.error('Error deleting RFP from Firebase:', error)
-                // Fallback: remove from local state
-                setRfps(currentRfps => currentRfps.filter(rfp => rfp.id !== id))
+                console.error('Error soft deleting RFP in Firebase:', error)
+                // Fallback to local state update
+                setRfps(currentRfps =>
+                    currentRfps.map(rfp =>
+                        rfp.id === id ? { ...rfp, deleted: true, deletedAt: new Date().toISOString() } : rfp
+                    )
+                )
             }
         } else {
-            // Delete from localStorage
+            // Soft delete in localStorage
             setRfps(currentRfps => {
-                const updatedRfps = currentRfps.filter(rfp => rfp.id !== id)
+                const updatedRfps = currentRfps.map(rfp =>
+                    rfp.id === id ? { ...rfp, deleted: true, deletedAt: new Date().toISOString() } : rfp
+                )
 
                 if (typeof window !== 'undefined') {
                     try {
-                        localStorage.setItem('tenderai_scanned_rfps', JSON.stringify(updatedRfps))
+                        const storageKey = userId ? `tenderai_scanned_rfps_${userId}` : 'tenderai_scanned_rfps'
+                        localStorage.setItem(storageKey, JSON.stringify(updatedRfps))
                     } catch (error) {
-                        console.error('Error deleting RFP from localStorage:', error)
+                        console.error('Error soft deleting RFP in localStorage:', error)
                     }
                 }
 
                 return updatedRfps
             })
         }
-    }, [useFirebase])
+    }, [useFirebase, user?.id])
+
+    const getDeletedRFPs = useCallback(async (): Promise<RFP[]> => {
+        const userId = user?.id
+        if (useFirebase) {
+            try {
+                const deletedRfps = await firebaseDB.getDeletedRFPs(userId)
+                return deletedRfps
+            } catch (error) {
+                console.error('Error fetching deleted RFPs from Firebase:', error)
+                return []
+            }
+        } else {
+            // Get deleted RFPs from localStorage
+            try {
+                const storageKey = userId ? `tenderai_scanned_rfps_${userId}` : 'tenderai_scanned_rfps'
+                const savedRfps = localStorage.getItem(storageKey)
+                if (savedRfps) {
+                    const parsed = JSON.parse(savedRfps)
+                    return parsed.filter((rfp: RFP) => rfp.deleted === true)
+                }
+            } catch (error) {
+                console.error('Error fetching deleted RFPs from localStorage:', error)
+            }
+            return []
+        }
+    }, [useFirebase, user?.id])
+
+    const permanentlyDeleteRFP = useCallback(async (id: string) => {
+        const userId = user?.id
+        if (useFirebase) {
+            // Permanently delete from Firebase
+            try {
+                await firebaseDB.permanentlyDeleteRFP(id)
+                console.log('RFP permanently deleted from Firebase:', id)
+            } catch (error) {
+                console.error('Error permanently deleting RFP from Firebase:', error)
+                throw error
+            }
+        } else {
+            // Permanently delete from localStorage
+            setRfps(currentRfps => {
+                const updatedRfps = currentRfps.filter(rfp => rfp.id !== id)
+
+                if (typeof window !== 'undefined') {
+                    try {
+                        const storageKey = userId ? `tenderai_scanned_rfps_${userId}` : 'tenderai_scanned_rfps'
+                        localStorage.setItem(storageKey, JSON.stringify(updatedRfps))
+                    } catch (error) {
+                        console.error('Error permanently deleting RFP from localStorage:', error)
+                    }
+                }
+
+                return updatedRfps
+            })
+        }
+    }, [useFirebase, user?.id])
 
     return (
-        <RFPContext.Provider value={{ rfps, isScanning, hasScanned, scanForRFPs, updateRFP, deleteRFP, refreshRFPs }}>
+        <RFPContext.Provider value={{ rfps, isScanning, hasScanned, scanForRFPs, updateRFP, deleteRFP, permanentlyDeleteRFP, getDeletedRFPs, refreshRFPs }}>
             {children}
         </RFPContext.Provider>
     )
