@@ -7,6 +7,8 @@ import { Filter, X } from "lucide-react"
 import * as Popover from "@radix-ui/react-popover"
 
 export interface FilterOptions {
+    location: string
+    organization: string
     fitScore: string[]
     riskScore: string[]
     urgency: string[]
@@ -16,9 +18,11 @@ export interface FilterOptions {
 interface FilterButtonProps {
     onFilterChange: (filters: FilterOptions) => void
     activeFilters: FilterOptions
+    availableLocations: string[]
+    availableOrganizations: string[]
 }
 
-export function FilterButton({ onFilterChange, activeFilters }: FilterButtonProps) {
+export function FilterButton({ onFilterChange, activeFilters, availableLocations, availableOrganizations }: FilterButtonProps) {
     const [isOpen, setIsOpen] = useState(false)
 
     const fitScoreOptions = [
@@ -62,6 +66,8 @@ export function FilterButton({ onFilterChange, activeFilters }: FilterButtonProp
 
     const clearAllFilters = useCallback(() => {
         onFilterChange({
+            location: '',
+            organization: '',
             fitScore: [],
             riskScore: [],
             urgency: [],
@@ -69,8 +75,20 @@ export function FilterButton({ onFilterChange, activeFilters }: FilterButtonProp
         })
     }, [onFilterChange])
 
-    const activeFilterCount = Object.values(activeFilters).reduce(
-        (acc, filters) => acc + filters.length,
+    const updateSingleFilter = (key: 'location' | 'organization', value: string) => {
+        onFilterChange({
+            ...activeFilters,
+            [key]: value
+        })
+    }
+
+    const activeFilterCount = Object.entries(activeFilters).reduce(
+        (acc, [key, value]) => {
+            if (key === 'location' || key === 'organization') {
+                return acc + (value ? 1 : 0)
+            }
+            return acc + (value as string[]).length
+        },
         0
     )
 
@@ -115,6 +133,39 @@ export function FilterButton({ onFilterChange, activeFilters }: FilterButtonProp
                     </div>
 
                     <div className="space-y-3">
+                        {/* Location Filter */}
+                        <div>
+                            <h4 className="font-semibold text-[10px] mb-1.5 text-gray-600 uppercase tracking-wide">Location</h4>
+                            <select
+                                className="w-full text-xs border-2 border-gray-300 rounded px-2 py-1.5 focus:outline-none focus:border-black"
+                                value={activeFilters.location}
+                                onChange={(e) => updateSingleFilter('location', e.target.value)}
+                            >
+                                <option value="">All Locations</option>
+                                {(availableLocations || []).map(loc => (
+                                    <option key={loc} value={loc}>{loc}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* Organization Filter */}
+                        <div>
+                            <h4 className="font-semibold text-[10px] mb-1.5 text-gray-600 uppercase tracking-wide">Organization</h4>
+                            <select
+                                className="w-full text-xs border-2 border-gray-300 rounded px-2 py-1.5 focus:outline-none focus:border-black"
+                                value={activeFilters.organization}
+                                onChange={(e) => updateSingleFilter('organization', e.target.value)}
+                            >
+                                <option value="">All Organizations</option>
+                                {(availableOrganizations || []).map(org => (
+                                    <option key={org} value={org}>{org}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* Divider */}
+                        <div className="border-t border-gray-200 my-2"></div>
+
                         {/* Fit Score */}
                         <div>
                             <h4 className="font-semibold text-[10px] mb-1.5 text-gray-600 uppercase tracking-wide">Fit Score</h4>

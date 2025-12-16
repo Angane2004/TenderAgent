@@ -152,35 +152,39 @@ export default function MasterAgentClient({ id }: MasterAgentClientProps) {
                                 title="Master Agent Summary"
                                 status="completed"
                             >
-                                <div className="space-y-4">
+                                <div className="space-y-6">
                                     <div className="flex items-center gap-2 text-green-600">
                                         <CheckCircle className="h-5 w-5" />
-                                        <span className="font-semibold">All agents completed successfully</span>
+                                        <span className="font-semibold">All agents completed successfully - Ready for response generation</span>
                                     </div>
 
+                                    {/* Agent Status Overview */}
                                     <div className="grid grid-cols-3 gap-4">
                                         <div className="p-4 bg-gray-50 rounded-lg border-2 border-black">
                                             <h4 className="font-semibold mb-2">Sales Discovery</h4>
                                             <Badge variant="outline" className="border-green-600 text-green-600">
                                                 Completed
                                             </Badge>
+                                            <p className="text-xs text-gray-600 mt-2">Market analysis & competitive positioning done</p>
                                         </div>
                                         <div className="p-4 bg-gray-50 rounded-lg border-2 border-black">
                                             <h4 className="font-semibold mb-2">Technical Analysis</h4>
                                             <Badge variant="outline" className="border-green-600 text-green-600">
                                                 Completed
                                             </Badge>
+                                            <p className="text-xs text-gray-600 mt-2">Capability assessment & compliance verified</p>
                                         </div>
                                         <div className="p-4 bg-gray-50 rounded-lg border-2 border-black">
                                             <h4 className="font-semibold mb-2">Pricing Strategy</h4>
                                             <Badge variant="outline" className="border-green-600 text-green-600">
                                                 Completed
                                             </Badge>
+                                            <p className="text-xs text-gray-600 mt-2">Commercial proposal & margins optimized</p>
                                         </div>
                                     </div>
 
                                     {/* Tender Alignment Metrics */}
-                                    <div className="grid grid-cols-2 gap-4 mt-4">
+                                    <div className="grid grid-cols-2 gap-4">
                                         <div className="p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
                                             <h4 className="font-semibold mb-2 flex items-center gap-2 text-blue-700">
                                                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -246,10 +250,80 @@ export default function MasterAgentClient({ id }: MasterAgentClientProps) {
                                         </div>
                                     </div>
 
-                                    <div>
-                                        <h4 className="font-semibold mb-2">Recommendation</h4>
-                                        <p className="text-sm text-gray-600">
-                                            Proceed with tender response. All technical requirements can be met, pricing is competitive, and win probability is high.
+                                    {/* Decision Framework */}
+                                    <div className="p-4 bg-gray-50 rounded-lg border-2 border-black">
+                                        <h4 className="font-semibold mb-3">Decision Framework Analysis</h4>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <p className="text-sm font-medium mb-2 text-green-700">Strengths</p>
+                                                <ul className="space-y-1 text-sm text-gray-700">
+                                                    <li>✓ High technical capability match (95%)</li>
+                                                    <li>✓ All required certifications available</li>
+                                                    <li>✓ Competitive pricing with healthy margins</li>
+                                                    <li>✓ Strong regional presence and track record</li>
+                                                </ul>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-medium mb-2 text-blue-700">Opportunities</p>
+                                                <ul className="space-y-1 text-sm text-gray-700">
+                                                    <li>✓ High-value government contract</li>
+                                                    <li>✓ Growing infrastructure demand</li>
+                                                    <li>✓ Long-term relationship potential</li>
+                                                    <li>✓ Portfolio diversification</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Execution Roadmap */}
+                                    <div className="p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
+                                        <h4 className="font-semibold mb-3 text-blue-900">Recommended Execution Roadmap</h4>
+                                        <div className="space-y-2">
+                                            <div className="flex items-start gap-3 p-2 bg-white rounded border border-blue-200">
+                                                <Badge className="bg-blue-600 text-white mt-0.5">1</Badge>
+                                                <div className="flex-1">
+                                                    <p className="text-sm font-medium">Response Finalization</p>
+                                                    <p className="text-xs text-gray-600">Generate final proposal with all technical & commercial details</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-start gap-3 p-2 bg-white rounded border border-blue-200">
+                                                <Badge className="bg-blue-600 text-white mt-0.5">2</Badge>
+                                                <div className="flex-1">
+                                                    <p className="text-sm font-medium">Internal Review</p>
+                                                    <p className="text-xs text-gray-600">Technical, legal, and management approval cycle</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-start gap-3 p-2 bg-white rounded border border-blue-200">
+                                                <Badge className="bg-blue-600 text-white mt-0.5">3</Badge>
+                                                <div className="flex-1">
+                                                    <p className="text-sm font-medium">Submission Preparation</p>
+                                                    <p className="text-xs text-gray-600">Document compilation, EMD arrangement, fee payment</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-start gap-3 p-2 bg-white rounded border border-blue-200">
+                                                <Badge className="bg-blue-600 text-white mt-0.5">4</Badge>
+                                                <div className="flex-1">
+                                                    <p className="text-sm font-medium">Bid Submission</p>
+                                                    <p className="text-xs text-gray-600">Submit before deadline: {new Date(rfp.deadline).toLocaleDateString()}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Final Recommendation */}
+                                    <div className="p-4 bg-green-50 rounded-lg border-2 border-green-200">
+                                        <h4 className="font-semibold mb-3 text-green-900">Master Agent Recommendation</h4>
+                                        <div className="flex items-center gap-2 mb-3">
+                                            <Badge className="bg-green-600 text-white text-lg px-4 py-2">PROCEED WITH BID</Badge>
+                                            <span className="text-sm font-medium">High Win Probability - Strategic Value Tender</span>
+                                        </div>
+                                        <p className="text-sm text-gray-700 mb-2">
+                                            <strong>Rationale:</strong> All technical requirements can be met, pricing is competitive with healthy margins,
+                                            win probability is high ({rfp.fitScore}%), and the tender aligns perfectly with our strategic goals.
+                                        </p>
+                                        <p className="text-sm text-gray-700">
+                                            <strong>Next Action:</strong> Proceed to generate the final response document incorporating all agent insights
+                                            and prepare for submission.
                                         </p>
                                     </div>
                                 </div>

@@ -2,27 +2,28 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
     try {
-        const { count = 10 } = await request.json()
+        const { count = 10, location, organization } = await request.json()
 
-        // Try Ollama first (local LLM)
-        try {
-            console.log('Attempting to connect to Ollama at http://localhost:11434...')
+        const isProduction = process.env.NODE_ENV === 'production'
+        console.log(`Environment: ${isProduction ? 'Production' : 'Development'}`)
+        console.log(`Filters - Location: ${location || 'All'}, Organization: ${organization || 'All'}`)
 
-            const ollamaResponse = await fetch('http://localhost:11434/api/generate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    model: 'llama2',
-                    prompt: `Generate ${count} realistic RFP (Request for Proposal) tender opportunities in JSON format. Each RFP should be for infrastructure, construction, or industrial projects in India. Include varied project types like roads, buildings, electrical systems, water supply, etc.
+        // Only try Ollama in development
+        if (!isProduction) {
+            try {
+                console.log('Attempting to connect to Ollama at http://localhost:11434...')
+
+                const prompt = `Generate ${count} realistic RFP (Request for Proposal) tender opportunities in JSON format for Indian infrastructure/construction projects.${location ? ` Focus on projects in ${location}.` : ''}${organization ? ` Focus on tenders from ${organization}.` : ''}
 
 Return ONLY a valid JSON array with this exact structure (no additional text):
 [
   {
     "title": "Construction of 2-Lane Road in Rural Area",
-    "issuedBy": "State Public Works Department",
+    "issuedBy": "${organization || 'State Public Works Department'}",
     "summary": "Tender for construction of 15 km 2-lane road connecting villages",
     "deadline": "2025-02-15",
     "estimatedValue": 45000000,
+    "location": { "city": "${location || 'Mumbai'}", "state": "Maharashtra" },
     "fitScore": 82,
     "certifications": ["ISO 9001:2015", "BIS Certification"],
     "status": "new",
@@ -41,73 +42,50 @@ Return ONLY a valid JSON array with this exact structure (no additional text):
   }
 ]
 
-Generate diverse, realistic Indian infrastructure/construction tenders with varying values, timelines, and requirements.`,
-                    stream: false,
-                    options: {
-                        temperature: 0.8,
-                        num_predict: 3000
+Generate diverse, realistic Indian infrastructure/construction tenders with varying values, timelines, and requirements.`
+
+                const ollamaResponse = await fetch('http://localhost:11434/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: 'llama2',
+                        prompt,
+                        stream: false,
+                        options: {
+                            temperature: 0.8,
+                            num_predict: 3000
+                        }
+                    }),
+                    signal: AbortSignal.timeout(15000)
+                })
+
+                if (ollamaResponse.ok) {
+                    const ollamaData = await ollamaResponse.json()
+                    const responseText = ollamaData.response
+                    const jsonMatch = responseText.match(/\[[\s\S]*\]/)
+
+                    if (jsonMatch) {
+                        try {
+                            const rfps = JSON.parse(jsonMatch[0])
+                            const formattedRfps = rfps.slice(0, count).map((rfp: any, index: number) => ({
+                                ...rfp,
+                                location: rfp.location || { city: location || 'Mumbai', state: 'Maharashtra' },
+                                issuedBy: rfp.issuedBy || organization || 'Government Department'
+                            }))
+
+                            console.log(`✅ Generated ${formattedRfps.length} RFPs using Ollama/Llama2`)
+                            return NextResponse.json({ success: true, rfps: formattedRfps, source: 'ollama' })
+                        } catch (parseError) {
+                            console.error('Error parsing Ollama JSON:', parseError)
+                        }
                     }
-                }),
-                signal: AbortSignal.timeout(120000) // Increased to 120 second timeout
-            })
-
-            console.log('Ollama response status:', ollamaResponse.status)
-
-            if (ollamaResponse.ok) {
-                const ollamaData = await ollamaResponse.json()
-                console.log('Ollama raw response received, length:', ollamaData.response?.length)
-                // Extract JSON from response
-                const responseText = ollamaData.response
-                console.log('Ollama response preview:', responseText?.substring(0, 200))
-
-                const jsonMatch = responseText.match(/\[[\s\S]*\]/)
-
-                if (jsonMatch) {
-                    console.log('Found JSON array in response')
-                    try {
-                        const rfps = JSON.parse(jsonMatch[0])
-                        console.log('Successfully parsed', rfps.length, 'RFPs from Ollama')
-
-                        // Validate and format RFPs
-                        const formattedRfps = rfps.slice(0, count).map((rfp: any, index: number) => ({
-                            title: rfp.title || `Tender ${index + 1}`,
-                            issuedBy: rfp.issuedBy || 'Government Department',
-                            summary: rfp.summary || 'Infrastructure development project',
-                            deadline: rfp.deadline || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-                            estimatedValue: rfp.estimatedValue || Math.floor(Math.random() * 50000000) + 10000000,
-                            fitScore: rfp.fitScore || Math.floor(Math.random() * 30) + 70,
-                            certifications: rfp.certifications || ['ISO 9001:2015'],
-                            status: 'new' as const,
-                            specifications: rfp.specifications || {
-                                quantity: Math.floor(Math.random() * 10000) + 1000,
-                                voltage: 'N/A',
-                                size: 'Standard',
-                                conductor: 'N/A',
-                                insulation: 'Standard',
-                                armoring: 'N/A',
-                                standards: ['IS Standards']
-                            },
-                            deliveryTimeline: rfp.deliveryTimeline || 'Within 12 months',
-                            testingRequirements: rfp.testingRequirements || ['Quality Tests'],
-                            riskScore: rfp.riskScore || (['low', 'medium', 'high'][Math.floor(Math.random() * 3)] as any)
-                        }))
-
-                        console.log(`✅ Generated ${formattedRfps.length} RFPs using Ollama/Llama2`)
-                        return NextResponse.json({ success: true, rfps: formattedRfps, source: 'ollama' })
-                    } catch (parseError) {
-                        console.error('Error parsing Ollama JSON:', parseError)
-                    }
-                } else {
-                    console.warn('No JSON array found in Ollama response')
                 }
-            } else {
-                console.warn('Ollama response not OK:', ollamaResponse.statusText)
+            } catch (ollamaError: any) {
+                console.error('Ollama connection error:', ollamaError.message)
             }
-        } catch (ollamaError: any) {
-            console.error('Ollama connection error:', ollamaError.message)
         }
 
-        // Fallback: Generate realistic RFPs programmatically
+        // Fallback: Generate realistic RFPs programmatically (for both dev and prod)
         const projectTypes = [
             { title: 'Road Construction', issuer: 'Public Works Department', category: 'Infrastructure' },
             { title: 'Building Construction', issuer: 'Municipal Corporation', category: 'Construction' },
@@ -122,24 +100,41 @@ Generate diverse, realistic Indian infrastructure/construction tenders with vary
         ]
 
         const fallbackRfps = projectTypes.slice(0, count).map((project, index) => ({
-            title: `${project.title} - Phase ${index + 1}`,
-            issuedBy: project.issuer,
-            summary: `Tender for ${project.title.toLowerCase()} project with comprehensive specifications and quality requirements`,
+            title: `${project.title} - ${location || 'Phase ' + (index + 1)}`,
+            issuedBy: organization || project.issuer,
+            summary: `Tender for ${project.title.toLowerCase()} project in ${location || 'various locations'} with comprehensive specifications and quality requirements`,
             deadline: new Date(Date.now() + (15 + index * 5) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
             estimatedValue: Math.floor(Math.random() * 40000000) + 15000000,
+            location: location ? { city: location, state: 'India' } : undefined,
             fitScore: Math.floor(Math.random() * 30) + 70,
             certifications: project.category === 'Electrical'
                 ? ['ISO 9001:2015', 'BIS Certification', 'ISI Mark']
                 : ['ISO 9001:2015', 'BIS Certification'],
             status: 'new' as const,
-            specifications: {
+            specifications: project.category === 'Electrical' ? {
                 quantity: Math.floor(Math.random() * 5000) + 2000,
-                voltage: project.category === 'Electrical' ? '11kV' : 'N/A',
-                size: 'As per specifications',
-                conductor: project.category === 'Electrical' ? 'Aluminum' : 'N/A',
-                insulation: project.category === 'Electrical' ? 'XLPE' : 'Standard',
-                armoring: project.category === 'Electrical' ? 'SWA' : 'N/A',
-                standards: ['IS Standards', 'CPWD Standards']
+                voltage: ['11kV', '33kV', '66kV', '132kV'][index % 4],
+                size: `${[95, 185, 240, 300, 400][index % 5]} sq.mm`,
+                conductor: ['Aluminum', 'Copper', 'ACSR'][index % 3],
+                insulation: ['XLPE', 'PVC', 'EPR'][index % 3],
+                armoring: ['SWA', 'AWA', 'STA'][index % 3],
+                standards: ['IS 7098', 'IS 1554', 'IEC 60502']
+            } : project.category === 'Infrastructure' ? {
+                quantity: Math.floor(Math.random() * 10000) + 5000,
+                voltage: 'Not Applicable',
+                size: `${[7, 10, 12, 15][index % 4]}m width`,
+                conductor: 'Concrete/Asphalt',
+                insulation: ['Bituminous', 'Tar', 'Cement'][index % 3],
+                armoring: ['Steel Reinforcement', 'Fiber Mesh'][index % 2],
+                standards: ['IRC Standards', 'MORTH', 'IS 456']
+            } : {
+                quantity: Math.floor(Math.random() * 3000) + 1000,
+                voltage: 'Not Applicable',
+                size: `${[5000, 10000, 15000, 20000][index % 4]} sq.ft`,
+                conductor: ['RCC', 'Steel Structure', 'Precast'][index % 3],
+                insulation: ['Thermal', 'Acoustic', 'Weather Resistant'][index % 3],
+                armoring: ['Seismic Resistant', 'Wind Resistant'][index % 2],
+                standards: ['IS 456', 'IS 800', 'NBC']
             },
             deliveryTimeline: `Within ${12 + index * 2} months`,
             testingRequirements: ['Quality Tests', 'Compliance Verification', 'Material Testing'],

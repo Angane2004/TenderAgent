@@ -12,6 +12,24 @@ export interface RFP {
     submittedAt?: string
     deleted?: boolean
     deletedAt?: string
+    
+    // Location and Organization Details
+    location?: {
+        city: string
+        state: string
+        pincode?: string
+    }
+    organizationType?: 'Government' | 'PSU' | 'Private' | 'Municipal' | 'Autonomous Body'
+    organizationCategory?: 'Power Distribution' | 'Railways' | 'Defense' | 'Infrastructure' | 'Manufacturing' | 'Energy' | 'Transport' | 'Other'
+    
+    // Detailed Tender Information
+    tenderNumber?: string
+    publishedDate?: string
+    preBidMeetingDate?: string
+    siteVisitDate?: string
+    detailedDescription?: string
+    scopeOfWork?: string[]
+    
     specifications: {
         quantity: number
         voltage: string
@@ -21,11 +39,51 @@ export interface RFP {
         armoring?: string
         standards?: string[]
     }
+    
+    // Technical Requirements
+    technicalRequirements?: {
+        description: string
+        mandatory: boolean
+    }[]
+    
     requirements?: string[]
     deliveryLocation?: string
     paymentTerms?: string[]
     deliveryTimeline: string
     testingRequirements: string[]
+    
+    // Terms and Conditions
+    termsAndConditions?: {
+        section: string
+        details: string[]
+    }[]
+    
+    // Evaluation Criteria
+    evaluationCriteria?: {
+        criterion: string
+        weightage: number
+    }[]
+    
+    // Documents Required
+    documentsRequired?: string[]
+    
+    // Contact Information
+    contactPerson?: {
+        name: string
+        designation: string
+        email: string
+        phone: string
+    }
+    
+    // EMD and Security Details
+    emdAmount?: number
+    performanceGuarantee?: number
+    
+    // Additional Details
+    warranty?: string
+    inspectionAndTesting?: string[]
+    packingAndForwarding?: string
+    
     // Agent Outputs
     salesSummary?: {
         scopeOfSupply: string
@@ -51,6 +109,12 @@ export interface RFP {
         riskLevel: 'low' | 'medium' | 'high'
         status: 'completed' | 'pending'
         paymentTerms?: string
+        itemizedCosts?: {
+            item: string
+            quantity: number
+            unitPrice: number
+            totalPrice: number
+        }[]
     }
     finalResponse?: {
         generatedAt: string

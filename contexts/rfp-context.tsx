@@ -10,12 +10,13 @@ interface RFPContextType {
     rfps: RFP[]
     isScanning: boolean
     hasScanned: boolean
-    scanForRFPs: () => void
+    scanForRFPs: (preferences?: { location?: string; organization?: string }) => void
     updateRFP: (id: string, updates: Partial<RFP>) => void
     deleteRFP: (id: string) => Promise<void>
     permanentlyDeleteRFP: (id: string) => Promise<void>
     getDeletedRFPs: () => Promise<RFP[]>
     refreshRFPs: () => Promise<void>
+    clearAllRFPs: () => Promise<void>
 }
 
 const RFPContext = createContext<RFPContextType | undefined>(undefined)
@@ -125,7 +126,7 @@ export function RFPProvider({ children }: { children: ReactNode }) {
         }
     }, [useFirebase])
 
-    const scanForRFPs = useCallback(async () => {
+    const scanForRFPs = useCallback(async (preferences?: { location?: string; organization?: string }) => {
         setIsScanning(true)
         const userId = user?.id
 
@@ -138,6 +139,10 @@ export function RFPProvider({ children }: { children: ReactNode }) {
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                body: JSON.stringify({
+                    location: preferences?.location,
+                    organization: preferences?.organization
+                })
             })
 
             const result = await response.json()
@@ -145,12 +150,16 @@ export function RFPProvider({ children }: { children: ReactNode }) {
             if (!result.success || result.rfps.length === 0) {
                 console.warn('No real RFPs found from API, generating realistic RFPs with AI...')
 
-                // Generate realistic RFPs using AI
+                // Generate realistic RFPs using AI with filter preferences
                 try {
                     const aiResponse = await fetch('/api/generate-rfps', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ count: 10 })
+                        body: JSON.stringify({
+                            count: 10,
+                            location: preferences?.location,
+                            organization: preferences?.organization
+                        })
                     })
 
                     const aiResult = await aiResponse.json()
@@ -159,20 +168,109 @@ export function RFPProvider({ children }: { children: ReactNode }) {
                         const source = aiResult.source || 'unknown'
                         console.log(`✅ Generated ${aiResult.rfps.length} RFPs from source: ${source}`)
 
+                        // Get existing RFPs to check for duplicates
+                        const existingRfps = useFirebase ? await firebaseDB.getRFPs(userId) : rfps
+
                         const generatedRfps = aiResult.rfps.map((rfp: any, index: number) => ({
                             ...rfp,
                             id: `ai-${Date.now()}-${index}`,
+                            isNew: true,
+                            scannedAt: new Date().toISOString(),
+                            // Add comprehensive data for PDF generation
+                            tenderNumber: rfp.tenderNumber || `TN/${new Date().getFullYear()}/${String(Math.floor(Math.random() * 10000)).padStart(4, '0')}`,
+                            scopeOfWork: rfp.scopeOfWork || [
+                                'Supply of materials as per specifications',
+                                'Installation and commissioning at site',
+                                'Testing and quality assurance',
+                                'Training of personnel',
+                                'Warranty support for specified period'
+                            ],
+                            technicalRequirements: rfp.technicalRequirements || [
+                                { description: 'BIS certification for all materials', mandatory: true },
+                                { description: 'Type test reports from NABL accredited labs', mandatory: true },
+                                { description: 'Routine test reports for all items', mandatory: true },
+                                { description: 'ISO 9001:2015 certification', mandatory: false }
+                            ],
+                            testingRequirements: rfp.testingRequirements || [
+                                'Routine Tests as per IS specifications',
+                                'Type Tests at manufacturer\'s works',
+                                'Sample Testing at third-party labs',
+                                'Pre-dispatch Inspection'
+                            ],
+                            termsAndConditions: rfp.termsAndConditions || [
+                                {
+                                    section: 'Payment Terms',
+                                    details: [
+                                        '30% advance payment against bank guarantee',
+                                        '60% on despatch of materials',
+                                        '10% on successful commissioning'
+                                    ]
+                                },
+                                {
+                                    section: 'Delivery Terms',
+                                    details: [
+                                        'Delivery within specified timeline',
+                                        'Penalty for delay as per tender conditions',
+                                        'Free delivery to site'
+                                    ]
+                                },
+                                {
+                                    section: 'Warranty',
+                                    details: [
+                                        '24 months from date of commissioning',
+                                        'Free replacement of defective items',
+                                        'Onsite support during warranty period'
+                                    ]
+                                }
+                            ],
+                            evaluationCriteria: rfp.evaluationCriteria || [
+                                { criterion: 'Technical Compliance', weightage: 40 },
+                                { criterion: 'Price', weightage: 35 },
+                                { criterion: 'Past Performance', weightage: 15 },
+                                { criterion: 'Delivery Schedule', weightage: 10 }
+                            ],
+                            documentsRequired: rfp.documentsRequired || [
+                                'Technical bid with detailed specifications',
+                                'Commercial bid with pricing',
+                                'EMD in form of DD/BG',
+                                'Copy of GST registration',
+                                'Copy of PAN card',
+                                'Experience certificates',
+                                'ISO & BIS certificates'
+                            ],
+                            contactPerson: rfp.contactPerson || {
+                                name: 'Tender Section Officer',
+                                designation: 'Assistant Engineer',
+                                email: 'tender@example.gov.in',
+                                phone: '+91-11-2345-6789'
+                            },
+                            detailedDescription: rfp.detailedDescription || rfp.summary,
+                            warranty: rfp.warranty || '24 months comprehensive warranty from date of commissioning',
+                            deliveryTimeline: rfp.deliveryTimeline || 'Within 60 days from date of order'
                         }))
 
+                        // Filter out duplicates based on title and issuedBy
+                        const newRfps = generatedRfps.filter((newRfp: any) => {
+                            const isDuplicate = existingRfps.some((existing: any) =>
+                                existing.title === newRfp.title &&
+                                existing.issuedBy === newRfp.issuedBy
+                            )
+                            return !isDuplicate
+                        })
+
+                        console.log(`Filtered out ${generatedRfps.length - newRfps.length} duplicates, adding ${newRfps.length} new RFPs`)
+
                         if (useFirebase) {
-                            for (const rfp of generatedRfps) {
+                            for (const rfp of newRfps) {
                                 await firebaseDB.saveRFP(rfp, userId)
                             }
-                            setRfps(generatedRfps)
+                            // Merge new with existing RFPs
+                            setRfps([...existingRfps, ...newRfps])
                         } else {
-                            setRfps(generatedRfps)
+                            const mergedRfps = [...existingRfps, ...newRfps]
+                            setRfps(mergedRfps)
                             const storageKey = userId ? `tenderai_scanned_rfps_${userId}` : 'tenderai_scanned_rfps'
-                            localStorage.setItem(storageKey, JSON.stringify(generatedRfps))
+                            localStorage.setItem(storageKey, JSON.stringify(mergedRfps))
                         }
 
                         setIsScanning(false)
@@ -216,35 +314,56 @@ export function RFPProvider({ children }: { children: ReactNode }) {
                 deliveryTimeline: 'Within 60 days',
                 testingRequirements: ['Routine Tests', 'Type Tests'],
                 riskScore: ['low', 'medium', 'high'][Math.floor(Math.random() * 3)] as any,
+                isNew: true, // Mark as new for visual indicator
+                scannedAt: new Date().toISOString()
             }))
 
             console.log(`Converted ${convertedRFPs.length} real RFPs`)
 
+            // Get existing RFPs to check for duplicates
+            const existingRfps = useFirebase ? await firebaseDB.getRFPs(userId) : rfps
+
+            // Filter out duplicates
+            const newRfps = convertedRFPs.filter((newRfp) => {
+                const isDuplicate = existingRfps.some((existing) =>
+                    existing.title === newRfp.title &&
+                    existing.issuedBy === newRfp.issuedBy
+                )
+                return !isDuplicate
+            })
+
+            console.log(`Filtered out ${convertedRFPs.length - newRfps.length} duplicates, adding ${newRfps.length} new RFPs`)
+
             // Save to Firebase or localStorage
             if (useFirebase) {
                 try {
-                    for (let i = 0; i < convertedRFPs.length; i++) {
-                        await firebaseDB.saveRFP(convertedRFPs[i], userId)
+                    for (let i = 0; i < newRfps.length; i++) {
+                        await firebaseDB.saveRFP(newRfps[i], userId)
                         // Also save to scanned RFPs collection for tracking
-                        await firebaseDB.saveScannedRFP({
-                            ...scannedRealRFPs[i],
-                            convertedRfpId: convertedRFPs[i].id,
-                        })
+                        const originalIndex = convertedRFPs.indexOf(newRfps[i])
+                        if (originalIndex !== -1) {
+                            await firebaseDB.saveScannedRFP({
+                                ...scannedRealRFPs[originalIndex],
+                                convertedRfpId: newRfps[i].id,
+                            })
+                        }
                     }
                     console.log('Saved scanned RFPs to Firebase')
-                    // Update state immediately so RFPs show up right away
-                    setRfps(convertedRFPs)
+                    // Merge new with existing RFPs
+                    setRfps([...existingRfps, ...newRfps])
                 } catch (error) {
                     console.error('Error saving RFPs to Firebase:', error)
                     // Fallback to localStorage
-                    setRfps(convertedRFPs)
+                    const mergedRfps = [...existingRfps, ...newRfps]
+                    setRfps(mergedRfps)
                     const storageKey = userId ? `tenderai_scanned_rfps_${userId}` : 'tenderai_scanned_rfps'
-                    localStorage.setItem(storageKey, JSON.stringify(convertedRFPs))
+                    localStorage.setItem(storageKey, JSON.stringify(mergedRfps))
                 }
             } else {
-                setRfps(convertedRFPs)
+                const mergedRfps = [...existingRfps, ...newRfps]
+                setRfps(mergedRfps)
                 const storageKey = userId ? `tenderai_scanned_rfps_${userId}` : 'tenderai_scanned_rfps'
-                localStorage.setItem(storageKey, JSON.stringify(convertedRFPs))
+                localStorage.setItem(storageKey, JSON.stringify(mergedRfps))
             }
 
             setIsScanning(false)
@@ -410,8 +529,58 @@ export function RFPProvider({ children }: { children: ReactNode }) {
         }
     }, [useFirebase, user?.id])
 
+    const clearAllRFPs = useCallback(async () => {
+        const userId = user?.id
+        if (useFirebase) {
+            try {
+                // Get all RFPs
+                const allRfps = await firebaseDB.getRFPs(userId)
+
+                // Only delete RFPs that are 'new' or 'in-progress'
+                // Preserve 'submitted' and 'completed' RFPs
+                for (const rfp of allRfps) {
+                    const status = rfp.status || 'new'
+                    if (status === 'new' || status === 'in-progress') {
+                        await firebaseDB.permanentlyDeleteRFP(rfp.id)
+                    }
+                }
+
+                // Update state to only show submitted and completed RFPs
+                const remainingRfps = allRfps.filter(rfp => {
+                    const status = rfp.status || 'new'
+                    return status === 'submitted' || status === 'completed'
+                })
+
+                console.log(`Cleared ${allRfps.length - remainingRfps.length} RFPs, preserved ${remainingRfps.length} submitted/completed RFPs`)
+                setRfps(remainingRfps)
+                setHasScanned(remainingRfps.length > 0)
+            } catch (error) {
+                console.error('Error clearing RFPs from Firebase:', error)
+            }
+        } else {
+            // Clear from localStorage but preserve submitted and completed
+            const remainingRfps = rfps.filter(rfp => {
+                const status = rfp.status || 'new'
+                return status === 'submitted' || status === 'completed'
+            })
+
+            setRfps(remainingRfps)
+            setHasScanned(remainingRfps.length > 0)
+
+            if (typeof window !== 'undefined') {
+                try {
+                    const storageKey = userId ? `tenderai_scanned_rfps_${userId}` : 'tenderai_scanned_rfps'
+                    localStorage.setItem(storageKey, JSON.stringify(remainingRfps))
+                    console.log(`Cleared RFPs from localStorage, preserved ${remainingRfps.length} submitted/completed RFPs`)
+                } catch (error) {
+                    console.error('Error clearing RFPs from localStorage:', error)
+                }
+            }
+        }
+    }, [useFirebase, user?.id, rfps])
+
     return (
-        <RFPContext.Provider value={{ rfps, isScanning, hasScanned, scanForRFPs, updateRFP, deleteRFP, permanentlyDeleteRFP, getDeletedRFPs, refreshRFPs }}>
+        <RFPContext.Provider value={{ rfps, isScanning, hasScanned, scanForRFPs, updateRFP, deleteRFP, permanentlyDeleteRFP, getDeletedRFPs, refreshRFPs, clearAllRFPs }}>
             {children}
         </RFPContext.Provider>
     )

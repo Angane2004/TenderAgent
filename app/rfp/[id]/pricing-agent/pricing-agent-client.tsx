@@ -160,10 +160,210 @@ export default function PricingAgentClient({ id }: PricingAgentClientProps) {
                                         </div>
                                     </div>
 
+                                    {/* Detailed Pricing Breakdown Table */}
+                                    <Card className="border-2 border-gray-300 bg-white">
+                                        <CardHeader className="bg-gradient-to-r from-gray-100 to-gray-50">
+                                            <CardTitle className="text-lg flex items-center justify-between">
+                                                <span>Detailed Cost Breakdown</span>
+                                                <Badge className="bg-blue-600 text-white">Itemized Pricing</Badge>
+                                            </CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="p-0">
+                                            <div className="overflow-x-auto">
+                                                <table className="w-full">
+                                                    <thead className="bg-gray-800 text-white">
+                                                        <tr>
+                                                            <th className="text-left py-3 px-4 font-semibold">Sr.</th>
+                                                            <th className="text-left py-3 px-4 font-semibold">Item Description</th>
+                                                            <th className="text-center py-3 px-4 font-semibold">Quantity</th>
+                                                            <th className="text-right py-3 px-4 font-semibold">Unit Price (₹)</th>
+                                                            <th className="text-right py-3 px-4 font-semibold">Total Price (₹)</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-gray-200">
+                                                        {/* Main Material */}
+                                                        <tr className="hover:bg-blue-50 transition-colors">
+                                                            <td className="py-3 px-4 font-medium">1</td>
+                                                            <td className="py-3 px-4">
+                                                                <div className="font-semibold text-gray-900">{rfp.specifications.voltage} Cable</div>
+                                                                <div className="text-sm text-gray-600">{rfp.specifications.size}, {rfp.specifications.conductor}, {rfp.specifications.insulation}</div>
+                                                            </td>
+                                                            <td className="py-3 px-4 text-center font-medium">
+                                                                {rfp.specifications.quantity.toLocaleString()} m
+                                                            </td>
+                                                            <td className="py-3 px-4 text-right font-medium">
+                                                                {(rfp.pricingStrategy?.recommendedPrice || 525).toLocaleString('en-IN')}
+                                                            </td>
+                                                            <td className="py-3 px-4 text-right font-bold text-gray-900">
+                                                                {((rfp.pricingStrategy?.recommendedPrice || 525) * rfp.specifications.quantity).toLocaleString('en-IN')}
+                                                            </td>
+                                                        </tr>
+
+                                                        {/* Material Testing */}
+                                                        <tr className="hover:bg-blue-50 transition-colors">
+                                                            <td className="py-3 px-4 font-medium">2</td>
+                                                            <td className="py-3 px-4">
+                                                                <div className="font-semibold text-gray-900">Factory Testing & Type Tests</div>
+                                                                <div className="text-sm text-gray-600">Routine tests, High voltage tests, Partial discharge tests</div>
+                                                            </td>
+                                                            <td className="py-3 px-4 text-center font-medium">
+                                                                1 Lot
+                                                            </td>
+                                                            <td className="py-3 px-4 text-right font-medium">
+                                                                {Math.round((rfp.pricingStrategy?.totalValue || 2625000) * 0.03).toLocaleString('en-IN')}
+                                                            </td>
+                                                            <td className="py-3 px-4 text-right font-bold text-gray-900">
+                                                                {Math.round((rfp.pricingStrategy?.totalValue || 2625000) * 0.03).toLocaleString('en-IN')}
+                                                            </td>
+                                                        </tr>
+
+                                                        {/* Installation & Commissioning */}
+                                                        <tr className="hover:bg-blue-50 transition-colors">
+                                                            <td className="py-3 px-4 font-medium">3</td>
+                                                            <td className="py-3 px-4">
+                                                                <div className="font-semibold text-gray-900">Installation & Commissioning</div>
+                                                                <div className="text-sm text-gray-600">Site laying, jointing, termination, testing</div>
+                                                            </td>
+                                                            <td className="py-3 px-4 text-center font-medium">
+                                                                {rfp.specifications.quantity.toLocaleString()} m
+                                                            </td>
+                                                            <td className="py-3 px-4 text-right font-medium">
+                                                                {Math.round((rfp.pricingStrategy?.recommendedPrice || 525) * 0.15).toLocaleString('en-IN')}
+                                                            </td>
+                                                            <td className="py-3 px-4 text-right font-bold text-gray-900">
+                                                                {Math.round((rfp.pricingStrategy?.totalValue || 2625000) * 0.15).toLocaleString('en-IN')}
+                                                            </td>
+                                                        </tr>
+
+                                                        {/* Packing & Forwarding */}
+                                                        <tr className="hover:bg-blue-50 transition-colors">
+                                                            <td className="py-3 px-4 font-medium">4</td>
+                                                            <td className="py-3 px-4">
+                                                                <div className="font-semibold text-gray-900">Packing & Transportation</div>
+                                                                <div className="text-sm text-gray-600">Drums, packing materials, freight to site</div>
+                                                            </td>
+                                                            <td className="py-3 px-4 text-center font-medium">
+                                                                1 Lot
+                                                            </td>
+                                                            <td className="py-3 px-4 text-right font-medium">
+                                                                {Math.round((rfp.pricingStrategy?.totalValue || 2625000) * 0.05).toLocaleString('en-IN')}
+                                                            </td>
+                                                            <td className="py-3 px-4 text-right font-bold text-gray-900">
+                                                                {Math.round((rfp.pricingStrategy?.totalValue || 2625000) * 0.05).toLocaleString('en-IN')}
+                                                            </td>
+                                                        </tr>
+
+                                                        {/* Training & Documentation */}
+                                                        <tr className="hover:bg-blue-50 transition-colors">
+                                                            <td className="py-3 px-4 font-medium">5</td>
+                                                            <td className="py-3 px-4">
+                                                                <div className="font-semibold text-gray-900">Training & Documentation</div>
+                                                                <div className="text-sm text-gray-600">O&M manuals, training of personnel</div>
+                                                            </td>
+                                                            <td className="py-3 px-4 text-center font-medium">
+                                                                1 Set
+                                                            </td>
+                                                            <td className="py-3 px-4 text-right font-medium">
+                                                                {Math.round((rfp.pricingStrategy?.totalValue || 2625000) * 0.01).toLocaleString('en-IN')}
+                                                            </td>
+                                                            <td className="py-3 px-4 text-right font-bold text-gray-900">
+                                                                {Math.round((rfp.pricingStrategy?.totalValue || 2625000) * 0.01).toLocaleString('en-IN')}
+                                                            </td>
+                                                        </tr>
+
+                                                        {/* Warranty Support */}
+                                                        <tr className="hover:bg-blue-50 transition-colors">
+                                                            <td className="py-3 px-4 font-medium">6</td>
+                                                            <td className="py-3 px-4">
+                                                                <div className="font-semibold text-gray-900">Warranty Support (24 months)</div>
+                                                                <div className="text-sm text-gray-600">Onsite support, defect replacement</div>
+                                                            </td>
+                                                            <td className="py-3 px-4 text-center font-medium">
+                                                                24 months
+                                                            </td>
+                                                            <td className="py-3 px-4 text-right font-medium">
+                                                                {Math.round((rfp.pricingStrategy?.totalValue || 2625000) * 0.02).toLocaleString('en-IN')}
+                                                            </td>
+                                                            <td className="py-3 px-4 text-right font-bold text-gray-900">
+                                                                {Math.round((rfp.pricingStrategy?.totalValue || 2625000) * 0.02).toLocaleString('en-IN')}
+                                                            </td>
+                                                        </tr>
+
+                                                        {/* Subtotal */}
+                                                        <tr className="bg-gray-100 font-semibold">
+                                                            <td className="py-3 px-4" colSpan={4}>
+                                                                <div className="text-right font-bold">Subtotal (Before Taxes)</div>
+                                                            </td>
+                                                            <td className="py-3 px-4 text-right font-bold text-lg text-gray-900">
+                                                                {Math.round((rfp.pricingStrategy?.totalValue || 2625000) * 1.26).toLocaleString('en-IN')}
+                                                            </td>
+                                                        </tr>
+
+                                                        {/* GST */}
+                                                        <tr className="hover:bg-blue-50 transition-colors">
+                                                            <td className="py-3 px-4" colSpan={4}>
+                                                                <div className="text-right">
+                                                                    <span className="font-semibold">GST @ 18%</span>
+                                                                    <span className="text-sm text-gray-600 ml-2">(on subtotal)</span>
+                                                                </div>
+                                                            </td>
+                                                            <td className="py-3 px-4 text-right font-bold text-gray-900">
+                                                                {Math.round((rfp.pricingStrategy?.totalValue || 2625000) * 1.26 * 0.18).toLocaleString('en-IN')}
+                                                            </td>
+                                                        </tr>
+
+                                                        {/* Grand Total */}
+                                                        <tr className="bg-gradient-to-r from-green-100 to-emerald-100 border-t-4 border-green-600">
+                                                            <td className="py-4 px-4" colSpan={4}>
+                                                                <div className="text-right">
+                                                                    <span className="text-xl font-bold text-green-900">GRAND TOTAL</span>
+                                                                    <span className="text-sm text-gray-600 ml-2">(All inclusive)</span>
+                                                                </div>
+                                                            </td>
+                                                            <td className="py-4 px-4 text-right">
+                                                                <div className="text-2xl font-bold text-green-900">
+                                                                    ₹{Math.round((rfp.pricingStrategy?.totalValue || 2625000) * 1.26 * 1.18).toLocaleString('en-IN')}
+                                                                </div>
+                                                                <div className="text-xs text-gray-600 mt-1">
+                                                                    (Incl. all taxes & charges)
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+
+                                            {/* Additional Info */}
+                                            <div className="p-4 bg-gray-50 border-t-2 border-gray-300">
+                                                <div className="grid grid-cols-2 gap-4 text-sm">
+                                                    <div>
+                                                        <p className="font-semibold text-gray-700 mb-1">Notes:</p>
+                                                        <ul className="list-disc list-inside text-gray-600 space-y-1">
+                                                            <li>All prices are in Indian Rupees (INR)</li>
+                                                            <li>Prices include all taxes and duties</li>
+                                                            <li>Payment terms as per tender conditions</li>
+                                                        </ul>
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-semibold text-gray-700 mb-1">Validity:</p>
+                                                        <ul className="list-disc list-inside text-gray-600 space-y-1">
+                                                            <li>Price valid for 90 days from submission</li>
+                                                            <li>Delivery: {rfp.deliveryTimeline}</li>
+                                                            <li>Warranty: {rfp.warranty || '24 months'}</li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+
                                     <div>
-                                        <h4 className="font-semibold mb-2">Total Project Value</h4>
-                                        <p className="text-3xl font-bold">₹{(rfp.pricingStrategy?.totalValue || 2625000).toLocaleString('en-IN')}</p>
+                                        <h4 className="font-semibold mb-2">Total Project Value (Base Cable)</h4>
+                                        <p className="text-3xl font-bold text-green-600">₹{Math.round((rfp.pricingStrategy?.totalValue || 2625000) * 1.26 * 1.18).toLocaleString('en-IN')}</p>
                                         <p className="text-sm text-gray-600">Based on {rfp.specifications.quantity.toLocaleString()} meters at recommended pricing</p>
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            See detailed breakdown table above for all-inclusive pricing (₹{Math.round((rfp.pricingStrategy?.totalValue || 2625000) * 1.26 * 1.18).toLocaleString('en-IN')})
+                                        </p>
                                     </div>
 
                                     <div className="p-4 bg-gray-50 rounded-lg border-2 border-gray-200">

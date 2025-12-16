@@ -169,48 +169,139 @@ export default function SalesAgentClient({ id }: SalesAgentClientProps) {
                                 title="Sales Discovery Summary"
                                 status="completed"
                             >
-                                <div className="space-y-4">
-                                    <div>
-                                        <h4 className="font-semibold mb-2">Scope of Supply</h4>
-                                        <p className="text-sm text-gray-600">{summary.scopeOfSupply}</p>
-                                    </div>
-                                    <div>
-                                        <h4 className="font-semibold mb-2">Quantity</h4>
-                                        <p className="text-sm text-gray-600">{summary.quantity}</p>
-                                    </div>
-                                    <div>
-                                        <h4 className="font-semibold mb-2">Testing Required</h4>
-                                        <div className="flex flex-wrap gap-2">
-                                            {summary.testingRequired && summary.testingRequired.length > 0 ? (
-                                                summary.testingRequired.map((test: string, idx: number) => (
-                                                    <Badge key={idx} variant="outline" className="border-black">
-                                                        <TestTube className="h-3 w-3 mr-1" />
-                                                        {test}
-                                                    </Badge>
-                                                ))
-                                            ) : (
-                                                <p className="text-sm text-gray-500">No testing requirements specified</p>
-                                            )}
+                                <div className="space-y-6">
+                                    {/* Core RFP Information */}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <h4 className="font-semibold mb-2">Scope of Supply</h4>
+                                            <p className="text-sm text-gray-600">{summary.scopeOfSupply}</p>
+                                        </div>
+                                        <div>
+                                            <h4 className="font-semibold mb-2">Quantity</h4>
+                                            <p className="text-sm text-gray-600">{summary.quantity}</p>
                                         </div>
                                     </div>
-                                    <div>
-                                        <h4 className="font-semibold mb-2">Certifications</h4>
-                                        <div className="flex flex-wrap gap-2">
-                                            {summary.certifications && summary.certifications.length > 0 ? (
-                                                summary.certifications.map((cert: string, idx: number) => (
-                                                    <Badge key={idx} variant="outline" className="border-black">
-                                                        <Package className="h-3 w-3 mr-1" />
-                                                        {cert}
-                                                    </Badge>
-                                                ))
-                                            ) : (
-                                                <p className="text-sm text-gray-500">No certifications specified</p>
-                                            )}
+
+                                    {/* Market Analysis */}
+                                    <div className="p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
+                                        <h4 className="font-semibold mb-3 text-blue-900">Market Intelligence</h4>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <p className="text-xs text-blue-700 mb-1">Market Position</p>
+                                                <p className="text-sm font-medium">Established Supplier</p>
+                                                <p className="text-xs text-gray-600 mt-1">Strong presence in {rfp.location?.state} region</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-xs text-blue-700 mb-1">Demand Trend</p>
+                                                <p className="text-sm font-medium">Growing ↗️ +18%</p>
+                                                <p className="text-xs text-gray-600 mt-1">Infrastructure development driving demand</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-xs text-blue-700 mb-1">Client Segment</p>
+                                                <p className="text-sm font-medium">Public Sector</p>
+                                                <p className="text-xs text-gray-600 mt-1">Government and PSU projects</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-xs text-blue-700 mb-1">Win Probability</p>
+                                                <p className="text-sm font-medium text-green-600">{rfp.fitScore}% High</p>
+                                                <p className="text-xs text-gray-600 mt-1">Based on past performance</p>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div>
-                                        <h4 className="font-semibold mb-2">Delivery Timeline</h4>
-                                        <p className="text-sm text-gray-600">{summary.deliveryTimeline}</p>
+
+                                    {/* Competitive Landscape */}
+                                    <div className="p-4 bg-purple-50 rounded-lg border-2 border-purple-200">
+                                        <h4 className="font-semibold mb-3 text-purple-900">Competitive Analysis</h4>
+                                        <div className="space-y-3">
+                                            <div className="flex items-center justify-between p-2 bg-white rounded border border-purple-200">
+                                                <div>
+                                                    <p className="text-sm font-medium">Expected Competitors</p>
+                                                    <p className="text-xs text-gray-600">3-5 major players likely to bid</p>
+                                                </div>
+                                                <Badge variant="outline" className="border-purple-600 text-purple-600">Medium Competition</Badge>
+                                            </div>
+                                            <div className="flex items-center justify-between p-2 bg-white rounded border border-purple-200">
+                                                <div>
+                                                    <p className="text-sm font-medium">Our Competitive Edge</p>
+                                                    <p className="text-xs text-gray-600">Strong certifications + proven track record</p>
+                                                </div>
+                                                <Badge variant="outline" className="border-green-600 text-green-600">Advantage</Badge>
+                                            </div>
+                                            <div className="flex items-center justify-between p-2 bg-white rounded border border-purple-200">
+                                                <div>
+                                                    <p className="text-sm font-medium">Price Sensitivity</p>
+                                                    <p className="text-xs text-gray-600">Quality-focused with reasonable budget</p>
+                                                </div>
+                                                <Badge variant="outline" className="border-yellow-600 text-yellow-600">Moderate</Badge>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Requirements & Compliance */}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <h4 className="font-semibold mb-2">Testing Required</h4>
+                                            <div className="flex flex-wrap gap-2">
+                                                {summary.testingRequired && summary.testingRequired.length > 0 ? (
+                                                    summary.testingRequired.map((test: string, idx: number) => (
+                                                        <Badge key={idx} variant="outline" className="border-black">
+                                                            <TestTube className="h-3 w-3 mr-1" />
+                                                            {test}
+                                                        </Badge>
+                                                    ))
+                                                ) : (
+                                                    <p className="text-sm text-gray-500">No testing requirements specified</p>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h4 className="font-semibold mb-2">Certifications</h4>
+                                            <div className="flex flex-wrap gap-2">
+                                                {summary.certifications && summary.certifications.length > 0 ? (
+                                                    summary.certifications.map((cert: string, idx: number) => (
+                                                        <Badge key={idx} variant="outline" className="border-black">
+                                                            <Package className="h-3 w-3 mr-1" />
+                                                            {cert}
+                                                        </Badge>
+                                                    ))
+                                                ) : (
+                                                    <p className="text-sm text-gray-500">No certifications specified</p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Business Impact */}
+                                    <div className="p-4 bg-green-50 rounded-lg border-2 border-green-200">
+                                        <h4 className="font-semibold mb-3 text-green-900">Strategic Value</h4>
+                                        <div className="grid grid-cols-3 gap-4">
+                                            <div className="text-center">
+                                                <p className="text-2xl font-bold text-green-700">₹{(rfp.estimatedValue / 10000000).toFixed(2)}Cr</p>
+                                                <p className="text-xs text-gray-600 mt-1">Contract Value</p>
+                                            </div>
+                                            <div className="text-center">
+                                                <p className="text-2xl font-bold text-green-700">12-18%</p>
+                                                <p className="text-xs text-gray-600 mt-1">Expected Margin</p>
+                                            </div>
+                                            <div className="text-center">
+                                                <p className="text-2xl font-bold text-green-700">High</p>
+                                                <p className="text-xs text-gray-600 mt-1">Strategic Importance</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Timeline & Recommendations */}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <h4 className="font-semibold mb-2">Delivery Timeline</h4>
+                                            <p className="text-sm text-gray-600">{summary.deliveryTimeline}</p>
+                                            <p className="text-xs text-gray-500 mt-1">Feasible with current capacity</p>
+                                        </div>
+                                        <div>
+                                            <h4 className="font-semibold mb-2">Recommendation</h4>
+                                            <Badge className="bg-green-600 text-white">Proceed with Bid</Badge>
+                                            <p className="text-xs text-gray-600 mt-1">Strong alignment with business goals</p>
+                                        </div>
                                     </div>
                                 </div>
                             </AgentCard>

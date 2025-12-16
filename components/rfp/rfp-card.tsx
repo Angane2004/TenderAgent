@@ -6,10 +6,11 @@ import Link from "next/link"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Calendar, Building2, Clock, TrendingUp, CheckCircle, IndianRupeeIcon, ArrowRight, Loader2 } from "lucide-react"
+import { Calendar, Building2, Clock, TrendingUp, CheckCircle, IndianRupeeIcon, ArrowRight, Loader2, MapPin, Download } from "lucide-react"
 import { RFP } from "@/types"
 import { getDaysUntil, formatDate } from "@/lib/utils"
 import { getActualRFPStatus, getNextAgentStep } from "@/lib/rfp-utils"
+import { generateTenderPDF } from "@/lib/tender-pdf-generator"
 
 interface RFPCardProps {
     rfp: RFP
@@ -25,6 +26,20 @@ export const RFPCard = memo(function RFPCard({ rfp }: RFPCardProps) {
     const actualStatus = getActualRFPStatus(rfp)
     const nextStep = getNextAgentStep(rfp)
     const [isNavigating, setIsNavigating] = useState(false)
+    const [isDownloading, setIsDownloading] = useState(false)
+
+    const handleDownloadPDF = async (e: React.MouseEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+        setIsDownloading(true)
+        try {
+            await generateTenderPDF(rfp)
+        } catch (error) {
+            console.error('PDF generation failed:', error)
+        } finally {
+            setIsDownloading(false)
+        }
+    }
 
     const handleSelectResponse = () => {
         setIsNavigating(true)
@@ -45,6 +60,12 @@ export const RFPCard = memo(function RFPCard({ rfp }: RFPCardProps) {
                         </CardDescription>
                     </div>
                     <div className="flex flex-col gap-2">
+                        {rfp.location && (
+                            <Badge variant="outline" className="border-green-600 text-green-600 bg-green-50 text-xs justify-center">
+                                <MapPin className="mr-1 h-3 w-3" />
+                                {rfp.location.city}
+                            </Badge>
+                        )}
                         <Badge
                             variant="outline"
                             className={cn(
@@ -151,7 +172,7 @@ export const RFPCard = memo(function RFPCard({ rfp }: RFPCardProps) {
                 )}
             </CardContent>
 
-            <CardFooter className="flex gap-2">
+            <CardFooter className="flex w-full gap-2 p-6 pt-0">
                 {actualStatus === 'completed' ? (
                     <div className="w-full flex items-center justify-center py-2">
                         <Badge className="bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-700 hover:to-emerald-700 px-6 py-2 text-sm font-semibold border-2 border-green-700 shadow-lg">
@@ -175,15 +196,32 @@ export const RFPCard = memo(function RFPCard({ rfp }: RFPCardProps) {
                         </Button>
                     </Link>
                 ) : (
-                    <>
-                        <Link href={`/rfp/${rfp.id}/details`} className="flex-1">
-                            <Button
-                                variant="outline"
-                                className="w-full border-2 border-black hover:bg-gray-100"
-                            >
-                                View Details
-                            </Button>
-                        </Link>
+                    <div className="flex w-full gap-2">
+                        <Button
+                            onClick={handleDownloadPDF}
+                            disabled={isDownloading}
+                            variant="outline"
+                            className="flex-1 border-2 border-black hover:bg-gray-100"
+                        >
+                            {isDownloading ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Downloading...
+                                </>
+                            ) : (
+                                <>
+                                    <Download className="h-4 w-4" />
+                                    
+                                </>
+                            )}
+                        </Button>
+                        <Button
+                            variant="outline"
+                            className="flex-1 border-2 border-black hover:bg-gray-100"
+                            onClick={() => router.push(`/rfp/${rfp.id}/details`)}
+                        >
+                            View Details
+                        </Button>
                         <Button
                             onClick={handleSelectResponse}
                             disabled={isNavigating}
@@ -198,7 +236,7 @@ export const RFPCard = memo(function RFPCard({ rfp }: RFPCardProps) {
                                 "Select for Response"
                             )}
                         </Button>
-                    </>
+                    </div>
                 )}
             </CardFooter>
         </Card>
