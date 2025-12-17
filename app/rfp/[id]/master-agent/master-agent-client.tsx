@@ -103,21 +103,14 @@ export default function MasterAgentClient({ id }: MasterAgentClientProps) {
 
     if (!rfp) {
         return (
-            <div className="flex h-screen items-center justify-center bg-gradient-to-br from-purple-50 via-gray-50 to-blue-50">
-                <div className="h-8 w-8 border-4 border-black border-t-transparent rounded-full animate-spin" />
+            <div className="flex h-screen items-center justify-center bg-gray-50">
+                <div className="h-8 w-8 border-4 border-gray-800 border-t-transparent rounded-full animate-spin" />
             </div>
         )
     }
 
     return (
-        <div className="flex h-screen bg-gradient-to-br from-purple-50 via-gray-50 to-blue-50 relative overflow-hidden">
-            {/* Animated background blobs */}
-            <div className="absolute inset-0 opacity-20 pointer-events-none">
-                <div className="absolute top-20 left-20 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob" />
-                <div className="absolute top-40 right-20 w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000" />
-                <div className="absolute bottom-20 left-1/2 w-96 h-96 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000" />
-            </div>
-
+        <div className="flex h-screen bg-gray-50">
             <Sidebar />
 
             <div className="flex-1 flex flex-col h-screen">
@@ -125,16 +118,21 @@ export default function MasterAgentClient({ id }: MasterAgentClientProps) {
 
                 <main className="flex-1 overflow-y-auto p-6 space-y-6">
                     {/* Header */}
-                    <div>
-                        <h1 className="text-3xl font-bold">Master Orchestration Agent</h1>
-                        <p className="text-gray-600 mt-1">Coordinating all agents for: {rfp.title}</p>
+                    <div className="border-b border-gray-200 pb-4">
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="p-2 bg-gray-900 rounded-lg">
+                                <Brain className="h-5 w-5 text-white" />
+                            </div>
+                            <h1 className="text-2xl font-semibold text-gray-900">Master Orchestration Agent</h1>
+                        </div>
+                        <p className="text-gray-600 ml-12">Coordinating all agents for: {rfp.title}</p>
                     </div>
 
                     {/* Processing Stage */}
                     {stage === 'processing' && (
-                        <Card className="border-2 border-black">
+                        <Card className="border border-gray-200 shadow-sm">
                             <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
+                                <CardTitle className="flex items-center gap-2 text-gray-900">
                                     <Brain className="h-5 w-5" />
                                     Orchestrating Agents...
                                 </CardTitle>
@@ -153,30 +151,30 @@ export default function MasterAgentClient({ id }: MasterAgentClientProps) {
                                 status="completed"
                             >
                                 <div className="space-y-6">
-                                    <div className="flex items-center gap-2 text-green-600">
+                                    <div className="flex items-center gap-2 text-green-700 bg-green-50 p-3 rounded-lg border border-green-200">
                                         <CheckCircle className="h-5 w-5" />
-                                        <span className="font-semibold">All agents completed successfully - Ready for response generation</span>
+                                        <span className="font-medium">All agents completed successfully - Ready for response generation</span>
                                     </div>
 
                                     {/* Agent Status Overview */}
                                     <div className="grid grid-cols-3 gap-4">
-                                        <div className="p-4 bg-gray-50 rounded-lg border-2 border-black">
-                                            <h4 className="font-semibold mb-2">Sales Discovery</h4>
-                                            <Badge variant="outline" className="border-green-600 text-green-600">
+                                        <div className="p-4 bg-white rounded-lg border border-gray-200">
+                                            <h4 className="font-medium mb-2 text-gray-900">Sales Discovery</h4>
+                                            <Badge variant="outline" className="bg-green-50 border-green-600 text-green-700">
                                                 Completed
                                             </Badge>
                                             <p className="text-xs text-gray-600 mt-2">Market analysis & competitive positioning done</p>
                                         </div>
-                                        <div className="p-4 bg-gray-50 rounded-lg border-2 border-black">
-                                            <h4 className="font-semibold mb-2">Technical Analysis</h4>
-                                            <Badge variant="outline" className="border-green-600 text-green-600">
+                                        <div className="p-4 bg-white rounded-lg border border-gray-200">
+                                            <h4 className="font-medium mb-2 text-gray-900">Technical Analysis</h4>
+                                            <Badge variant="outline" className="bg-green-50 border-green-600 text-green-700">
                                                 Completed
                                             </Badge>
                                             <p className="text-xs text-gray-600 mt-2">Capability assessment & compliance verified</p>
                                         </div>
-                                        <div className="p-4 bg-gray-50 rounded-lg border-2 border-black">
-                                            <h4 className="font-semibold mb-2">Pricing Strategy</h4>
-                                            <Badge variant="outline" className="border-green-600 text-green-600">
+                                        <div className="p-4 bg-white rounded-lg border border-gray-200">
+                                            <h4 className="font-medium mb-2 text-gray-900">Pricing Strategy</h4>
+                                            <Badge variant="outline" className="bg-green-50 border-green-600 text-green-700">
                                                 Completed
                                             </Badge>
                                             <p className="text-xs text-gray-600 mt-2">Commercial proposal & margins optimized</p>
@@ -184,126 +182,109 @@ export default function MasterAgentClient({ id }: MasterAgentClientProps) {
                                     </div>
 
                                     {/* Tender Alignment Metrics */}
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
-                                            <h4 className="font-semibold mb-2 flex items-center gap-2 text-blue-700">
-                                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>
-                                                Tender Alignment Score
-                                            </h4>
-                                            <div className="flex items-center gap-3">
-                                                <div className="flex-1 bg-gray-200 rounded-full h-3 border-2 border-black">
-                                                    <div className="bg-blue-600 h-full rounded-full transition-all duration-500" style={{ width: `${scores.tenderAlignment}%` }} />
+                                    <div>
+                                        <h3 className="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wider">Performance Metrics</h3>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="p-4 bg-white rounded-lg border border-gray-200">
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <h4 className="font-medium text-gray-900">Tender Alignment</h4>
+                                                    <span className="text-xl font-semibold text-gray-900">{scores.tenderAlignment}%</span>
                                                 </div>
-                                                <span className="text-xl font-bold text-blue-700">{scores.tenderAlignment}%</span>
+                                                <div className="w-full bg-gray-100 rounded-full h-2">
+                                                    <div className="bg-gray-800 h-full rounded-full transition-all duration-500" style={{ width: `${scores.tenderAlignment}%` }} />
+                                                </div>
+                                                <p className="text-xs text-gray-500 mt-2">Overall fit with tender requirements</p>
                                             </div>
-                                            <p className="text-xs text-gray-600 mt-1">Overall fit with tender requirements</p>
-                                        </div>
 
-                                        <div className="p-4 bg-green-50 rounded-lg border-2 border-green-200">
-                                            <h4 className="font-semibold mb-2 flex items-center gap-2 text-green-700">
-                                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>
-                                                Requirement Match
-                                            </h4>
-                                            <div className="flex items-center gap-3">
-                                                <div className="flex-1 bg-gray-200 rounded-full h-3 border-2 border-black">
-                                                    <div className="bg-green-600 h-full rounded-full transition-all duration-500" style={{ width: `${scores.requirementMatch}%` }} />
+                                            <div className="p-4 bg-white rounded-lg border border-gray-200">
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <h4 className="font-medium text-gray-900">Requirement Match</h4>
+                                                    <span className="text-xl font-semibold text-gray-900">{scores.requirementMatch}%</span>
                                                 </div>
-                                                <span className="text-xl font-bold text-green-700">{scores.requirementMatch}%</span>
+                                                <div className="w-full bg-gray-100 rounded-full h-2">
+                                                    <div className="bg-gray-800 h-full rounded-full transition-all duration-500" style={{ width: `${scores.requirementMatch}%` }} />
+                                                </div>
+                                                <p className="text-xs text-gray-500 mt-2">Specifications we can fulfill</p>
                                             </div>
-                                            <p className="text-xs text-gray-600 mt-1">Specifications we can fulfill</p>
-                                        </div>
 
-                                        <div className="p-4 bg-purple-50 rounded-lg border-2 border-purple-200">
-                                            <h4 className="font-semibold mb-2 flex items-center gap-2 text-purple-700">
-                                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                                </svg>
-                                                Capability Score
-                                            </h4>
-                                            <div className="flex items-center gap-3">
-                                                <div className="flex-1 bg-gray-200 rounded-full h-3 border-2 border-black">
-                                                    <div className="bg-purple-600 h-full rounded-full transition-all duration-500" style={{ width: `${scores.capabilityScore}%` }} />
+                                            <div className="p-4 bg-white rounded-lg border border-gray-200">
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <h4 className="font-medium text-gray-900">Capability Score</h4>
+                                                    <span className="text-xl font-semibold text-gray-900">{scores.capabilityScore}%</span>
                                                 </div>
-                                                <span className="text-xl font-bold text-purple-700">{scores.capabilityScore}%</span>
+                                                <div className="w-full bg-gray-100 rounded-full h-2">
+                                                    <div className="bg-gray-800 h-full rounded-full transition-all duration-500" style={{ width: `${scores.capabilityScore}%` }} />
+                                                </div>
+                                                <p className="text-xs text-gray-500 mt-2">Technical capability alignment</p>
                                             </div>
-                                            <p className="text-xs text-gray-600 mt-1">Technical capability alignment</p>
-                                        </div>
 
-                                        <div className="p-4 bg-orange-50 rounded-lg border-2 border-orange-200">
-                                            <h4 className="font-semibold mb-2 flex items-center gap-2 text-orange-700">
-                                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                                                </svg>
-                                                Strategic Fit
-                                            </h4>
-                                            <div className="flex items-center gap-3">
-                                                <div className="flex-1 bg-gray-200 rounded-full h-3 border-2 border-black">
-                                                    <div className="bg-orange-600 h-full rounded-full transition-all duration-500" style={{ width: `${scores.strategicFit}%` }} />
+                                            <div className="p-4 bg-white rounded-lg border border-gray-200">
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <h4 className="font-medium text-gray-900">Strategic Fit</h4>
+                                                    <span className="text-xl font-semibold text-gray-900">{scores.strategicFit}%</span>
                                                 </div>
-                                                <span className="text-xl font-bold text-orange-700">{scores.strategicFit}%</span>
+                                                <div className="w-full bg-gray-100 rounded-full h-2">
+                                                    <div className="bg-gray-800 h-full rounded-full transition-all duration-500" style={{ width: `${scores.strategicFit}%` }} />
+                                                </div>
+                                                <p className="text-xs text-gray-500 mt-2">Alignment with business goals</p>
                                             </div>
-                                            <p className="text-xs text-gray-600 mt-1">Alignment with business goals</p>
                                         </div>
                                     </div>
 
                                     {/* Decision Framework */}
-                                    <div className="p-4 bg-gray-50 rounded-lg border-2 border-black">
-                                        <h4 className="font-semibold mb-3">Decision Framework Analysis</h4>
+                                    <div className="p-4 bg-white rounded-lg border border-gray-200">
+                                        <h4 className="font-medium mb-3 text-gray-900">Decision Framework Analysis</h4>
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
-                                                <p className="text-sm font-medium mb-2 text-green-700">Strengths</p>
-                                                <ul className="space-y-1 text-sm text-gray-700">
-                                                    <li>✓ High technical capability match (95%)</li>
-                                                    <li>✓ All required certifications available</li>
-                                                    <li>✓ Competitive pricing with healthy margins</li>
-                                                    <li>✓ Strong regional presence and track record</li>
+                                                <p className="text-sm font-medium mb-2 text-gray-700">Strengths</p>
+                                                <ul className="space-y-1 text-sm text-gray-600">
+                                                    <li>• High technical capability match (95%)</li>
+                                                    <li>• All required certifications available</li>
+                                                    <li>• Competitive pricing with healthy margins</li>
+                                                    <li>• Strong regional presence and track record</li>
                                                 </ul>
                                             </div>
                                             <div>
-                                                <p className="text-sm font-medium mb-2 text-blue-700">Opportunities</p>
-                                                <ul className="space-y-1 text-sm text-gray-700">
-                                                    <li>✓ High-value government contract</li>
-                                                    <li>✓ Growing infrastructure demand</li>
-                                                    <li>✓ Long-term relationship potential</li>
-                                                    <li>✓ Portfolio diversification</li>
+                                                <p className="text-sm font-medium mb-2 text-gray-700">Opportunities</p>
+                                                <ul className="space-y-1 text-sm text-gray-600">
+                                                    <li>• High-value government contract</li>
+                                                    <li>• Growing infrastructure demand</li>
+                                                    <li>• Long-term relationship potential</li>
+                                                    <li>• Portfolio diversification</li>
                                                 </ul>
                                             </div>
                                         </div>
                                     </div>
 
                                     {/* Execution Roadmap */}
-                                    <div className="p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
-                                        <h4 className="font-semibold mb-3 text-blue-900">Recommended Execution Roadmap</h4>
+                                    <div className="p-4 bg-white rounded-lg border border-gray-200">
+                                        <h4 className="font-medium mb-3 text-gray-900">Recommended Execution Roadmap</h4>
                                         <div className="space-y-2">
-                                            <div className="flex items-start gap-3 p-2 bg-white rounded border border-blue-200">
-                                                <Badge className="bg-blue-600 text-white mt-0.5">1</Badge>
+                                            <div className="flex items-start gap-3 p-3 bg-gray-50 rounded border border-gray-200">
+                                                <Badge className="bg-gray-800 text-white mt-0.5">1</Badge>
                                                 <div className="flex-1">
-                                                    <p className="text-sm font-medium">Response Finalization</p>
+                                                    <p className="text-sm font-medium text-gray-900">Response Finalization</p>
                                                     <p className="text-xs text-gray-600">Generate final proposal with all technical & commercial details</p>
                                                 </div>
                                             </div>
-                                            <div className="flex items-start gap-3 p-2 bg-white rounded border border-blue-200">
-                                                <Badge className="bg-blue-600 text-white mt-0.5">2</Badge>
+                                            <div className="flex items-start gap-3 p-3 bg-gray-50 rounded border border-gray-200">
+                                                <Badge className="bg-gray-800 text-white mt-0.5">2</Badge>
                                                 <div className="flex-1">
-                                                    <p className="text-sm font-medium">Internal Review</p>
+                                                    <p className="text-sm font-medium text-gray-900">Internal Review</p>
                                                     <p className="text-xs text-gray-600">Technical, legal, and management approval cycle</p>
                                                 </div>
                                             </div>
-                                            <div className="flex items-start gap-3 p-2 bg-white rounded border border-blue-200">
-                                                <Badge className="bg-blue-600 text-white mt-0.5">3</Badge>
+                                            <div className="flex items-start gap-3 p-3 bg-gray-50 rounded border border-gray-200">
+                                                <Badge className="bg-gray-800 text-white mt-0.5">3</Badge>
                                                 <div className="flex-1">
-                                                    <p className="text-sm font-medium">Submission Preparation</p>
+                                                    <p className="text-sm font-medium text-gray-900">Submission Preparation</p>
                                                     <p className="text-xs text-gray-600">Document compilation, EMD arrangement, fee payment</p>
                                                 </div>
                                             </div>
-                                            <div className="flex items-start gap-3 p-2 bg-white rounded border border-blue-200">
-                                                <Badge className="bg-blue-600 text-white mt-0.5">4</Badge>
+                                            <div className="flex items-start gap-3 p-3 bg-gray-50 rounded border border-gray-200">
+                                                <Badge className="bg-gray-800 text-white mt-0.5">4</Badge>
                                                 <div className="flex-1">
-                                                    <p className="text-sm font-medium">Bid Submission</p>
+                                                    <p className="text-sm font-medium text-gray-900">Bid Submission</p>
                                                     <p className="text-xs text-gray-600">Submit before deadline: {new Date(rfp.deadline).toLocaleDateString()}</p>
                                                 </div>
                                             </div>
@@ -311,18 +292,18 @@ export default function MasterAgentClient({ id }: MasterAgentClientProps) {
                                     </div>
 
                                     {/* Final Recommendation */}
-                                    <div className="p-4 bg-green-50 rounded-lg border-2 border-green-200">
-                                        <h4 className="font-semibold mb-3 text-green-900">Master Agent Recommendation</h4>
+                                    <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                                        <h4 className="font-medium mb-3 text-gray-900">Master Agent Recommendation</h4>
                                         <div className="flex items-center gap-2 mb-3">
-                                            <Badge className="bg-green-600 text-white text-lg px-4 py-2">PROCEED WITH BID</Badge>
-                                            <span className="text-sm font-medium">High Win Probability - Strategic Value Tender</span>
+                                            <Badge className="bg-green-700 text-white text-base px-4 py-1.5">PROCEED WITH BID</Badge>
+                                            <span className="text-sm font-medium text-gray-700">High Win Probability - Strategic Value Tender</span>
                                         </div>
                                         <p className="text-sm text-gray-700 mb-2">
-                                            <strong>Rationale:</strong> All technical requirements can be met, pricing is competitive with healthy margins,
+                                            <strong className="text-gray-900">Rationale:</strong> All technical requirements can be met, pricing is competitive with healthy margins,
                                             win probability is high ({rfp.fitScore}%), and the tender aligns perfectly with our strategic goals.
                                         </p>
                                         <p className="text-sm text-gray-700">
-                                            <strong>Next Action:</strong> Proceed to generate the final response document incorporating all agent insights
+                                            <strong className="text-gray-900">Next Action:</strong> Proceed to generate the final response document incorporating all agent insights
                                             and prepare for submission.
                                         </p>
                                     </div>
@@ -336,7 +317,7 @@ export default function MasterAgentClient({ id }: MasterAgentClientProps) {
                                         setTimeout(() => router.push(`/rfp/${id}/final-response`), 300)
                                     }}
                                     disabled={isNavigating}
-                                    className="bg-black text-white hover:bg-gray-800 disabled:opacity-70"
+                                    className="bg-gray-900 text-white hover:bg-gray-800 disabled:opacity-70"
                                 >
                                     {isNavigating ? (
                                         <>

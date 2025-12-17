@@ -133,30 +133,16 @@ export default function PricingAgentClient({ id }: PricingAgentClientProps) {
                         <>
                             <AgentCard title="Pricing Analysis" status="completed">
                                 <div className="space-y-4">
-                                    <div className="grid grid-cols-3 gap-4">
-                                        <div className="p-4 bg-red-50 rounded-lg border-2 border-red-600">
-                                            <h4 className="font-semibold mb-2 text-red-600">Aggressive</h4>
-                                            <p className="text-2xl font-bold">₹{rfp.pricingStrategy?.aggressivePrice || 485}/m</p>
-                                            <p className="text-sm text-gray-600 mt-1">12% margin</p>
-                                            <Badge variant="outline" className="mt-2 border-red-600 text-red-600">
-                                                High Risk
-                                            </Badge>
-                                        </div>
-                                        <div className="p-4 bg-green-50 rounded-lg border-2 border-green-600">
-                                            <h4 className="font-semibold mb-2 text-green-600">Recommended</h4>
-                                            <p className="text-2xl font-bold">₹{rfp.pricingStrategy?.recommendedPrice || 525}/m</p>
-                                            <p className="text-sm text-gray-600 mt-1">18% margin</p>
-                                            <Badge variant="outline" className="mt-2 border-green-600 text-green-600">
-                                                Optimal
-                                            </Badge>
-                                        </div>
-                                        <div className="p-4 bg-blue-50 rounded-lg border-2 border-blue-600">
-                                            <h4 className="font-semibold mb-2 text-blue-600">Premium</h4>
-                                            <p className="text-2xl font-bold">₹{rfp.pricingStrategy?.premiumPrice || 565}/m</p>
-                                            <p className="text-sm text-gray-600 mt-1">24% margin</p>
-                                            <Badge variant="outline" className="mt-2 border-blue-600 text-blue-600">
-                                                Low Risk
-                                            </Badge>
+                                    <div className="flex justify-center">
+                                        <div className="p-6 bg-green-50 rounded-lg border-2 border-green-600 max-w-md w-full">
+                                            <h4 className="font-semibold mb-2 text-green-600 text-center">Recommended</h4>
+                                            <p className="text-3xl font-bold text-center">₹{rfp.pricingStrategy?.recommendedPrice || 525}/m</p>
+                                            <p className="text-sm text-gray-600 mt-1 text-center">18% margin</p>
+                                            <div className="flex justify-center mt-3">
+                                                <Badge variant="outline" className="border-green-600 text-green-600">
+                                                    Optimal
+                                                </Badge>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -365,7 +351,7 @@ export default function PricingAgentClient({ id }: PricingAgentClientProps) {
                                             See detailed breakdown table above for all-inclusive pricing (₹{Math.round((rfp.pricingStrategy?.totalValue || 2625000) * 1.26 * 1.18).toLocaleString('en-IN')})
                                         </p>
                                     </div>
-
+                                    {/* 
                                     <div className="p-4 bg-gray-50 rounded-lg border-2 border-gray-200">
                                         <h4 className="font-semibold mb-2">Risk Assessment</h4>
                                         <div className="flex items-center gap-3">
@@ -381,7 +367,7 @@ export default function PricingAgentClient({ id }: PricingAgentClientProps) {
                                                 {rfp.pricingStrategy?.riskLevel === 'high' && 'Tight timeline or large quantity. Consider premium pricing for risk mitigation.'}
                                             </p>
                                         </div>
-                                    </div>
+                                    </div> */}
 
                                     <div>
                                         <h4 className="font-semibold mb-2">Market Analysis</h4>
@@ -396,7 +382,7 @@ export default function PricingAgentClient({ id }: PricingAgentClientProps) {
                             </AgentCard>
 
                             {/* Pricing Comparison Table */}
-                            <Card className="border-2 border-black bg-white">
+                            {/* <Card className="border-2 border-black bg-white">
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
                                         <TrendingUp className="h-5 w-5" />
@@ -436,7 +422,6 @@ export default function PricingAgentClient({ id }: PricingAgentClientProps) {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {/* Price Per Meter */}
                                                 <tr className="border-b border-gray-100 hover:bg-gray-50">
                                                     <td className="py-3 px-4 font-medium">Price per Meter</td>
                                                     <td className="py-3 px-4 text-center text-lg font-bold text-red-600">
@@ -450,7 +435,6 @@ export default function PricingAgentClient({ id }: PricingAgentClientProps) {
                                                     </td>
                                                 </tr>
 
-                                                {/* Total Value */}
                                                 <tr className="border-b border-gray-100 hover:bg-gray-50">
                                                     <td className="py-3 px-4 font-medium">Total Project Value</td>
                                                     <td className="py-3 px-4 text-center font-semibold">
@@ -464,7 +448,6 @@ export default function PricingAgentClient({ id }: PricingAgentClientProps) {
                                                     </td>
                                                 </tr>
 
-                                                {/* Profit Margin */}
                                                 <tr className="border-b border-gray-100 hover:bg-gray-50">
                                                     <td className="py-3 px-4 font-medium">Profit Margin</td>
                                                     <td className="py-3 px-4 text-center">
@@ -478,7 +461,6 @@ export default function PricingAgentClient({ id }: PricingAgentClientProps) {
                                                     </td>
                                                 </tr>
 
-                                                {/* Estimated Profit */}
                                                 <tr className="border-b border-gray-100 hover:bg-gray-50">
                                                     <td className="py-3 px-4 font-medium">Estimated Profit</td>
                                                     <td className="py-3 px-4 text-center font-semibold text-red-600">
@@ -492,7 +474,6 @@ export default function PricingAgentClient({ id }: PricingAgentClientProps) {
                                                     </td>
                                                 </tr>
 
-                                                {/* Win Probability */}
                                                 <tr className="border-b border-gray-100 hover:bg-gray-50">
                                                     <td className="py-3 px-4 font-medium">Win Probability</td>
                                                     <td className="py-3 px-4 text-center">
@@ -515,7 +496,6 @@ export default function PricingAgentClient({ id }: PricingAgentClientProps) {
                                                     </td>
                                                 </tr>
 
-                                                {/* Risk Level */}
                                                 <tr className="border-b border-gray-100 hover:bg-gray-50">
                                                     <td className="py-3 px-4 font-medium">Risk Level</td>
                                                     <td className="py-3 px-4 text-center">
@@ -529,7 +509,6 @@ export default function PricingAgentClient({ id }: PricingAgentClientProps) {
                                                     </td>
                                                 </tr>
 
-                                                {/* Competitiveness */}
                                                 <tr className="hover:bg-gray-50">
                                                     <td className="py-3 px-4 font-medium">Market Position</td>
                                                     <td className="py-3 px-4 text-center text-sm text-gray-600">
@@ -546,7 +525,6 @@ export default function PricingAgentClient({ id }: PricingAgentClientProps) {
                                         </table>
                                     </div>
 
-                                    {/* Recommendation Box */}
                                     <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-600 rounded-lg">
                                         <div className="flex items-start gap-3">
                                             <div className="bg-green-600 text-white p-2 rounded-full">
@@ -564,7 +542,7 @@ export default function PricingAgentClient({ id }: PricingAgentClientProps) {
                                         </div>
                                     </div>
                                 </CardContent>
-                            </Card>
+                            </Card> */}
 
                             <div className="flex justify-end">
                                 <Button

@@ -2,9 +2,11 @@
 
 import { createContext, useContext, useState, useCallback, ReactNode, useEffect } from "react"
 import { useUser } from "@clerk/nextjs"
+import { useUser as useUserProfile } from "@/contexts/user-context"
 import { RFP } from "@/types"
 import { firebaseDB } from "@/lib/firebase/firebase-db"
 import { DUMMY_RFPS } from "@/data/dummy-rfps"
+import { calculateFitScore } from "@/lib/rfp-matching-service"
 
 interface RFPContextType {
     rfps: RFP[]
@@ -23,6 +25,7 @@ const RFPContext = createContext<RFPContextType | undefined>(undefined)
 
 export function RFPProvider({ children }: { children: ReactNode }) {
     const { user, isLoaded } = useUser()
+    const { profile } = useUserProfile()
     const [rfps, setRfps] = useState<RFP[]>([])
     const [isScanning, setIsScanning] = useState(false)
     const [hasScanned, setHasScanned] = useState(false)
@@ -158,7 +161,13 @@ export function RFPProvider({ children }: { children: ReactNode }) {
                         body: JSON.stringify({
                             count: 10,
                             location: preferences?.location,
-                            organization: preferences?.organization
+                            organization: preferences?.organization,
+                            userProfile: profile ? {
+                                companyName: profile.companyName,
+                                industry: profile.industry,
+                                companySize: profile.companySize,
+                                tenderPreferences: profile.tenderPreferences
+                            } : null
                         })
                     })
 
@@ -171,83 +180,95 @@ export function RFPProvider({ children }: { children: ReactNode }) {
                         // Get existing RFPs to check for duplicates
                         const existingRfps = useFirebase ? await firebaseDB.getRFPs(userId) : rfps
 
-                        const generatedRfps = aiResult.rfps.map((rfp: any, index: number) => ({
-                            ...rfp,
-                            id: `ai-${Date.now()}-${index}`,
-                            isNew: true,
-                            scannedAt: new Date().toISOString(),
-                            // Add comprehensive data for PDF generation
-                            tenderNumber: rfp.tenderNumber || `TN/${new Date().getFullYear()}/${String(Math.floor(Math.random() * 10000)).padStart(4, '0')}`,
-                            scopeOfWork: rfp.scopeOfWork || [
-                                'Supply of materials as per specifications',
-                                'Installation and commissioning at site',
-                                'Testing and quality assurance',
-                                'Training of personnel',
-                                'Warranty support for specified period'
-                            ],
-                            technicalRequirements: rfp.technicalRequirements || [
-                                { description: 'BIS certification for all materials', mandatory: true },
-                                { description: 'Type test reports from NABL accredited labs', mandatory: true },
-                                { description: 'Routine test reports for all items', mandatory: true },
-                                { description: 'ISO 9001:2015 certification', mandatory: false }
-                            ],
-                            testingRequirements: rfp.testingRequirements || [
-                                'Routine Tests as per IS specifications',
-                                'Type Tests at manufacturer\'s works',
-                                'Sample Testing at third-party labs',
-                                'Pre-dispatch Inspection'
-                            ],
-                            termsAndConditions: rfp.termsAndConditions || [
-                                {
-                                    section: 'Payment Terms',
-                                    details: [
-                                        '30% advance payment against bank guarantee',
-                                        '60% on despatch of materials',
-                                        '10% on successful commissioning'
-                                    ]
+                        const generatedRfps = aiResult.rfps.map((rfp: any, index: number) => {
+                            // Calculate fit score based on user profile
+                            const matchResult = profile ? calculateFitScore(rfp, {
+                                companyName: profile.companyName,
+                                industry: profile.industry,
+                                companySize: profile.companySize,
+                                tenderPreferences: profile.tenderPreferences
+                            }) : { score: rfp.fitScore || 50, reasons: [], isMatch: true }
+
+                            return {
+                                ...rfp,
+                                id: `ai-${Date.now()}-${index}`,
+                                isNew: true,
+                                scannedAt: new Date().toISOString(),
+                                fitScore: matchResult.score,
+                                matchReasons: matchResult.reasons,
+                                // Add comprehensive data for PDF generation
+                                tenderNumber: rfp.tenderNumber || `TN/${new Date().getFullYear()}/${String(Math.floor(Math.random() * 10000)).padStart(4, '0')}`,
+                                scopeOfWork: rfp.scopeOfWork || [
+                                    'Supply of materials as per specifications',
+                                    'Installation and commissioning at site',
+                                    'Testing and quality assurance',
+                                    'Training of personnel',
+                                    'Warranty support for specified period'
+                                ],
+                                technicalRequirements: rfp.technicalRequirements || [
+                                    { description: 'BIS certification for all materials', mandatory: true },
+                                    { description: 'Type test reports from NABL accredited labs', mandatory: true },
+                                    { description: 'Routine test reports for all items', mandatory: true },
+                                    { description: 'ISO 9001:2015 certification', mandatory: false }
+                                ],
+                                testingRequirements: rfp.testingRequirements || [
+                                    'Routine Tests as per IS specifications',
+                                    'Type Tests at manufacturer\'s works',
+                                    'Sample Testing at third-party labs',
+                                    'Pre-dispatch Inspection'
+                                ],
+                                termsAndConditions: rfp.termsAndConditions || [
+                                    {
+                                        section: 'Payment Terms',
+                                        details: [
+                                            '30% advance payment against bank guarantee',
+                                            '60% on despatch of materials',
+                                            '10% on successful commissioning'
+                                        ]
+                                    },
+                                    {
+                                        section: 'Delivery Terms',
+                                        details: [
+                                            'Delivery within specified timeline',
+                                            'Penalty for delay as per tender conditions',
+                                            'Free delivery to site'
+                                        ]
+                                    },
+                                    {
+                                        section: 'Warranty',
+                                        details: [
+                                            '24 months from date of commissioning',
+                                            'Free replacement of defective items',
+                                            'Onsite support during warranty period'
+                                        ]
+                                    }
+                                ],
+                                evaluationCriteria: rfp.evaluationCriteria || [
+                                    { criterion: 'Technical Compliance', weightage: 40 },
+                                    { criterion: 'Price', weightage: 35 },
+                                    { criterion: 'Past Performance', weightage: 15 },
+                                    { criterion: 'Delivery Schedule', weightage: 10 }
+                                ],
+                                documentsRequired: rfp.documentsRequired || [
+                                    'Technical bid with detailed specifications',
+                                    'Commercial bid with pricing',
+                                    'EMD in form of DD/BG',
+                                    'Copy of GST registration',
+                                    'Copy of PAN card',
+                                    'Experience certificates',
+                                    'ISO & BIS certificates'
+                                ],
+                                contactPerson: rfp.contactPerson || {
+                                    name: 'Tender Section Officer',
+                                    designation: 'Assistant Engineer',
+                                    email: 'tender@example.gov.in',
+                                    phone: '+91-11-2345-6789'
                                 },
-                                {
-                                    section: 'Delivery Terms',
-                                    details: [
-                                        'Delivery within specified timeline',
-                                        'Penalty for delay as per tender conditions',
-                                        'Free delivery to site'
-                                    ]
-                                },
-                                {
-                                    section: 'Warranty',
-                                    details: [
-                                        '24 months from date of commissioning',
-                                        'Free replacement of defective items',
-                                        'Onsite support during warranty period'
-                                    ]
-                                }
-                            ],
-                            evaluationCriteria: rfp.evaluationCriteria || [
-                                { criterion: 'Technical Compliance', weightage: 40 },
-                                { criterion: 'Price', weightage: 35 },
-                                { criterion: 'Past Performance', weightage: 15 },
-                                { criterion: 'Delivery Schedule', weightage: 10 }
-                            ],
-                            documentsRequired: rfp.documentsRequired || [
-                                'Technical bid with detailed specifications',
-                                'Commercial bid with pricing',
-                                'EMD in form of DD/BG',
-                                'Copy of GST registration',
-                                'Copy of PAN card',
-                                'Experience certificates',
-                                'ISO & BIS certificates'
-                            ],
-                            contactPerson: rfp.contactPerson || {
-                                name: 'Tender Section Officer',
-                                designation: 'Assistant Engineer',
-                                email: 'tender@example.gov.in',
-                                phone: '+91-11-2345-6789'
-                            },
-                            detailedDescription: rfp.detailedDescription || rfp.summary,
-                            warranty: rfp.warranty || '24 months comprehensive warranty from date of commissioning',
-                            deliveryTimeline: rfp.deliveryTimeline || 'Within 60 days from date of order'
-                        }))
+                                detailedDescription: rfp.detailedDescription || rfp.summary,
+                                warranty: rfp.warranty || '24 months comprehensive warranty from date of commissioning',
+                                deliveryTimeline: rfp.deliveryTimeline || 'Within 60 days from date of order'
+                            }
+                        })
 
                         // Filter out duplicates based on title and issuedBy
                         const newRfps = generatedRfps.filter((newRfp: any) => {

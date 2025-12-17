@@ -57,7 +57,8 @@ export default function OnboardingPage() {
         "Retail & E-commerce",
         "Media & Entertainment",
         "Environmental Services",
-        "Security Services"
+        "Security Services",
+        "Paint & Coatings"
     ]
 
     const companySizes = [
@@ -89,7 +90,8 @@ export default function OnboardingPage() {
         "Educational Supplies",
         "Office Supplies",
         "Security Systems",
-        "Environmental Solutions"
+        "Environmental Solutions",
+        "Paint & Coatings"
     ]
 
     const handlePreferenceToggle = (category: string) => {

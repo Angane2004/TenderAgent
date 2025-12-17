@@ -140,7 +140,8 @@ export function Header({ onSearch }: HeaderProps = {}) {
         "Water & Wastewater", "Transportation", "Defense & Aerospace",
         "Agriculture & Farming", "Education & Training", "Financial Services",
         "Real Estate & Property", "Hospitality & Tourism", "Retail & E-commerce",
-        "Media & Entertainment", "Environmental Services", "Security Services"
+        "Media & Entertainment", "Environmental Services", "Security Services",
+        "Paint & Coatings"
     ]
 
     const companySizes = [
@@ -155,7 +156,7 @@ export function Header({ onSearch }: HeaderProps = {}) {
         "Telecommunications", "Oil & Gas Equipment", "Mining Equipment",
         "Water Treatment", "Transportation & Vehicles", "Defense Equipment",
         "Agricultural Equipment", "Educational Supplies", "Office Supplies",
-        "Security Systems", "Environmental Solutions"
+        "Security Systems", "Environmental Solutions", "Paint & Coatings"
     ]
 
     const handleEditClick = () => {

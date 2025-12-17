@@ -123,21 +123,14 @@ export default function SalesAgentClient({ id }: SalesAgentClientProps) {
 
     if (!rfp) {
         return (
-            <div className="flex h-screen items-center justify-center bg-gradient-to-br from-purple-50 via-gray-50 to-blue-50">
-                <div className="h-8 w-8 border-4 border-black border-t-transparent rounded-full animate-spin" />
+            <div className="flex h-screen items-center justify-center bg-gray-50">
+                <div className="h-8 w-8 border-4 border-gray-800 border-t-transparent rounded-full animate-spin" />
             </div>
         )
     }
 
     return (
-        <div className="flex h-screen bg-gradient-to-br from-purple-50 via-gray-50 to-blue-50 relative overflow-hidden">
-            {/* Animated background blobs */}
-            <div className="absolute inset-0 opacity-20 pointer-events-none">
-                <div className="absolute top-20 left-20 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob" />
-                <div className="absolute top-40 right-20 w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000" />
-                <div className="absolute bottom-20 left-1/2 w-96 h-96 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000" />
-            </div>
-
+        <div className="flex h-screen bg-gray-50">
             <Sidebar />
 
             <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -145,16 +138,21 @@ export default function SalesAgentClient({ id }: SalesAgentClientProps) {
 
                 <main className="flex-1 overflow-y-auto p-6 space-y-6">
                     {/* Header */}
-                    <div>
-                        <h1 className="text-3xl font-bold">Sales Discovery Agent</h1>
-                        <p className="text-gray-600 mt-1">Analyzing RFP: {rfp.title}</p>
+                    <div className="border-b border-gray-200 pb-4">
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="p-2 bg-gray-900 rounded-lg">
+                                <Package className="h-5 w-5 text-white" />
+                            </div>
+                            <h1 className="text-2xl font-semibold text-gray-900">Sales Discovery Agent</h1>
+                        </div>
+                        <p className="text-gray-600 ml-12">Analyzing RFP: {rfp.title}</p>
                     </div>
 
                     {/* Processing Stage */}
                     {stage === 'processing' && (
-                        <Card className="border-2 border-black">
+                        <Card className="border border-gray-200 shadow-sm">
                             <CardHeader>
-                                <CardTitle>Processing RFP...</CardTitle>
+                                <CardTitle className="text-gray-900">Processing RFP...</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <AgentLog logs={logs} agentName="Sales Agent" />
@@ -183,56 +181,56 @@ export default function SalesAgentClient({ id }: SalesAgentClientProps) {
                                     </div>
 
                                     {/* Market Analysis */}
-                                    <div className="p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
-                                        <h4 className="font-semibold mb-3 text-blue-900">Market Intelligence</h4>
+                                    <div className="p-4 bg-white rounded-lg border border-gray-200">
+                                        <h4 className="font-medium mb-3 text-gray-900">Market Intelligence</h4>
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
-                                                <p className="text-xs text-blue-700 mb-1">Market Position</p>
-                                                <p className="text-sm font-medium">Established Supplier</p>
+                                                <p className="text-xs text-gray-500 mb-1">Market Position</p>
+                                                <p className="text-sm font-medium text-gray-900">Established Supplier</p>
                                                 <p className="text-xs text-gray-600 mt-1">Strong presence in {rfp.location?.state} region</p>
                                             </div>
                                             <div>
-                                                <p className="text-xs text-blue-700 mb-1">Demand Trend</p>
-                                                <p className="text-sm font-medium">Growing ↗️ +18%</p>
+                                                <p className="text-xs text-gray-500 mb-1">Demand Trend</p>
+                                                <p className="text-sm font-medium text-gray-900">Growing +18%</p>
                                                 <p className="text-xs text-gray-600 mt-1">Infrastructure development driving demand</p>
                                             </div>
                                             <div>
-                                                <p className="text-xs text-blue-700 mb-1">Client Segment</p>
-                                                <p className="text-sm font-medium">Public Sector</p>
+                                                <p className="text-xs text-gray-500 mb-1">Client Segment</p>
+                                                <p className="text-sm font-medium text-gray-900">Public Sector</p>
                                                 <p className="text-xs text-gray-600 mt-1">Government and PSU projects</p>
                                             </div>
                                             <div>
-                                                <p className="text-xs text-blue-700 mb-1">Win Probability</p>
-                                                <p className="text-sm font-medium text-green-600">{rfp.fitScore}% High</p>
+                                                <p className="text-xs text-gray-500 mb-1">Win Probability</p>
+                                                <p className="text-sm font-medium text-gray-900">{rfp.fitScore}% High</p>
                                                 <p className="text-xs text-gray-600 mt-1">Based on past performance</p>
                                             </div>
                                         </div>
                                     </div>
 
                                     {/* Competitive Landscape */}
-                                    <div className="p-4 bg-purple-50 rounded-lg border-2 border-purple-200">
-                                        <h4 className="font-semibold mb-3 text-purple-900">Competitive Analysis</h4>
+                                    <div className="p-4 bg-white rounded-lg border border-gray-200">
+                                        <h4 className="font-medium mb-3 text-gray-900">Competitive Analysis</h4>
                                         <div className="space-y-3">
-                                            <div className="flex items-center justify-between p-2 bg-white rounded border border-purple-200">
+                                            <div className="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-200">
                                                 <div>
-                                                    <p className="text-sm font-medium">Expected Competitors</p>
+                                                    <p className="text-sm font-medium text-gray-900">Expected Competitors</p>
                                                     <p className="text-xs text-gray-600">3-5 major players likely to bid</p>
                                                 </div>
-                                                <Badge variant="outline" className="border-purple-600 text-purple-600">Medium Competition</Badge>
+                                                <Badge variant="outline" className="border-gray-600 text-gray-700">Medium Competition</Badge>
                                             </div>
-                                            <div className="flex items-center justify-between p-2 bg-white rounded border border-purple-200">
+                                            <div className="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-200">
                                                 <div>
-                                                    <p className="text-sm font-medium">Our Competitive Edge</p>
+                                                    <p className="text-sm font-medium text-gray-900">Our Competitive Edge</p>
                                                     <p className="text-xs text-gray-600">Strong certifications + proven track record</p>
                                                 </div>
-                                                <Badge variant="outline" className="border-green-600 text-green-600">Advantage</Badge>
+                                                <Badge variant="outline" className="bg-green-50 border-green-600 text-green-700">Advantage</Badge>
                                             </div>
-                                            <div className="flex items-center justify-between p-2 bg-white rounded border border-purple-200">
+                                            <div className="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-200">
                                                 <div>
-                                                    <p className="text-sm font-medium">Price Sensitivity</p>
+                                                    <p className="text-sm font-medium text-gray-900">Price Sensitivity</p>
                                                     <p className="text-xs text-gray-600">Quality-focused with reasonable budget</p>
                                                 </div>
-                                                <Badge variant="outline" className="border-yellow-600 text-yellow-600">Moderate</Badge>
+                                                <Badge variant="outline" className="border-gray-600 text-gray-700">Moderate</Badge>
                                             </div>
                                         </div>
                                     </div>
@@ -244,7 +242,7 @@ export default function SalesAgentClient({ id }: SalesAgentClientProps) {
                                             <div className="flex flex-wrap gap-2">
                                                 {summary.testingRequired && summary.testingRequired.length > 0 ? (
                                                     summary.testingRequired.map((test: string, idx: number) => (
-                                                        <Badge key={idx} variant="outline" className="border-black">
+                                                        <Badge key={idx} variant="outline" className="border-gray-600 text-gray-700">
                                                             <TestTube className="h-3 w-3 mr-1" />
                                                             {test}
                                                         </Badge>
@@ -259,7 +257,7 @@ export default function SalesAgentClient({ id }: SalesAgentClientProps) {
                                             <div className="flex flex-wrap gap-2">
                                                 {summary.certifications && summary.certifications.length > 0 ? (
                                                     summary.certifications.map((cert: string, idx: number) => (
-                                                        <Badge key={idx} variant="outline" className="border-black">
+                                                        <Badge key={idx} variant="outline" className="border-gray-600 text-gray-700">
                                                             <Package className="h-3 w-3 mr-1" />
                                                             {cert}
                                                         </Badge>
@@ -272,20 +270,20 @@ export default function SalesAgentClient({ id }: SalesAgentClientProps) {
                                     </div>
 
                                     {/* Business Impact */}
-                                    <div className="p-4 bg-green-50 rounded-lg border-2 border-green-200">
-                                        <h4 className="font-semibold mb-3 text-green-900">Strategic Value</h4>
+                                    <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                                        <h4 className="font-medium mb-3 text-gray-900">Strategic Value</h4>
                                         <div className="grid grid-cols-3 gap-4">
                                             <div className="text-center">
-                                                <p className="text-2xl font-bold text-green-700">₹{(rfp.estimatedValue / 10000000).toFixed(2)}Cr</p>
-                                                <p className="text-xs text-gray-600 mt-1">Contract Value</p>
+                                                <p className="text-2xl font-semibold text-gray-900">₹{(rfp.estimatedValue / 10000000).toFixed(2)}Cr</p>
+                                                <p className="text-xs text-gray-500 mt-1">Contract Value</p>
                                             </div>
                                             <div className="text-center">
-                                                <p className="text-2xl font-bold text-green-700">12-18%</p>
-                                                <p className="text-xs text-gray-600 mt-1">Expected Margin</p>
+                                                <p className="text-2xl font-semibold text-gray-900">12-18%</p>
+                                                <p className="text-xs text-gray-500 mt-1">Expected Margin</p>
                                             </div>
                                             <div className="text-center">
-                                                <p className="text-2xl font-bold text-green-700">High</p>
-                                                <p className="text-xs text-gray-600 mt-1">Strategic Importance</p>
+                                                <p className="text-2xl font-semibold text-gray-900">High</p>
+                                                <p className="text-xs text-gray-500 mt-1">Strategic Importance</p>
                                             </div>
                                         </div>
                                     </div>
@@ -298,8 +296,8 @@ export default function SalesAgentClient({ id }: SalesAgentClientProps) {
                                             <p className="text-xs text-gray-500 mt-1">Feasible with current capacity</p>
                                         </div>
                                         <div>
-                                            <h4 className="font-semibold mb-2">Recommendation</h4>
-                                            <Badge className="bg-green-600 text-white">Proceed with Bid</Badge>
+                                            <h4 className="font-semibold mb-2 text-gray-900">Recommendation</h4>
+                                            <Badge className="bg-green-700 text-white">Proceed with Bid</Badge>
                                             <p className="text-xs text-gray-600 mt-1">Strong alignment with business goals</p>
                                         </div>
                                     </div>
@@ -313,7 +311,7 @@ export default function SalesAgentClient({ id }: SalesAgentClientProps) {
                                         setTimeout(() => router.push(`/rfp/${id}/technical-agent`), 300)
                                     }}
                                     disabled={isNavigating}
-                                    className="bg-black text-white hover:bg-gray-800 disabled:opacity-70"
+                                    className="bg-gray-900 text-white hover:bg-gray-800 disabled:opacity-70"
                                 >
                                     {isNavigating ? (
                                         <>
