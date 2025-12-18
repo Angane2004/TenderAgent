@@ -1,0 +1,192 @@
+export interface RFP {
+    id: string
+    riskScore: "low" | "medium" | "high"
+    title: string
+    issuedBy: string
+    summary: string
+    deadline: string
+    estimatedValue?: number
+    fitScore: number
+    certifications: string[]
+    status: 'new' | 'in-progress' | 'completed'
+    submittedAt?: string
+    deleted?: boolean
+    deletedAt?: string
+    
+    // Location and Organization Details
+    location?: {
+        city: string
+        state: string
+        pincode?: string
+    }
+    organizationType?: 'Government' | 'PSU' | 'Private' | 'Municipal' | 'Autonomous Body'
+    organizationCategory?: 'Power Distribution' | 'Railways' | 'Defense' | 'Infrastructure' | 'Manufacturing' | 'Energy' | 'Transport' | 'Other'
+    
+    // Detailed Tender Information
+    tenderNumber?: string
+    publishedDate?: string
+    preBidMeetingDate?: string
+    siteVisitDate?: string
+    detailedDescription?: string
+    scopeOfWork?: string[]
+    
+    specifications: {
+        quantity: number
+        voltage: string
+        size: string
+        insulation?: string
+        conductor?: string
+        armoring?: string
+        standards?: string[]
+    }
+    
+    // Technical Requirements
+    technicalRequirements?: {
+        description: string
+        mandatory: boolean
+    }[]
+    
+    requirements?: string[]
+    deliveryLocation?: string
+    paymentTerms?: string[]
+    deliveryTimeline: string
+    testingRequirements: string[]
+    
+    // Terms and Conditions
+    termsAndConditions?: {
+        section: string
+        details: string[]
+    }[]
+    
+    // Evaluation Criteria
+    evaluationCriteria?: {
+        criterion: string
+        weightage: number
+    }[]
+    
+    // Documents Required
+    documentsRequired?: string[]
+    
+    // Contact Information
+    contactPerson?: {
+        name: string
+        designation: string
+        email: string
+        phone: string
+    }
+    
+    // EMD and Security Details
+    emdAmount?: number
+    performanceGuarantee?: number
+    
+    // Additional Details
+    warranty?: string
+    inspectionAndTesting?: string[]
+    packingAndForwarding?: string
+    
+    // Agent Outputs
+    salesSummary?: {
+        scopeOfSupply: string
+        quantity: string
+        testingRequired: string[]
+        certifications: string[]
+        deliveryTimeline: string
+        status: 'completed' | 'pending'
+    }
+    technicalAnalysis?: {
+        productMatchScore: number
+        compatible: boolean
+        standards: string[]
+        testingCapabilities: string[]
+        status: 'completed' | 'pending'
+    }
+    pricingStrategy?: {
+        recommendedPrice: number
+        aggressivePrice?: number
+        premiumPrice?: number
+        margin: number
+        totalValue: number
+        riskLevel: 'low' | 'medium' | 'high'
+        status: 'completed' | 'pending'
+        paymentTerms?: string
+        itemizedCosts?: {
+            item: string
+            quantity: number
+            unitPrice: number
+            totalPrice: number
+        }[]
+    }
+    finalResponse?: {
+        generatedAt: string
+        submissionId?: string
+        status: 'draft' | 'submitted'
+    }
+}
+
+export interface Product {
+    sku: string
+    name: string
+    category: string
+    specifications: {
+        voltage: string
+        size: string
+        conductor: string
+        insulation: string
+        armoring: string
+        standard: string
+    }
+    certifications: string[]
+    pricePerMeter: number
+    available: boolean
+}
+
+export interface PricingData {
+    sku: string
+    basePrice: number
+    testCosts: {
+        [testName: string]: number
+    }
+    serviceCosts: {
+        [serviceName: string]: number
+    }
+    historicalPrices: {
+        date: string
+        price: number
+    }[]
+}
+
+export interface AgentLog {
+    id: string
+    timestamp: Date
+    agent: 'sales' | 'master' | 'technical' | 'pricing'
+    message: string
+    status: 'processing' | 'completed' | 'error'
+}
+
+export interface SKURecommendation {
+    sku: string
+    matchPercentage: number
+    product: Product
+    gaps: string[]
+    strengths: string[]
+}
+
+export interface PricingBreakdown {
+    sku: string
+    quantity: number
+    unitPrice: number
+    subtotal: number
+    testCosts: number
+    serviceCosts: number
+    total: number
+}
+
+export interface FinalResponse {
+    rfpId: string
+    salesSummary: string
+    technicalRecommendations: SKURecommendation[]
+    pricingBreakdown: PricingBreakdown[]
+    totalCost: number
+    winProbability: number
+    generatedAt: Date
+}

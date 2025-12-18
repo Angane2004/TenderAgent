@@ -1,0 +1,67 @@
+[
+    {
+        "name": "L&T Cables",
+        "recentWins": [
+            "11kV XLPE Cables - MSEDCL",
+            "33kV HT Cables - PGCIL"
+        ],
+        "averageMargin": 18,
+        "marketShare": 22,
+        "strengths": [
+            "Strong brand",
+            "Wide distribution"
+        ],
+        "weaknesses": [
+            "Higher pricing",
+            "Longer delivery times"
+        ]
+    },
+    {
+        "name": "Polycab Wires",
+        "recentWins": [
+            "LT Control Cables - Tata Steel",
+            "Fire Survival Cables - DMRC"
+        ],
+        "averageMargin": 16,
+        "marketShare": 28,
+        "strengths": [
+            "Competitive pricing",
+            "Good quality"
+        ],
+        "weaknesses": [
+            "Limited HV cable range"
+        ]
+    },
+    {
+        "name": "KEI Industries",
+        "recentWins": [
+            "ABC Cables - UPPCL",
+            "11kV Cables - Various"
+        ],
+        "averageMargin": 17,
+        "marketShare": 18,
+        "strengths": [
+            "Fast delivery",
+            "Flexible terms"
+        ],
+        "weaknesses": [
+            "Smaller production capacity"
+        ]
+    },
+    {
+        "name": "Havells India",
+        "recentWins": [
+            "Control Cables - Industrial",
+            "LT Cables - Commercial"
+        ],
+        "averageMargin": 15,
+        "marketShare": 15,
+        "strengths": [
+            "Brand recognition",
+            "Retail presence"
+        ],
+        "weaknesses": [
+            "Focus on retail segment"
+        ]
+    }
+]
