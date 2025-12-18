@@ -1,102 +1,62 @@
-# TenderAgent - AI-Powered RFP Automation Platform
+# TenderAgent  
+AI-Powered RFP Automation Platform 🚀
 
-A comprehensive Next.js web application simulating an intelligent multi-agent system for automating the RFP (Request for Proposal) lifecycle for a wires & cables OEM.
+## EY Techathon 6.0 Hackathon Submission
 
-## Features
+Live Demo: https://tenderagent.netlify.app   
 
-### Core Agent Flows
-- **Sales Agent**: Scans RFPs, extracts specifications, and prepares summaries
-- **Master Agent**: Orchestrates specialized agents and calculates win probability
-- **Technical Agent**: Matches SKUs, analyzes spec gaps, and validates compliance
-- **Pricing Agent**: Calculates costs, analyzes trends, and optimizes pricing scenarios
-- **Final Response**: Generates comprehensive PDF responses
+---
 
-### Enhanced Features
-- Real-time deadline tracking with countdown timers
-- Risk scoring and fit score analysis
-- Historical pricing trend visualization
-- Scenario-based pricing (low/medium/high/optimal margins)
-- Spec gap analyzer with strengths and weaknesses
-- Compliance matrix for standards validation
-- Win probability prediction
-- Profitability analysis
+## Project Summary
+
+TenderAgent automates the end-to-end RFP (Request for Proposal) process for industrial manufacturers such as wires, cables, paints, FMCG, and large OEMs.
+
+The platform uses an **agent-based AI architecture** where specialized agents handle sales discovery, technical specification matching, pricing estimation, and proposal generation. A central Master Agent coordinates these agents to deliver faster, more accurate, and submission-ready tender responses.
+
+The goal is to reduce manual effort, shorten response time, and improve win probability.
+
+---
+
+## What the System Does
+
+- Auto-discovers and parses RFP documents  
+- Matches technical specifications with internal SKUs  
+- Generates pricing scenarios (aggressive, optimal, premium)  
+- Calculates win probability  
+- Produces a ready-to-submit proposal (PDF / Word)  
+
+---
+
+## High-Level Architecture
+
+<img width="7516" height="2940" alt="Architecture Diagram" src="https://github.com/user-attachments/assets/8f93f129-bc54-4329-95a7-2d9202a66e4b" />
+
+---
 
 ## Tech Stack
 
-- **Framework**: Next.js 15 with App Router
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS v3
-- **UI Components**: shadcn/ui (Radix UI primitives)
-- **Charts**: Recharts
-- **Animations**: Framer Motion
-- **PDF Generation**: jsPDF
-- **Icons**: Lucide React
+**Frontend**
+- React (Next.js 15)
+- TypeScript
+- Tailwind CSS
 
-## Getting Started
+**Backend**
+- FastAPI (Python)
+- Agent orchestration using LangGraph / LangChain
 
-### Installation
+**AI & Data**
+- OpenAI / Groq / Ollama (local)
+- Vector search (FAISS)
+- Supabase
+- Playwright & Tavily for scraping
 
-```bash
-npm install
-```
+---
 
-### Development
+## Flow Chart
 
-```bash
-npm run dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+<img width="1558" height="1092" alt="Untitled diagram-2025-12-06-114747" src="https://github.com/user-attachments/assets/9d77380c-6c34-4111-8527-653169bcbbd0" />
 
-### Build
 
-```bash
-npm run build
-npm start
-```
+---
 
-## Project Structure
-
-```
-TenderAI/
-├── app/                          # Next.js app directory
-│   ├── page.tsx                  # Login page
-│   ├── dashboard/                # Sales dashboard
-│   └── rfp/[id]/                 # RFP agent flows
-│       ├── sales-agent/
-│       ├── master-agent/
-│       ├── technical-agent/
-│       ├── pricing-agent/
-│       └── final-response/
-├── components/
-│   ├── ui/                       # shadcn/ui components
-│   ├── agents/                   # Agent-specific components
-│   ├── rfp/                      # RFP-related components
-│   └── layout/                   # Layout components
-├── data/                         # Mock JSON data
-│   ├── rfps.json
-│   ├── products.json
-│   ├── pricing.json
-│   ├── competitors.json
-│   └── standards.json
-├── lib/                          # Utility functions
-└── types/                        # TypeScript definitions
-```
-
-## Demo Credentials
-
-Any email and password will work for the demo login.
-
-## Features Walkthrough
-
-1. **Login**: Animated gradient background with smooth transitions
-2. **Dashboard**: View all RFPs with search, filters, and stats
-3. **Sales Agent**: Simulated RFP analysis with animated logs
-4. **Master Agent**: Orchestration with win probability calculation
-5. **Technical Agent**: SKU matching with compliance matrix
-6. **Pricing Agent**: Cost breakdown with scenario pricing
-7. **Final Response**: Comprehensive summary with PDF download
-
-## License
-
-MIT
